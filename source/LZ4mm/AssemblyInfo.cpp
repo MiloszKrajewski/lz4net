@@ -14,9 +14,9 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyTitleAttribute("LZ4mm")];
 [assembly:AssemblyDescriptionAttribute("LZ4 compression codec (MixedMode)")];
 [assembly:AssemblyConfigurationAttribute("")];
-[assembly:AssemblyCompanyAttribute("Softpark")];
+[assembly:AssemblyCompanyAttribute("Milosz Krajewski")];
 [assembly:AssemblyProductAttribute("LZ4mm")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c) Softpark 2013")];
+[assembly:AssemblyCopyrightAttribute("Copyright (c) 2013, Milosz Krajewski")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
 
@@ -31,7 +31,7 @@ using namespace System::Security::Permissions;
 // You can specify all the value or you can default the Revision and Build Numbers
 // by using the '*' as shown below:
 
-[assembly:AssemblyVersionAttribute("1.0.*")];
+[assembly:AssemblyVersionAttribute("1.0.0.88")];
 
 [assembly:ComVisible(false)];
 

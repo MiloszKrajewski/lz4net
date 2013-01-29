@@ -6,4 +6,5 @@ External.7z
 LZ4.sln.DotSettings.user
 partial-vcxproj.xml
 *.bak
+dll-version.txt
 </Value></Property></Properties></ItemProperties>
