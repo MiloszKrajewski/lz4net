@@ -22,23 +22,6 @@ namespace LZ4.Tests
 
 			Console.WriteLine("Architecture: {0}bit", IntPtr.Size * 8);
 
-			var lz4sharp_compressor32 = new LZ4Sharp.LZ4Compressor32();
-			var lz4sharp_decompressor32 = new LZ4Sharp.LZ4Decompressor32();
-			var lz4sharp_compressor64 = new LZ4Sharp.LZ4Compressor64();
-			var lz4sharp_decompressor64 = new LZ4Sharp.LZ4Decompressor64();
-
-			Func<byte[], int, byte[]> lz4sharp_decode32 = (b, l) => {
-				var output = new byte[l];
-				lz4sharp_decompressor32.DecompressKnownSize(b, output);
-				return output;
-			};
-
-			Func<byte[], int, byte[]> lz4sharp_decode64 = (b, l) => {
-				var output = new byte[l];
-				lz4sharp_decompressor64.DecompressKnownSize(b, output);
-				return output;
-			};
-
 			var compressors = new[] {
 				new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Encode64(b, 0, l)),
 				new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Encode32(b, 0, l)),
@@ -46,8 +29,6 @@ namespace LZ4.Tests
 				new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Encode32(b, 0, l)),
 				new TimedMethod("Unsafe 64", (b, l) => LZ4n.LZ4Codec.Encode64(b, 0, l)),
 				new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Encode32(b, 0, l)),
-				new TimedMethod("LZ4Sharp 64", (b, l) => lz4sharp_compressor64.Compress(b), false),
-				new TimedMethod("LZ4Sharp 32", (b, l) => lz4sharp_compressor32.Compress(b), false),
 				new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Encode64(b, 0, l)),
 				new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Encode32(b, 0, l)),
 			};
@@ -59,8 +40,6 @@ namespace LZ4.Tests
 				new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Decode32(b, 0, b.Length, l)),
 				new TimedMethod("Unsafe 64", (b, l) => LZ4n.LZ4Codec.Decode64(b, 0, b.Length, l)),
 				new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Decode32(b, 0, b.Length, l)),
-				new TimedMethod("LZ4Sharp 64", lz4sharp_decode64),
-				new TimedMethod("LZ4Sharp 32", lz4sharp_decode32),
 				new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l)),
 				new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Decode32(b, 0, b.Length, l)),
 			};

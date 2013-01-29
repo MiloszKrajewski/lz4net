@@ -5,4 +5,5 @@ External.7z
 *.suo
 LZ4.sln.DotSettings.user
 partial-vcxproj.xml
+*.bak
 </Value></Property></Properties></ItemProperties>
