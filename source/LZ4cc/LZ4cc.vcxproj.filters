@@ -61,11 +61,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="app.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>

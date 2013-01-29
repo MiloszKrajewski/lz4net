@@ -210,9 +210,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="app.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
