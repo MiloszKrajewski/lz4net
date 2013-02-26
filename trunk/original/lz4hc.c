@@ -32,6 +32,7 @@
 */
 
 
+#ifndef LZ4_CS_ADAPTER
 //**************************************
 // CPU Feature Detection
 //**************************************
@@ -305,6 +306,7 @@ inline static int LZ4_NbCommonBytes (register U32 val)
 
 #endif
 
+#endif // LZ4_CS_ADAPTER
 
 inline static int LZ4HC_Init (LZ4HC_Data_Structure* hc4, const BYTE* base)
 {
