@@ -25,9 +25,9 @@ private const int MINLENGTH = MFLIMIT + 1;
 private const int MAXD_LOG = 16;
 private const int MAX_DISTANCE = (1 << MAXD_LOG) - 1;
 private const int ML_BITS = 4;
-private const int ML_MASK = (1u << ML_BITS) - 1;
+private const int ML_MASK = (1 << ML_BITS) - 1;
 private const int RUN_BITS = 8 - ML_BITS;
-private const int RUN_MASK = (1u << RUN_BITS) - 1;
+private const int RUN_MASK = (1 << RUN_BITS) - 1;
 private const int STEPSIZE_64 = 8;
 private const int STEPSIZE_32 = 4;
 
@@ -60,34 +60,15 @@ private const int DICTIONARY_LOGSIZE = 16;
 private const int MAXD = 1 << DICTIONARY_LOGSIZE;
 private const int MAXD_MASK = MAXD - 1;
 private const int MAX_DISTANCE = MAXD - 1;
-private const int HASH_LOG = DICTIONARY_LOGSIZE - 1;
-private const int HASHTABLESIZE = 1 << HASH_LOG;
-private const int HASH_MASK = HASHTABLESIZE - 1;
-
+private const int HASH_LOG_HC = DICTIONARY_LOGSIZE - 1;
+private const int HASH_TABLESIZE_HC = 1 << HASH_LOG_HC;
+private const int HASH_MASK_HC = HASH_TABLESIZE_HC - 1;
 private const int MAX_NB_ATTEMPTS = 256;
-
-private const int ML_BITS = 4;
-private const int ML_MASK = (1 << ML_BITS) - 1;
-private const int RUN_BITS = 8 - ML_BITS;
-private const int RUN_MASK = (1 << RUN_BITS) - 1;
-
-private const int COPYLENGTH = 8;
-private const int LASTLITERALS = 5;
-private const int MFLIMIT = COPYLENGTH + MINMATCH;
-private const int MINLENGTH = MFLIMIT + 1;
 private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 
 #define ALLOCATOR(s) (new byte[s])
 #define FREEMEM /* gc */
 #define MEM_INIT(b,v,l) BlockSet(b, l, v)
-
-private class LZ4HC_Data_Structure
-{
-	public byte[] base;
-	public HTYPE hashTable[HASHTABLESIZE];
-	public U16 chainTable[MAXD];
-	public int nextToUpdate;
-};
 
 // end of LZ4HC
 
@@ -115,10 +96,10 @@ private class LZ4HC_Data_Structure
     #define A16(x) (*(ushort*)(x))
 #endif
 
-#define HASHTABLESIZE       HASH_TABLESIZE
-#define HASHLOG64K          HASH64K_LOG
-#define HASH64KTABLESIZE    HASH64K_TABLESIZE
-#define HASH64K_ADJUST      HASH64K_ADJUST
+
+#define HASH_LOG HASH_LOG_HC
+#define HASH_MASK HASH_MASK_HC
+#define HASHTABLESIZE HASH_TABLESIZE_HC
 
 #if LZ4_ARCH64	// 64-bit
     #define STEPSIZE STEPSIZE_64
@@ -218,6 +199,15 @@ private class LZ4HC_Data_Structure
 #define iend_LASTLITERALS_STEPSIZE_1 src_LASTLITERALS_STEPSIZE_1
 #define oend_LASTLITERALS_1 dst_LASTLITERALS_1
 #define oend_LASTLITERALS_3 dst_LASTLITERALS_3
+
+private class LZ4HC_Data_Structure
+{
+	public byte[] base;
+	public HTYPE hashTable[HASHTABLESIZE];
+	public U16 chainTable[MAXD];
+	public int nextToUpdate;
+};
+
 
 // GOGOGO
 #include "..\..\..\original\lz4hc.c"

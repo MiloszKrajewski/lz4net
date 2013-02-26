@@ -13,9 +13,9 @@ private const int MINLENGTH = MFLIMIT + 1;
 private const int MAXD_LOG = 16;
 private const int MAX_DISTANCE = (1 << MAXD_LOG) - 1;
 private const int ML_BITS = 4;
-private const int ML_MASK = (1u << ML_BITS) - 1;
+private const int ML_MASK = (1 << ML_BITS) - 1;
 private const int RUN_BITS = 8 - ML_BITS;
-private const int RUN_MASK = (1u << RUN_BITS) - 1;
+private const int RUN_MASK = (1 << RUN_BITS) - 1;
 private const int STEPSIZE_64 = 8;
 private const int STEPSIZE_32 = 4;
 
@@ -48,35 +48,22 @@ private const int DICTIONARY_LOGSIZE = 16;
 private const int MAXD = 1 << DICTIONARY_LOGSIZE;
 private const int MAXD_MASK = MAXD - 1;
 private const int MAX_DISTANCE = MAXD - 1;
-private const int HASH_LOG = DICTIONARY_LOGSIZE - 1;
-private const int HASHTABLESIZE = 1 << HASH_LOG;
-private const int HASH_MASK = HASHTABLESIZE - 1;
-
+private const int HASH_LOG_HC = DICTIONARY_LOGSIZE - 1;
+private const int HASH_TABLESIZE_HC = 1 << HASH_LOG_HC;
+private const int HASH_MASK_HC = HASH_TABLESIZE_HC - 1;
 private const int MAX_NB_ATTEMPTS = 256;
-
-private const int ML_BITS = 4;
-private const int ML_MASK = (1 << ML_BITS) - 1;
-private const int RUN_BITS = 8 - ML_BITS;
-private const int RUN_MASK = (1 << RUN_BITS) - 1;
-
-private const int COPYLENGTH = 8;
-private const int LASTLITERALS = 5;
-private const int MFLIMIT = COPYLENGTH + MINMATCH;
-private const int MINLENGTH = MFLIMIT + 1;
 private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
-
-
-
-
-
+# 203 "lz4hc_cs_adapter.h"
 private class LZ4HC_Data_Structure
 {
- public byte[] base;
- public HTYPE hashTable[HASHTABLESIZE];
- public U16 chainTable[MAXD];
+ public byte[] src_base;
+ public byte* hashTable[HASH_TABLESIZE_HC];
+ public ushort chainTable[MAXD];
  public int nextToUpdate;
 };
-# 223 "lz4hc_cs_adapter.h"
+
+
+
 # 1 "..\\..\\..\\original\\lz4hc.c" 1
 # 311 "..\\..\\..\\original\\lz4hc.c"
 inline static int LZ4HC_Init (LZ4HC_Data_Structure* hc4, const byte* src_base)
@@ -507,4 +494,4 @@ int LZ4_compressHC(const byte* src,
 
  return result;
 }
-# 224 "lz4hc_cs_adapter.h" 2
+# 214 "lz4hc_cs_adapter.h" 2
