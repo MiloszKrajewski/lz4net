@@ -83,7 +83,7 @@ namespace LZ4
 
 			// refer to: http://lz4net.codeplex.com/wikipage?title=Performance%20Testing
 			// for explanation about this order
-			// feel gree to change preferred order, just don't do it willy-nilly
+			// feel free to change preferred order, just don't do it willy-nilly
 			// back it up with some evidence
 
 			if (IntPtr.Size == 4)

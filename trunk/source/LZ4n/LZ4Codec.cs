@@ -83,6 +83,8 @@ namespace LZ4n
 		private const int MFLIMIT = COPYLENGTH + MINMATCH;
 		private const int MINLENGTH = MFLIMIT + 1;
 		private const int MAXD_LOG = 16;
+		private const int MAXD = 1 << MAXD_LOG;
+		private const int MAXD_MASK = MAXD - 1;
 		private const int MAX_DISTANCE = (1 << MAXD_LOG) - 1;
 		private const int ML_BITS = 4;
 		private const int ML_MASK = (1 << ML_BITS) - 1;
@@ -92,6 +94,7 @@ namespace LZ4n
 		private const int STEPSIZE_32 = 4;
 
 		private const int LZ4_64KLIMIT = (1 << 16) + (MFLIMIT - 1);
+
 		private const int HASH_LOG = MEMORY_USAGE - 2;
 		private const int HASH_TABLESIZE = 1 << HASH_LOG;
 		private const int HASH_ADJUST = (MINMATCH * 8) - HASH_LOG;
@@ -99,6 +102,10 @@ namespace LZ4n
 		private const int HASH64K_LOG = HASH_LOG + 1;
 		private const int HASH64K_TABLESIZE = 1 << HASH64K_LOG;
 		private const int HASH64K_ADJUST = (MINMATCH * 8) - HASH64K_LOG;
+
+		private const int HASHHC_LOG = MAXD_LOG - 1;
+		private const int HASHHC_TABLESIZE = 1 << HASHHC_LOG;
+		private const int HASHHC_MASK = HASHHC_TABLESIZE - 1;
 
 		private static readonly int[] DECODER_TABLE_32 = new[] { 0, 3, 2, 3, 0, 0, 0, 0 };
 		private static readonly int[] DECODER_TABLE_64 = new[] { 0, 0, 0, -1, 0, 1, 2, 3 };
@@ -114,6 +121,9 @@ namespace LZ4n
 			7, 0, 1, 2, 3, 3, 4, 6, 2, 6, 5, 5, 3, 4, 5, 6,
 			7, 1, 2, 4, 6, 4, 4, 5, 7, 2, 6, 5, 7, 6, 7, 7
 		};
+
+		private const int MAX_NB_ATTEMPTS = 256;
+		private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 
 		#endregion
 

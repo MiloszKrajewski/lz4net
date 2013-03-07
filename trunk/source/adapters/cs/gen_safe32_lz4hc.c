@@ -1,63 +1,19 @@
 # 1 "lz4hc_cs_adapter.h"
 # 1 "<command-line>"
 # 1 "lz4hc_cs_adapter.h"
-# 17 "lz4hc_cs_adapter.h"
-private const int MINMATCH = 4;
-private const int HASH_MASK = HASHTABLESIZE - 1;
-private const int SKIPSTRENGTH = NOTCOMPRESSIBLE_DETECTIONLEVEL > 2 ? NOTCOMPRESSIBLE_DETECTIONLEVEL : 2;
-private const int STACKLIMIT = 13;
-private const int COPYLENGTH = 8;
-private const int LASTLITERALS = 5;
-private const int MFLIMIT = COPYLENGTH + MINMATCH;
-private const int MINLENGTH = MFLIMIT + 1;
-private const int MAXD_LOG = 16;
-private const int MAX_DISTANCE = (1 << MAXD_LOG) - 1;
-private const int ML_BITS = 4;
-private const int ML_MASK = (1 << ML_BITS) - 1;
-private const int RUN_BITS = 8 - ML_BITS;
-private const int RUN_MASK = (1 << RUN_BITS) - 1;
-private const int STEPSIZE_64 = 8;
-private const int STEPSIZE_32 = 4;
-
-private const int LZ4_64KLIMIT = (1 << 16) + (MFLIMIT - 1);
-private const int HASH_LOG = MEMORY_USAGE - 2;
-private const int HASH_TABLESIZE = 1 << HASH_LOG;
-private const int HASH_ADJUST = (MINMATCH * 8) - HASH_LOG;
-
-private const int HASH64K_LOG = HASH_LOG + 1;
-private const int HASH64K_TABLESIZE = 1 << HASH64K_LOG;
-private const int HASH64K_ADJUST = (MINMATCH * 8) - HASH64K_LOG;
-
-private static readonly int[] DECODER_TABLE_32 = new int[] { 0, 3, 2, 3, 0, 0, 0, 0 };
-private static readonly int[] DECODER_TABLE_64 = new int[] { 0, 0, 0, -1, 0, 1, 2, 3 };
-
-private static readonly int[] DEBRUIJN_TABLE_32 = new int[] {
-    0, 0, 3, 0, 3, 1, 3, 0, 3, 2, 2, 1, 3, 2, 0, 1,
-    3, 3, 1, 2, 2, 2, 2, 0, 3, 1, 2, 0, 1, 0, 1, 1
-};
-
-private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
-    0, 0, 0, 0, 0, 1, 1, 2, 0, 3, 1, 3, 1, 4, 2, 7,
-    0, 2, 3, 6, 1, 5, 3, 5, 1, 3, 4, 4, 2, 5, 6, 7,
-    7, 0, 1, 2, 3, 3, 4, 6, 2, 6, 5, 5, 3, 4, 5, 6,
-    7, 1, 2, 4, 6, 4, 4, 5, 7, 2, 6, 5, 7, 6, 7, 7
-};
-
-
-private const int DICTIONARY_LOGSIZE = 16;
-private const int MAXD = 1 << DICTIONARY_LOGSIZE;
+# 62 "lz4hc_cs_adapter.h"
+private const int MAXD = 1 << MAXD_LOG;
 private const int MAXD_MASK = MAXD - 1;
-private const int MAX_DISTANCE = MAXD - 1;
-private const int HASH_LOG_HC = DICTIONARY_LOGSIZE - 1;
-private const int HASH_TABLESIZE_HC = 1 << HASH_LOG_HC;
-private const int HASH_MASK_HC = HASH_TABLESIZE_HC - 1;
+private const int HASHHC_LOG = MAXD_LOG - 1;
+private const int HASHHC_TABLESIZE = 1 << HASHHC_LOG;
+private const int HASHHC_MASK = HASHHC_TABLESIZE - 1;
 private const int MAX_NB_ATTEMPTS = 256;
 private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
-# 203 "lz4hc_cs_adapter.h"
+# 204 "lz4hc_cs_adapter.h"
 private class LZ4HC_Data_Structure
 {
  public byte[] src_base;
- public int hashTable[HASH_TABLESIZE_HC];
+ public int hashTable[HASHHC_TABLESIZE];
  public ushort chainTable[MAXD];
  public int nextToUpdate;
 };
@@ -494,4 +450,4 @@ int LZ4_compressHC(const byte* src,
 
  return result;
 }
-# 214 "lz4hc_cs_adapter.h" 2
+# 215 "lz4hc_cs_adapter.h" 2
