@@ -930,7 +930,8 @@ int LZ4_uncompress_unknownOutputSize(
     const BYTE* oend_COPYLENGTH = (oend-COPYLENGTH);
 	const BYTE* iend_LASTLITERALS_3 = (iend-(2+1+LASTLITERALS);
 	const BYTE* iend_LASTLITERALS_1 = (iend-(LASTLITERALS+1));
-    const BYTE* oend-(COPYLENGTH+(STEPSIZE-4)) oend-(COPYLENGTH+(STEPSIZE-4));
+    const BYTE* oend_COPYLENGTH_STEPSIZE_4 = oend-(COPYLENGTH+(STEPSIZE-4));
+    const BYTE* oend_LASTLITERALS = (oend - LASTLITERALS);
 #endif
 
     size_t dec32table[] = {0, 3, 2, 3, 0, 0, 0, 0};
@@ -1016,15 +1017,18 @@ int LZ4_uncompress_unknownOutputSize(
         if unlikely(cpy>oend-(COPYLENGTH+(STEPSIZE-4)))
 #endif
         {
-#ifdef LZ4_
+#ifdef LZ4_MK_OPT
+            if (cpy > oend_LASTLITERALS) goto _output_error;    // Error : last 5 bytes must be literals
+#else
             if (cpy > oend-LASTLITERALS) goto _output_error;    // Error : last 5 bytes must be literals
+#endif
             LZ4_SECURECOPY(ref, op, (oend-COPYLENGTH));
             while(op<cpy) *op++=*ref++;
             op=cpy;
-            if (op == oend) goto _output_error;    // Check EOF (should never happen, since last 5 bytes are supposed to be literals)
             continue;
         }
-        LZ4_SECURECOPY(ref, op, cpy);
+
+        LZ4_WILDCOPY(ref, op, cpy);
         op=cpy;		// correction
     }
 
