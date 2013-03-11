@@ -173,11 +173,19 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
 #define HashTable hash_table
 
 #define matchlimit src_LASTLITERALS
-#define iend_LASTLITERALS_1 src_LASTLITERALS_1
-#define iend_LASTLITERALS_3 src_LASTLITERALS_3
-#define iend_LASTLITERALS_STEPSIZE_1 src_LASTLITERALS_STEPSIZE_1
+#define matchlimit_1 src_LASTLITERALS_1
+#define matchlimit_3 src_LASTLITERALS_3
+#define matchlimit_STEPSIZE_1 src_LASTLITERALS_STEPSIZE_1
 #define oend_LASTLITERALS_1 dst_LASTLITERALS_1
 #define oend_LASTLITERALS_3 dst_LASTLITERALS_3
+
+#define iend_COPYLENGTH src_COPYLENGTH
+#define iend_LASTLITERALS_3 src_LASTLITERALS_3
+#define iend_LASTLITERALS_1 src_LASTLITERALS_1
+#define oend_COPYLENGTH dst_COPYLENGTH
+#define oend_COPYLENGTH_STEPSIZE_4 dst_COPYLENGTH_STEPSIZE_4
+#define oend_LASTLITERALS dst_LASTLITERALS
+#define oend_MFLIMIT dst_MFLIMIT
 
 // GOGOGO
 #include "..\..\..\original\lz4.c"

@@ -42,22 +42,9 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
     7, 0, 1, 2, 3, 3, 4, 6, 2, 6, 5, 5, 3, 4, 5, 6,
     7, 1, 2, 4, 6, 4, 4, 5, 7, 2, 6, 5, 7, 6, 7, 7
 };
-# 183 "lz4_cs_adapter.h"
+# 191 "lz4_cs_adapter.h"
 # 1 "..\\..\\..\\original\\lz4.c" 1
-# 267 "..\\..\\..\\original\\lz4.c"
-static inline int debruijn64[((ulong)((ulong)((register ulong val) & -(register ulong val)) * 0x0218A392CDABBD3FL)) >> 58]
-{
-# 291 "..\\..\\..\\original\\lz4.c"
-    static const int DeBruijnBytePos[64] = { 0, 0, 0, 0, 0, 1, 1, 2, 0, 3, 1, 3, 1, 4, 2, 7, 0, 2, 3, 6, 1, 5, 3, 5, 1, 3, 4, 4, 2, 5, 6, 7, 7, 0, 1, 2, 3, 3, 4, 6, 2, 6, 5, 5, 3, 4, 5, 6, 7, 1, 2, 4, 6, 4, 4, 5, 7, 2, 6, 5, 7, 6, 7, 7 };
-
-    return DeBruijnBytePos[((ulong)((ulong)((long)val & -(long)val) * 0x0218A392CDABBD3F)) >> 58];
-
-
-
-
-
-}
-# 348 "..\\..\\..\\original\\lz4.c"
+# 350 "..\\..\\..\\original\\lz4.c"
 static inline int LZ4_compressCtx(void** ctx,
     const byte* src,
     byte* dst,
@@ -81,36 +68,25 @@ static inline int LZ4_compressCtx(void** ctx,
     byte* const dst_end = dst_p + dst_maxlen;
 
 
-    const byte* src_LASTLITERALS = (src_end - LASTLITERALS);
-    const byte* matchlimit_1 = (src_LASTLITERALS - 1);
-    const byte* matchlimit_3 = (src_LASTLITERALS - 3);
- const byte* matchlimit_STEPSIZE_1 (src_LASTLITERALS - (STEPSIZE_64 - 1));
-    const byte* dst_LASTLITERALS_1 = (dst_end - (1 + LASTLITERALS));
-    const byte* dst_LASTLITERALS_3 = (dst_end - (2 + 1 + LASTLITERALS));
+    const byte* src_LASTLITERALS = src_end - LASTLITERALS;
+    const byte* src_LASTLITERALS_1 = src_LASTLITERALS - 1;
+    const byte* src_LASTLITERALS_3 = src_LASTLITERALS - 3;
+    const byte* src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - (STEPSIZE_64 - 1);
+    const byte* dst_LASTLITERALS_1 = dst_end - (1 + LASTLITERALS);
+    const byte* dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
 
 
 
 
     int length;
-    const int SKIPSTRENGTH = SKIPSTRENGTH;
+
+
+
     uint h_fwd;
 
 
     if (src_len < MINLENGTH) goto _last_literals;
-
-    if (*ctx == NULL)
-    {
-        srt = (struct refTables *) malloc ( sizeof(struct refTables) );
-        *ctx = (void*) srt;
-    }
-    hash_table = (uint*)(srt->hashTable);
-    memset((void*)hash_table, 0, sizeof(srt->hashTable));
-
-
-
-
-
-
+# 406 "..\\..\\..\\original\\lz4.c"
     hash_table[((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST)] = (uint)(src_p - src_base);
     src_p++; h_fwd = ((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST);
 
@@ -165,7 +141,7 @@ static inline int LZ4_compressCtx(void** ctx,
             *dst_p++ = (byte)len;
         }
         else *xxx_token = (length<<ML_BITS);
-# 468 "..\\..\\..\\original\\lz4.c"
+# 473 "..\\..\\..\\original\\lz4.c"
         { byte* e = (dst_p) + (length); { do { (*(ulong*)(dst_p)) = (*(ulong*)(src_anchor)); dst_p += 8; src_anchor += 8; } while (dst_p < e); }; dst_p = e; };
 
 _next_match:
@@ -176,7 +152,7 @@ _next_match:
         src_p+=MINMATCH; xxx_ref+=MINMATCH;
         src_anchor = src_p;
 
-        while (src_p < matchlimit_STEPSIZE_1)
+        while (src_p < src_LASTLITERALS_STEPSIZE_1)
 
 
 
@@ -188,9 +164,9 @@ _next_match:
         }
 
 
-        if ((src_p<matchlimit_3) && ((*(uint*)(xxx_ref)) == (*(uint*)(src_p)))) { src_p+=4; xxx_ref+=4; }
+        if ((src_p<src_LASTLITERALS_3) && ((*(uint*)(xxx_ref)) == (*(uint*)(src_p)))) { src_p+=4; xxx_ref+=4; }
 
-        if ((src_p<matchlimit_1) && ((*(ushort*)(xxx_ref)) == (*(ushort*)(src_p)))) { src_p+=2; xxx_ref+=2; }
+        if ((src_p<src_LASTLITERALS_1) && ((*(ushort*)(xxx_ref)) == (*(ushort*)(src_p)))) { src_p+=2; xxx_ref+=2; }
         if ((src_p<src_LASTLITERALS) && (*xxx_ref == *src_p)) src_p++;
 
 
@@ -226,7 +202,7 @@ _endCount:
 
 
 
-  uint h = ((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST);
+        uint h = ((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST);
         xxx_ref = src_base + hash_table[h];
         hash_table[h] = (uint)(src_p - src_base);
 
@@ -259,7 +235,7 @@ _last_literals:
 
     return (int) (((byte*)dst_p)-dst);
 }
-# 571 "..\\..\\..\\original\\lz4.c"
+# 576 "..\\..\\..\\original\\lz4.c"
 static inline int LZ4_compress64kCtx(void** ctx,
                  const byte* src,
                  byte* dst,
@@ -283,36 +259,25 @@ static inline int LZ4_compress64kCtx(void** ctx,
     byte* const dst_end = dst_p + dst_maxlen;
 
 
-    const byte* src_LASTLITERALS = (src_end - LASTLITERALS);
-    const byte* matchlimit_1 = (src_LASTLITERALS - 1);
-    const byte* matchlimit_3 = (src_LASTLITERALS - 3);
-    const byte* matchlimit_STEPSIZE_1 = (src_LASTLITERALS - (STEPSIZE_64 - 1));
-    const byte* dst_LASTLITERALS_1 = (dst_end - (1 + LASTLITERALS));
-    const byte* dst_LASTLITERALS_3 = (dst_end - (2 + 1 + LASTLITERALS));
+    const byte* src_LASTLITERALS = src_end - LASTLITERALS;
+    const byte* src_LASTLITERALS_1 = src_LASTLITERALS - 1;
+    const byte* src_LASTLITERALS_3 = src_LASTLITERALS - 3;
+    const byte* src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - (STEPSIZE_64 - 1);
+    const byte* dst_LASTLITERALS_1 = dst_end - (1 + LASTLITERALS);
+    const byte* dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
 
 
 
 
     int len, length;
-    const int SKIPSTRENGTH = SKIPSTRENGTH;
+
+
+
     uint h_fwd;
 
 
     if (src_len < MINLENGTH) goto _last_literals;
-
-    if (*ctx == NULL)
-    {
-        srt = (struct refTables *) malloc ( sizeof(struct refTables) );
-        *ctx = (void*) srt;
-    }
-    hash_table = (ushort*)(srt->hashTable);
-    memset((void*)hash_table, 0, sizeof(srt->hashTable));
-
-
-
-
-
-
+# 632 "..\\..\\..\\original\\lz4.c"
     src_p++; h_fwd = ((((*(uint*)(src_p))) * 2654435761u) >> HASH64K_ADJUST);
 
 
@@ -383,7 +348,7 @@ _next_match:
         src_p+=MINMATCH; xxx_ref+=MINMATCH;
         src_anchor = src_p;
 
-        while (src_p<matchlimit_STEPSIZE_1)
+        while (src_p<src_LASTLITERALS_STEPSIZE_1)
 
 
 
@@ -395,9 +360,9 @@ _next_match:
         }
 
 
-        if ((src_p<matchlimit_3) && ((*(uint*)(xxx_ref)) == (*(uint*)(src_p)))) { src_p+=4; xxx_ref+=4; }
+        if ((src_p<src_LASTLITERALS_3) && ((*(uint*)(xxx_ref)) == (*(uint*)(src_p)))) { src_p+=4; xxx_ref+=4; }
 
-        if ((src_p<matchlimit_1) && ((*(ushort*)(xxx_ref)) == (*(ushort*)(src_p)))) { src_p+=2; xxx_ref+=2; }
+        if ((src_p<src_LASTLITERALS_1) && ((*(ushort*)(xxx_ref)) == (*(ushort*)(src_p)))) { src_p+=2; xxx_ref+=2; }
         if ((src_p<src_LASTLITERALS) && (*xxx_ref == *src_p)) src_p++;
 
 
@@ -425,7 +390,7 @@ _endCount:
 
 
 
-  uint h = ((((*(uint*)(src_p))) * 2654435761u) >> HASH64K_ADJUST);
+        uint h = ((((*(uint*)(src_p))) * 2654435761u) >> HASH64K_ADJUST);
         xxx_ref = src_base + hash_table[h];
         hash_table[h] = (ushort)(src_p - src_base);
 
@@ -475,14 +440,13 @@ int LZ4_compress_limitedOutput(const byte* src,
 
 }
 
-
 int LZ4_compress(const byte* src,
- byte* dst,
- int src_len)
+    byte* dst,
+    int src_len)
 {
     return LZ4_compress_limitedOutput(src, dst, src_len, LZ4_compressBound(src_len));
 }
-# 807 "..\\..\\..\\original\\lz4.c"
+# 811 "..\\..\\..\\original\\lz4.c"
 int LZ4_uncompress(const byte* src,
     byte* dst,
     int dst_len)
@@ -496,8 +460,9 @@ int LZ4_uncompress(const byte* src,
     byte* dst_cpy;
 
 
-        const byte* oend_COPYLENGTH = (dst_end - COPYLENGTH);
-        const byte* oend_COPYLENGTH_STEPSIZE_4 = (dst_end-(COPYLENGTH)-(STEPSIZE_64-4));
+  const byte* dst_LASTLITERALS = dst_end - LASTLITERALS;
+        const byte* dst_COPYLENGTH = dst_end - COPYLENGTH;
+        const byte* dst_COPYLENGTH_STEPSIZE_4 = dst_end - COPYLENGTH - (STEPSIZE_64 - 4);
 
 
     uint xxx_token;
@@ -514,11 +479,15 @@ int LZ4_uncompress(const byte* src,
 
 
         xxx_token = *src_p++;
-        if ((length=(xxx_token>>ML_BITS)) == RUN_MASK) { int len; for (;(len=*src_p++)==255;length+=255){} length += len; }
+        if ((length=(xxx_token>>ML_BITS)) == RUN_MASK) { int len; for (;(len=*src_p++)==255;length+=255) { } length += len; }
 
 
         dst_cpy = dst_p+length;
-        if (dst_cpy>dst_end-COPYLENGTH)
+
+        if (dst_cpy>dst_COPYLENGTH)
+
+
+
         {
             if (dst_cpy != dst_end) goto _output_error;
             BlockCopy(src_p, dst_p, (int)(length));
@@ -546,20 +515,25 @@ int LZ4_uncompress(const byte* src,
             dst_p[1] = xxx_ref[1];
             dst_p[2] = xxx_ref[2];
             dst_p[3] = xxx_ref[3];
-   dst_p += 4; xxx_ref += 4; xxx_ref -= dec32table[dst_p-xxx_ref];
+            dst_p += 4; xxx_ref += 4; xxx_ref -= dec32table[dst_p-xxx_ref];
             (*(uint*)(dst_p)) = (*(uint*)(xxx_ref));
-   dst_p += STEPSIZE_64-4; xxx_ref -= dec64;
+            dst_p += STEPSIZE_64-4; xxx_ref -= dec64;
         } else { (*(ulong*)(dst_p)) = (*(ulong*)(xxx_ref)); dst_p += 8; xxx_ref += 8;; }
         dst_cpy = dst_p + length - (STEPSIZE_64-4);
 
 
-        if (dst_cpy > oend_COPYLENGTH_STEPSIZE_4)
+        if (dst_cpy > dst_COPYLENGTH_STEPSIZE_4)
 
 
 
         {
-            if (dst_cpy > dst_end-LASTLITERALS) goto _output_error;
-            if (dst_p < (dst_end-COPYLENGTH)) { do { (*(ulong*)(dst_p)) = (*(ulong*)(xxx_ref)); dst_p += 8; xxx_ref += 8; } while (dst_p < (dst_end-COPYLENGTH)); };
+
+            if (dst_cpy > dst_LASTLITERALS) goto _output_error;
+            if (dst_p < dst_COPYLENGTH) { do { (*(ulong*)(dst_p)) = (*(ulong*)(xxx_ref)); dst_p += 8; xxx_ref += 8; } while (dst_p < dst_COPYLENGTH); };
+
+
+
+
             while(dst_p<dst_cpy) *dst_p++=*xxx_ref++;
             dst_p=dst_cpy;
             continue;
@@ -593,19 +567,18 @@ int LZ4_uncompress_unknownOutputSize(
     byte* dst_cpy;
 
 
-    const byte* iend_COPYLENGTH = (src_end-COPYLENGTH);
- const byte* src_LASTLITERALS_3 = (src_end-(2+1+LASTLITERALS));
- const byte* src_LASTLITERALS_1 = (src_end-(LASTLITERALS+1));
-    const byte* oend_COPYLENGTH = (dst_end-COPYLENGTH);
-    const byte* oend_COPYLENGTH_STEPSIZE_4 = (dst_end-(COPYLENGTH+(STEPSIZE_64-4)));
-    const byte* oend_LASTLITERALS = (dst_end - LASTLITERALS);
- const byte* oend_MFLIMIT = (dst_end - MFLIMIT);
+    const byte* src_COPYLENGTH = (src_end-COPYLENGTH);
+    const byte* src_LASTLITERALS_3 = (src_end-(2+1+LASTLITERALS));
+    const byte* src_LASTLITERALS_1 = (src_end-(LASTLITERALS+1));
+    const byte* dst_COPYLENGTH = (dst_end-COPYLENGTH);
+    const byte* dst_COPYLENGTH_STEPSIZE_4 = (dst_end-(COPYLENGTH+(STEPSIZE_64-4)));
+    const byte* dst_LASTLITERALS = (dst_end - LASTLITERALS);
+    const byte* dst_MFLIMIT = (dst_end - MFLIMIT);
 
 
     int dec32table[] = {0, 3, 2, 3, 0, 0, 0, 0};
 
     int dec64table[] = {0, 0, 0, -1, 0, 1, 2, 3};
-
 
 
 
@@ -628,7 +601,7 @@ int LZ4_uncompress_unknownOutputSize(
 
         dst_cpy = dst_p+length;
 
-        if ((dst_cpy>oend_MFLIMIT) || (src_p+length>src_LASTLITERALS_3))
+        if ((dst_cpy>dst_MFLIMIT) || (src_p+length>src_LASTLITERALS_3))
 
 
 
@@ -675,22 +648,23 @@ int LZ4_uncompress_unknownOutputSize(
             dst_p[3] = xxx_ref[3];
             dst_p += 4; xxx_ref += 4; xxx_ref -= dec32table[dst_p-xxx_ref];
             (*(uint*)(dst_p)) = (*(uint*)(xxx_ref));
-   dst_p += STEPSIZE_64-4; xxx_ref -= dec64;
+            dst_p += STEPSIZE_64-4; xxx_ref -= dec64;
         } else { (*(ulong*)(dst_p)) = (*(ulong*)(xxx_ref)); dst_p += 8; xxx_ref += 8;; }
         dst_cpy = dst_p + length - (STEPSIZE_64-4);
 
 
-        if (dst_cpy>oend_COPYLENGTH_STEPSIZE_4)
+        if (dst_cpy>dst_COPYLENGTH_STEPSIZE_4)
 
 
 
         {
 
-            if (dst_cpy > oend_LASTLITERALS) goto _output_error;
+            if (dst_cpy > dst_LASTLITERALS) goto _output_error;
+            if (dst_p < dst_COPYLENGTH) { do { (*(ulong*)(dst_p)) = (*(ulong*)(xxx_ref)); dst_p += 8; xxx_ref += 8; } while (dst_p < dst_COPYLENGTH); };
 
 
 
-            if (dst_p < (dst_end-COPYLENGTH)) { do { (*(ulong*)(dst_p)) = (*(ulong*)(xxx_ref)); dst_p += 8; xxx_ref += 8; } while (dst_p < (dst_end-COPYLENGTH)); };
+
             while(dst_p<dst_cpy) *dst_p++=*xxx_ref++;
             dst_p=dst_cpy;
             continue;
@@ -707,4 +681,4 @@ int LZ4_uncompress_unknownOutputSize(
 _output_error:
     return (int) (-(((byte*)src_p)-src));
 }
-# 183 "lz4_cs_adapter.h" 2
+# 191 "lz4_cs_adapter.h" 2
