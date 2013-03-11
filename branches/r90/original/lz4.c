@@ -364,20 +364,19 @@ static inline int LZ4_compressCtx(void** ctx,
     const BYTE* const iend = ip + isize;
     const BYTE* const mflimit = iend - MFLIMIT;
 
+    BYTE* op = (BYTE*) dest;
+    BYTE* const oend = op + maxOutputSize;
+
 #ifdef LZ4_MK_OPT
     const BYTE* matchlimit = (iend - LASTLITERALS);
-    const BYTE* iend_LASTLITERALS_1 = (matchlimit - 1);
-    const BYTE* iend_LASTLITERALS_3 = (matchlimit - 3);
-    const BYTE* iend_LASTLITERALS_STEPSIZE_1 = (matchlimit - (STEPSIZE - 1));
-	#define matchlimit_STEPSIZE_1 iend_LASTLITERALS_STEPSIZE_1
+    const BYTE* matchlimit_1 = (matchlimit - 1);
+    const BYTE* matchlimit_3 = (matchlimit - 3);
+	const BYTE* matchlimit_STEPSIZE_1 (matchlimit - (STEPSIZE - 1));
     const BYTE* oend_LASTLITERALS_1 = (oend - (1 + LASTLITERALS));
     const BYTE* oend_LASTLITERALS_3 = (oend - (2 + 1 + LASTLITERALS));
 #else
     #define matchlimit (iend - LASTLITERALS)
 #endif
-
-    BYTE* op = (BYTE*) dest;
-    BYTE* const oend = op + maxOutputSize;
 
     int length;
     const int skipStrength = SKIPSTRENGTH;
@@ -432,9 +431,9 @@ static inline int LZ4_compressCtx(void** ctx,
         length = (int)(ip - anchor);
         token = op++;
 #ifdef LZ4_MK_OPT
-        if unlikely(op + length + (length>>8) > oend_LASTLITERALS_3) return 0; 		// Check output limit
+        if unlikely(op + length + (length>>8) > oend_LASTLITERALS_3) return 0; // Check output limit
 #else
-        if unlikely(op + length + (2 + 1 + LASTLITERALS) + (length>>8) > oend) return 0; 		// Check output limit
+        if unlikely(op + length + (2 + 1 + LASTLITERALS) + (length>>8) > oend) return 0; // Check output limit
 #endif
 #ifdef _MSC_VER
         if (length>=(int)RUN_MASK) 
@@ -526,7 +525,7 @@ _endCount:
 
         // Test next position
 #ifdef LZ4_MK_OPT
-		h = LZ4_HASH_VALUE(ip);
+		U32 h = LZ4_HASH_VALUE(ip);
         ref = base + HashTable[h];
         HashTable[h] = (HTYPE)(ip - base);
 #else
@@ -558,13 +557,7 @@ _last_literals:
 
     // End
     return (int) (((char*)op)-dest);
-
-#ifdef LZ4_MK_OPT
-	#undef matchlimit_STEPSIZE_1
-#endif
 }
-
-
 
 // Note : this function is valid only if isize < LZ4_64KLIMIT
 #ifndef LZ4_CS_ADAPTER
@@ -594,20 +587,19 @@ static inline int LZ4_compress64kCtx(void** ctx,
     const BYTE* const iend = ip + isize;
     const BYTE* const mflimit = iend - MFLIMIT;
 
+    BYTE* op = (BYTE*) dest;
+    BYTE* const oend = op + maxOutputSize;
+
 #ifdef LZ4_MK_OPT
     const BYTE* matchlimit = (iend - LASTLITERALS);
-    const BYTE* iend_LASTLITERALS_1 = (matchlimit - 1);
-    const BYTE* iend_LASTLITERALS_3 = (matchlimit - 3);
-    const BYTE* iend_LASTLITERALS_STEPSIZE_1 = (matchlimit - (STEPSIZE - 1));
-    #define matchlimit_STEPSIZE_1 iend_LASTLITERALS_STEPSIZE_1
+    const BYTE* matchlimit_1 = (matchlimit - 1);
+    const BYTE* matchlimit_3 = (matchlimit - 3);
+    const BYTE* matchlimit_STEPSIZE_1 = (matchlimit - (STEPSIZE - 1));
     const BYTE* oend_LASTLITERALS_1 = (oend - (1 + LASTLITERALS));
     const BYTE* oend_LASTLITERALS_3 = (oend - (2 + 1 + LASTLITERALS));
 #else
     #define matchlimit (iend - LASTLITERALS)
 #endif
-
-    BYTE* op = (BYTE*) dest;
-    BYTE* const oend = op + maxOutputSize;
 
     int len, length;
     const int skipStrength = SKIPSTRENGTH;
@@ -741,7 +733,7 @@ _endCount:
 
         // Test next position
 #ifdef LZ4_MK_OPT
-		h = LZ4_HASH64K_VALUE(ip);
+		U32 h = LZ4_HASH64K_VALUE(ip);
         ref = base + HashTable[h];
         HashTable[h] = (U16)(ip - base);
 #else
@@ -769,10 +761,6 @@ _last_literals:
 
     // End
     return (int) (((char*)op)-dest);
-
-#ifndef LZ4_MK_OPT
-    #undef matchlimit_STEPSIZE_1
-#endif
 }
 
 
@@ -927,11 +915,12 @@ int LZ4_uncompress_unknownOutputSize(
 
 #ifdef LZ4_MK_OPT
     const BYTE* iend_COPYLENGTH = (iend-COPYLENGTH);
-    const BYTE* oend_COPYLENGTH = (oend-COPYLENGTH);
-	const BYTE* iend_LASTLITERALS_3 = (iend-(2+1+LASTLITERALS);
+	const BYTE* iend_LASTLITERALS_3 = (iend-(2+1+LASTLITERALS));
 	const BYTE* iend_LASTLITERALS_1 = (iend-(LASTLITERALS+1));
-    const BYTE* oend_COPYLENGTH_STEPSIZE_4 = oend-(COPYLENGTH+(STEPSIZE-4));
+    const BYTE* oend_COPYLENGTH = (oend-COPYLENGTH);
+    const BYTE* oend_COPYLENGTH_STEPSIZE_4 = (oend-(COPYLENGTH+(STEPSIZE-4)));
     const BYTE* oend_LASTLITERALS = (oend - LASTLITERALS);
+	const BYTE* oend_MFLIMIT = (oend - MFLIMIT);
 #endif
 
     size_t dec32table[] = {0, 3, 2, 3, 0, 0, 0, 0};
@@ -1038,9 +1027,4 @@ int LZ4_uncompress_unknownOutputSize(
     // write overflow error detected
 _output_error:
     return (int) (-(((char*)ip)-source));
-
-#ifndef LZ4_MK_OPT
-    #undef iend_COPYLENGTH
-    #undef oend_COPYLENGTH
-#endif
 }

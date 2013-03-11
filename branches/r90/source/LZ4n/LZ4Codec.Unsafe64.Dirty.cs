@@ -79,149 +79,198 @@ namespace LZ4n
 			int src_len,
 			int dst_maxlen)
 		{
+			// r90
 			fixed (int* debruijn64 = &DEBRUIJN_TABLE_64[0])
 			{
-				byte* src_p = src;
-				byte* src_base = src_p;
-				byte* src_anchor = src_p;
-				byte* src_end = src_p + src_len;
-				byte* src_mflimit = src_end - MFLIMIT;
+				var src_p = src;
+				var src_base = src_p;
+				var src_anchor = src_p;
+				var src_end = src_p + src_len;
+				var src_mflimit = src_end - MFLIMIT;
 
-				byte* dst_p = dst;
-				byte* dst_end = dst_p + dst_maxlen;
+				var dst_p = dst;
+				var dst_end = dst_p + dst_maxlen;
 
-				int len, length;
-				uint h, fwd_h;
+				var src_LASTLITERALS = (src_end - LASTLITERALS);
+				var matchlimit_1 = (src_LASTLITERALS - 1);
+				var matchlimit_3 = (src_LASTLITERALS - 3);
+				var matchlimit_STEPSIZE_1 = (src_LASTLITERALS - (STEPSIZE_64 - 1));
+				var dst_LASTLITERALS_1 = (dst_end - (1 + LASTLITERALS));
+				var dst_LASTLITERALS_3 = (dst_end - (2 + 1 + LASTLITERALS));
 
-				byte* src_end_LASTLITERALS = src_end - LASTLITERALS;
-				byte* src_end_LASTLITERALS_1 = src_end - LASTLITERALS - 1;
-				byte* src_end_LASTLITERALS_3 = src_end - LASTLITERALS - 3;
-				byte* src_end_LASTLITERALS_STEPSIZE_1 = src_end - LASTLITERALS - (STEPSIZE_64 - 1);
-				byte* dst_end_LASTLITERALS_1 = dst_end - LASTLITERALS - 1;
-				byte* dst_end_LASTLITERALS_3 = dst_end - LASTLITERALS - 1 - 2;
+				int length;
+				uint h, h_fwd;
 
 				if (src_len < MINLENGTH) goto _last_literals;
 
 				hash_table[(*(uint*)src_p * 2654435761u) >> HASH_ADJUST] = (uint)(src_p - src_base);
-				src_p++; fwd_h = (*(uint*)src_p * 2654435761u) >> HASH_ADJUST;
+				src_p++;
+				h_fwd = (*(uint*)src_p * 2654435761u) >> HASH_ADJUST;
 
 				while (true)
 				{
-					int findMatchAttempts = (1 << SKIPSTRENGTH) + 3;
-					byte* fwd_p = src_p;
+					var findMatchAttempts = (1 << SKIPSTRENGTH) + 3;
+					var src_p_fwd = src_p;
 					byte* src_ref;
-					byte* token;
+					byte* dst_token;
 
 					do
 					{
-						h = fwd_h;
-						int step = findMatchAttempts++ >> SKIPSTRENGTH;
-						src_p = fwd_p;
-						fwd_p = src_p + step;
+						h = h_fwd;
+						var step = findMatchAttempts++ >> SKIPSTRENGTH;
+						src_p = src_p_fwd;
+						src_p_fwd = src_p + step;
 
-						if (fwd_p > src_mflimit) goto _last_literals;
+						if (src_p_fwd > src_mflimit) goto _last_literals;
 
-						fwd_h = (*(uint*)fwd_p * 2654435761u) >> HASH_ADJUST;
+						h_fwd = ((((*(uint*)(src_p_fwd))) * 2654435761u) >> HASH_ADJUST);
 						src_ref = src_base + hash_table[h];
 						hash_table[h] = (uint)(src_p - src_base);
+					} while ((src_ref < src_p - MAX_DISTANCE) || ((*(uint*)(src_ref)) != (*(uint*)(src_p))));
 
-					} while (src_ref < src_p - MAX_DISTANCE || *(uint*)src_ref != *(uint*)src_p);
-
-					while (src_p > src_anchor && src_ref > src && src_p[-1] == src_ref[-1]) { src_p--; src_ref--; }
+					while ((src_p > src_anchor) && (src_ref > src) && (src_p[-1] == src_ref[-1]))
+					{
+						src_p--;
+						src_ref--;
+					}
 
 					length = (int)(src_p - src_anchor);
-					token = dst_p++;
-					if (dst_p + length + (length >> 8) > dst_end_LASTLITERALS_3) return 0;
+					dst_token = dst_p++;
+
+					if (dst_p + length + (length >> 8) > dst_LASTLITERALS_3) return 0;
+
 					if (length >= RUN_MASK)
 					{
-						*token = RUN_MASK << ML_BITS;
-						len = length - RUN_MASK;
-						for (; len > 254; len -= 255) *dst_p++ = 255;
+						var len = length - RUN_MASK;
+						*dst_token = (RUN_MASK << ML_BITS);
+						if (len > 254)
+						{
+							do
+							{
+								*dst_p++ = 255;
+								len -= 255;
+							} while (len > 254);
+							*dst_p++ = (byte)len;
+							BlockCopy(src_anchor, dst_p, (length));
+							dst_p += length;
+							goto _next_match;
+						}
 						*dst_p++ = (byte)len;
 					}
-					else
+					else *dst_token = (byte)(length << ML_BITS);
 					{
-						*token = (byte)(length << ML_BITS);
-					}
-
-					{
-						byte* e = (dst_p) + (length);
-						do
+						var e = (dst_p) + (length);
 						{
-							*(ulong*)dst_p = *(ulong*)src_anchor; dst_p += 8; src_anchor += 8;
-						} while (dst_p < e);
+							do
+							{
+								(*(ulong*)(dst_p)) = (*(ulong*)(src_anchor));
+								dst_p += 8;
+								src_anchor += 8;
+							} while (dst_p < e);
+						}
 						dst_p = e;
 					}
 
 				_next_match:
-					*(ushort*)dst_p = (ushort)(src_p - src_ref); dst_p += 2;
-
-					src_p += MINMATCH; src_ref += MINMATCH;
-					src_anchor = src_p;
-					while (src_p < src_end_LASTLITERALS_STEPSIZE_1)
 					{
-						long diff = *(long*)src_ref ^ *(long*)src_p;
-						if (diff == 0) { src_p += STEPSIZE_64; src_ref += STEPSIZE_64; continue; }
-						src_p += debruijn64[(ulong)(diff & -diff) * 0x0218A392CDABBD3FL >> 58];
+						(*(ushort*)(dst_p)) = (ushort)(src_p - src_ref);
+						dst_p += 2;
+					}
+
+					src_p += MINMATCH;
+					src_ref += MINMATCH;
+					src_anchor = src_p;
+
+					while (src_p < matchlimit_STEPSIZE_1)
+					{
+						var diff = (*(long*)(src_ref)) ^ (*(long*)(src_p));
+						if (diff == 0)
+						{
+							src_p += STEPSIZE_64;
+							src_ref += STEPSIZE_64;
+							continue;
+						}
+						src_p += debruijn64[(((ulong)((diff) & -(diff)) * 0x0218A392CDABBD3FL)) >> 58];
 						goto _endCount;
 					}
-					if ((src_p < src_end_LASTLITERALS_3) && ((*(uint*)(src_ref)) == (*(uint*)(src_p)))) { src_p += 4; src_ref += 4; }
-					if ((src_p < src_end_LASTLITERALS_1) && ((*(ushort*)(src_ref)) == (*(ushort*)(src_p)))) { src_p += 2; src_ref += 2; }
-					if ((src_p < src_end_LASTLITERALS) && (*src_ref == *src_p)) src_p++;
+
+					if ((src_p < matchlimit_3) && ((*(uint*)(src_ref)) == (*(uint*)(src_p))))
+					{
+						src_p += 4;
+						src_ref += 4;
+					}
+					if ((src_p < matchlimit_1) && ((*(ushort*)(src_ref)) == (*(ushort*)(src_p))))
+					{
+						src_p += 2;
+						src_ref += 2;
+					}
+					if ((src_p < src_LASTLITERALS) && (*src_ref == *src_p)) src_p++;
 
 				_endCount:
-					len = (int)(src_p - src_anchor);
+					length = (int)(src_p - src_anchor);
 
-					if (dst_p + (len >> 8) > dst_end_LASTLITERALS_1) return 0;
+					if (dst_p + (length >> 8) > dst_LASTLITERALS_1) return 0;
 
-					if (len >= ML_MASK)
+					if (length >= ML_MASK)
 					{
-						*token += ML_MASK;
-						len -= ML_MASK;
-						for (; len > 509; len -= 510) { *dst_p++ = 255; *dst_p++ = 255; }
-						if (len > 254) { len -= 255; *dst_p++ = 255; }
-						*dst_p++ = (byte)len;
+						*dst_token += ML_MASK;
+						length -= ML_MASK;
+						for (; length > 509; length -= 510)
+						{
+							*dst_p++ = 255;
+							*dst_p++ = 255;
+						}
+						if (length > 254)
+						{
+							length -= 255;
+							*dst_p++ = 255;
+						}
+						*dst_p++ = (byte)length;
 					}
-					else
+					else *dst_token += (byte)length;
+
+					if (src_p > src_mflimit)
 					{
-						*token += (byte)len;
+						src_anchor = src_p;
+						break;
 					}
 
-					if (src_p > src_mflimit) { src_anchor = src_p; break; }
+					hash_table[(((*(uint*)(src_p - 2))) * 2654435761u) >> HASH_ADJUST] = (uint)(src_p - 2 - src_base);
 
-					hash_table[(*(uint*)(src_p - 2) * 2654435761u) >> HASH_ADJUST] = (uint)(src_p - 2 - src_base);
-
-					h = (*(uint*)src_p * 2654435761u) >> HASH_ADJUST;
+					h = (((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST;
 					src_ref = src_base + hash_table[h];
 					hash_table[h] = (uint)(src_p - src_base);
 
-					if (src_ref > src_p - MAX_DISTANCE - 1 && *(uint*)src_ref == *(uint*)src_p)
+					if ((src_ref > src_p - (MAX_DISTANCE + 1)) && ((*(uint*)(src_ref)) == (*(uint*)(src_p))))
 					{
-						*(token = dst_p++) = 0; goto _next_match;
+						dst_token = dst_p++;
+						*dst_token = 0;
+						goto _next_match;
 					}
 
 					src_anchor = src_p++;
-					fwd_h = (*(uint*)src_p * 2654435761u) >> HASH_ADJUST;
+					h_fwd = ((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST);
 				}
 
 			_last_literals:
-				var lastRun = (int)(src_end - src_anchor);
-				if (dst_p - dst + lastRun + 1 + (lastRun + 255 - RUN_MASK) / 255 > dst_maxlen) return 0;
-				if (lastRun >= RUN_MASK)
 				{
-					*dst_p++ = (RUN_MASK << ML_BITS);
-					lastRun -= RUN_MASK;
-					for (; lastRun > 254; lastRun -= 255) *dst_p++ = 255;
-					*dst_p++ = (byte)lastRun;
-				}
-				else
-				{
-					*dst_p++ = (byte)(lastRun << ML_BITS);
-				}
-				BlockCopy(src_anchor, dst_p, (int)(src_end - src_anchor));
-				dst_p += src_end - src_anchor;
+					var lastRun = (int)(src_end - src_anchor);
 
-				return (int)(dst_p - dst);
+					if (dst_p + lastRun + 1 + ((lastRun + 255 - RUN_MASK) / 255) > dst_end) return 0;
+
+					if (lastRun >= RUN_MASK)
+					{
+						*dst_p++ = (RUN_MASK << ML_BITS);
+						lastRun -= RUN_MASK;
+						for (; lastRun > 254; lastRun -= 255) *dst_p++ = 255;
+						*dst_p++ = (byte)lastRun;
+					}
+					else *dst_p++ = (byte)(lastRun << ML_BITS);
+					BlockCopy(src_anchor, dst_p, (int)(src_end - src_anchor));
+					dst_p += src_end - src_anchor;
+				}
+
+				return (int)((dst_p) - dst);
 			}
 		}
 
@@ -238,140 +287,191 @@ namespace LZ4n
 		{
 			fixed (int* debruijn64 = &DEBRUIJN_TABLE_64[0])
 			{
-				byte* src_p = src;
-				byte* src_anchor = src_p;
-				byte* src_base = src_p;
-				byte* src_end = src_p + src_len;
-				byte* src_mflimit = src_end - MFLIMIT;
+				var src_p = src;
+				var src_anchor = src_p;
+				var src_base = src_p;
+				var src_end = src_p + src_len;
+				var src_mflimit = src_end - MFLIMIT;
 
-				byte* dst_p = dst;
-				byte* dst_end = dst_p + dst_maxlen;
+				var dst_p = dst;
+				var dst_end = dst_p + dst_maxlen;
+
+				var src_LASTLITERALS = (src_end - LASTLITERALS);
+				var matchlimit_1 = (src_LASTLITERALS - 1);
+				var matchlimit_3 = (src_LASTLITERALS - 3);
+				var matchlimit_STEPSIZE_1 = (src_LASTLITERALS - (STEPSIZE_64 - 1));
+				var dst_LASTLITERALS_1 = (dst_end - (1 + LASTLITERALS));
+				var dst_LASTLITERALS_3 = (dst_end - (2 + 1 + LASTLITERALS));
 
 				int len, length;
-				uint h, fwd_h;
+				uint h, h_fwd;
 
-				byte* src_end_LASTLITERALS = src_end - LASTLITERALS;
-				byte* src_end_LASTLITERALS_1 = src_end - LASTLITERALS - 1;
-				byte* src_end_LASTLITERALS_3 = src_end - LASTLITERALS - 3;
-				byte* src_end_LASTLITERALS_STEPSIZE_1 = src_end - LASTLITERALS - (STEPSIZE_64 - 1);
-				byte* dst_end_LASTLITERALS_1 = dst_end - (1 + LASTLITERALS);
-				byte* dst_end_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
 
 				if (src_len < MINLENGTH) goto _last_literals;
 
-				src_p++; fwd_h = (*(uint*)src_p * 2654435761u) >> HASH64K_ADJUST;
+				src_p++;
+				h_fwd = ((((*(uint*)(src_p))) * 2654435761u) >> HASH64K_ADJUST);
 
 				while (true)
 				{
-					int findMatchAttempts = (1 << SKIPSTRENGTH) + 3;
-					byte* fwd_p = src_p;
-					byte* src_ref;
-					byte* token;
+					var findMatchAttempts = (1 << SKIPSTRENGTH) + 3;
+					var src_p_fwd = src_p;
+					byte* xxx_ref;
+					byte* xxx_token;
 
 					do
 					{
-						h = fwd_h;
-						int step = findMatchAttempts++ >> SKIPSTRENGTH;
-						src_p = fwd_p;
-						fwd_p = src_p + step;
+						h = h_fwd;
+						var step = findMatchAttempts++ >> SKIPSTRENGTH;
+						src_p = src_p_fwd;
+						src_p_fwd = src_p + step;
 
-						if (fwd_p > src_mflimit) goto _last_literals;
+						if (src_p_fwd > src_mflimit) goto _last_literals;
 
-						fwd_h = (*(uint*)fwd_p * 2654435761u) >> HASH64K_ADJUST;
-						src_ref = src_base + hash_table[h];
+						h_fwd = ((((*(uint*)(src_p_fwd))) * 2654435761u) >> HASH64K_ADJUST);
+						xxx_ref = src_base + hash_table[h];
 						hash_table[h] = (ushort)(src_p - src_base);
+					} while ((*(uint*)(xxx_ref)) != (*(uint*)(src_p)));
 
-					} while (*(uint*)src_ref != *(uint*)src_p);
-
-					while (src_p > src_anchor && src_ref > src && src_p[-1] == src_ref[-1]) { src_p--; src_ref--; }
+					while ((src_p > src_anchor) && (xxx_ref > src) && (src_p[-1] == xxx_ref[-1]))
+					{
+						src_p--;
+						xxx_ref--;
+					}
 
 					length = (int)(src_p - src_anchor);
-					token = dst_p++;
+					xxx_token = dst_p++;
 
-					if (dst_p + length + (length >> 8) > dst_end_LASTLITERALS_3) return 0;
+					if (dst_p + length + (length >> 8) > dst_LASTLITERALS_3) return 0;
+
 					if (length >= RUN_MASK)
 					{
-						*token = (RUN_MASK << ML_BITS);
 						len = length - RUN_MASK;
-						for (; len > 254; len -= 255) *dst_p++ = 255;
+						*xxx_token = (RUN_MASK << ML_BITS);
+						if (len > 254)
+						{
+							do
+							{
+								*dst_p++ = 255;
+								len -= 255;
+							} while (len > 254);
+							*dst_p++ = (byte)len;
+							BlockCopy(src_anchor, dst_p, (length));
+							dst_p += length;
+							goto _next_match;
+						}
 						*dst_p++ = (byte)len;
 					}
-					else
-					{
-						*token = (byte)(length << ML_BITS);
-					}
+					else *xxx_token = (byte)(length << ML_BITS);
 
-					byte* e = (dst_p) + (length);
-					do
 					{
-						*(ulong*)dst_p = *(ulong*)src_anchor; dst_p += 8; src_anchor += 8;
-					} while (dst_p < e);
-					dst_p = e;
+						var e = (dst_p) + (length);
+						{
+							do
+							{
+								(*(ulong*)(dst_p)) = (*(ulong*)(src_anchor));
+								dst_p += 8;
+								src_anchor += 8;
+							} while (dst_p < e);
+						}
+						dst_p = e;
+					}
 
 				_next_match:
-					*(ushort*)dst_p = (ushort)(src_p - src_ref); dst_p += 2;
+					(*(ushort*)(dst_p)) = (ushort)(src_p - xxx_ref);
+					dst_p += 2;
 
-
-					src_p += MINMATCH; src_ref += MINMATCH;
+					src_p += MINMATCH;
+					xxx_ref += MINMATCH;
 					src_anchor = src_p;
-					while (src_p < src_end_LASTLITERALS_STEPSIZE_1)
+
+					while (src_p < matchlimit_STEPSIZE_1)
 					{
-						long diff = *(long*)src_ref ^ *(long*)src_p;
-						if (diff == 0) { src_p += STEPSIZE_64; src_ref += STEPSIZE_64; continue; }
-						src_p += debruijn64[(ulong)(diff & -(diff)) * 0x0218A392CDABBD3FL >> 58];
+						var diff = (*(long*)(xxx_ref)) ^ (*(long*)(src_p));
+						if (diff == 0)
+						{
+							src_p += STEPSIZE_64;
+							xxx_ref += STEPSIZE_64;
+							continue;
+						}
+						src_p += debruijn64[(((ulong)((diff) & -(diff)) * 0x0218A392CDABBD3FL)) >> 58];
 						goto _endCount;
 					}
-					if (src_p < src_end_LASTLITERALS_3 && *(uint*)src_ref == *(uint*)src_p) { src_p += 4; src_ref += 4; }
-					if (src_p < src_end_LASTLITERALS_1 && *(ushort*)src_ref == *(ushort*)src_p) { src_p += 2; src_ref += 2; }
-					if (src_p < src_end_LASTLITERALS && *src_ref == *src_p) src_p++;
+
+					if ((src_p < matchlimit_3) && ((*(uint*)(xxx_ref)) == (*(uint*)(src_p))))
+					{
+						src_p += 4;
+						xxx_ref += 4;
+					}
+					if ((src_p < matchlimit_1) && ((*(ushort*)(xxx_ref)) == (*(ushort*)(src_p))))
+					{
+						src_p += 2;
+						xxx_ref += 2;
+					}
+					if ((src_p < src_LASTLITERALS) && (*xxx_ref == *src_p)) src_p++;
 
 				_endCount:
 					len = (int)(src_p - src_anchor);
-					if (dst_p + (len >> 8) > dst_end_LASTLITERALS_1) return 0;
+					if (dst_p + (len >> 8) > dst_LASTLITERALS_1) return 0;
+
 					if (len >= ML_MASK)
 					{
-						*token += ML_MASK;
+						*xxx_token += ML_MASK;
 						len -= ML_MASK;
-						for (; len > 509; len -= 510) { *dst_p++ = 255; *dst_p++ = 255; }
-						if (len > 254) { len -= 255; *dst_p++ = 255; }
+						for (; len > 509; len -= 510)
+						{
+							*dst_p++ = 255;
+							*dst_p++ = 255;
+						}
+						if (len > 254)
+						{
+							len -= 255;
+							*dst_p++ = 255;
+						}
 						*dst_p++ = (byte)len;
 					}
-					else
+					else *xxx_token += (byte)len;
+
+					if (src_p > src_mflimit)
 					{
-						*token += (byte)len;
+						src_anchor = src_p;
+						break;
 					}
 
-					if (src_p > src_mflimit) { src_anchor = src_p; break; }
+					hash_table[(((*(uint*)(src_p - 2))) * 2654435761u) >> HASH64K_ADJUST] = (ushort)(src_p - 2 - src_base);
 
-					hash_table[(*(uint*)(src_p - 2) * 2654435761u) >> HASH64K_ADJUST] = (ushort)(src_p - 2 - src_base);
-
-					h = (*(uint*)src_p * 2654435761u) >> HASH64K_ADJUST;
-					src_ref = src_base + hash_table[h];
+					h = ((((*(uint*)(src_p))) * 2654435761u) >> HASH64K_ADJUST);
+					xxx_ref = src_base + hash_table[h];
 					hash_table[h] = (ushort)(src_p - src_base);
-					if (*(uint*)src_ref == *(uint*)src_p) { *(token = dst_p++) = 0; goto _next_match; }
+
+					if ((*(uint*)(xxx_ref)) == (*(uint*)(src_p)))
+					{
+						xxx_token = dst_p++;
+						*xxx_token = 0;
+						goto _next_match;
+					}
 
 					src_anchor = src_p++;
-					fwd_h = (*(uint*)src_p * 2654435761u) >> HASH64K_ADJUST;
+					h_fwd = ((((*(uint*)(src_p))) * 2654435761u) >> HASH64K_ADJUST);
 				}
 
 			_last_literals:
-				var lastRun = (int)(src_end - src_anchor);
-				if (dst_p + lastRun + 1 + (lastRun - RUN_MASK + 255) / 255 > dst_end) return 0;
-				if (lastRun >= RUN_MASK)
 				{
-					*dst_p++ = (RUN_MASK << ML_BITS);
-					lastRun -= RUN_MASK;
-					for (; lastRun > 254; lastRun -= 255) *dst_p++ = 255;
-					*dst_p++ = (byte)lastRun;
+					var lastRun = (int)(src_end - src_anchor);
+					if (dst_p + lastRun + 1 + (lastRun - RUN_MASK + 255) / 255 > dst_end) return 0;
+					if (lastRun >= RUN_MASK)
+					{
+						*dst_p++ = (RUN_MASK << ML_BITS);
+						lastRun -= RUN_MASK;
+						for (; lastRun > 254; lastRun -= 255) *dst_p++ = 255;
+						*dst_p++ = (byte)lastRun;
+					}
+					else *dst_p++ = (byte)(lastRun << ML_BITS);
+					BlockCopy(src_anchor, dst_p, (int)(src_end - src_anchor));
+					dst_p += src_end - src_anchor;
 				}
-				else
-				{
-					*dst_p++ = (byte)(lastRun << ML_BITS);
-				}
-				BlockCopy(src_anchor, dst_p, (int)(src_end - src_anchor));
-				dst_p += src_end - src_anchor;
 
-				return (int)(dst_p - dst);
+				return (int)((dst_p) - dst);
 			}
 		}
 
@@ -387,24 +487,26 @@ namespace LZ4n
 			fixed (int* dec32table = &DECODER_TABLE_32[0])
 			fixed (int* dec64table = &DECODER_TABLE_64[0])
 			{
-				byte* src_p = src;
+				var src_p = src;
 				byte* dst_ref;
 
-				byte* dst_p = dst;
-				byte* dst_end = dst_p + dst_len;
+				var dst_p = dst;
+				var dst_end = dst_p + dst_len;
 				byte* dst_cpy;
 
 				byte token;
 				int len, length;
 
-				byte* dst_end_COPYLENGTH = dst_end - COPYLENGTH;
+				var dst_end_COPYLENGTH = dst_end - COPYLENGTH;
 
 				while (true)
 				{
 					token = *src_p++;
 					if ((length = (token >> ML_BITS)) == RUN_MASK)
 					{
-						for (; (len = *src_p++) == 255; length += 255) { }
+						for (; (len = *src_p++) == 255; length += 255)
+						{
+						}
 						length += len;
 					}
 
@@ -418,36 +520,46 @@ namespace LZ4n
 					}
 					do
 					{
-						*(ulong*)dst_p = *(ulong*)src_p; dst_p += 8; src_p += 8;
+						*(ulong*)dst_p = *(ulong*)src_p;
+						dst_p += 8;
+						src_p += 8;
 					} while (dst_p < dst_cpy);
 					src_p -= dst_p - dst_cpy;
 					dst_p = dst_cpy;
 
 
-					dst_ref = dst_cpy - *(ushort*)src_p; src_p += 2;
+					dst_ref = dst_cpy - *(ushort*)src_p;
+					src_p += 2;
 					if (dst_ref < dst) goto _output_error;
 
 					if ((length = (token & ML_MASK)) == ML_MASK)
 					{
-						for (; *src_p == 255; length += 255) { src_p++; }
+						for (; *src_p == 255; length += 255)
+						{
+							src_p++;
+						}
 						length += *src_p++;
 					}
 
 					if (dst_p - dst_ref < STEPSIZE_64)
 					{
-						int dec64 = dec64table[dst_p - dst_ref];
+						var dec64 = dec64table[dst_p - dst_ref];
 						dst_p[0] = dst_ref[0];
 						dst_p[1] = dst_ref[1];
 						dst_p[2] = dst_ref[2];
 						dst_p[3] = dst_ref[3];
-						dst_p += 4; dst_ref += 4;
+						dst_p += 4;
+						dst_ref += 4;
 						dst_ref -= dec32table[dst_p - dst_ref];
 						*(uint*)dst_p = *(uint*)dst_ref;
-						dst_p += STEPSIZE_64 - 4; dst_ref -= dec64;
+						dst_p += STEPSIZE_64 - 4;
+						dst_ref -= dec64;
 					}
 					else
 					{
-						*(ulong*)dst_p = *(ulong*)dst_ref; dst_p += 8; dst_ref += 8;
+						*(ulong*)dst_p = *(ulong*)dst_ref;
+						dst_p += 8;
+						dst_ref += 8;
 					}
 					dst_cpy = dst_p + length - (STEPSIZE_64 - 4);
 					if (dst_cpy > dst_end_COPYLENGTH)
@@ -455,7 +567,9 @@ namespace LZ4n
 						if (dst_cpy > dst_end) goto _output_error;
 						while (dst_p < dst_end_COPYLENGTH)
 						{
-							*(ulong*)dst_p = *(ulong*)dst_ref; dst_p += 8; dst_ref += 8;
+							*(ulong*)dst_p = *(ulong*)dst_ref;
+							dst_p += 8;
+							dst_ref += 8;
 						}
 						while (dst_p < dst_cpy) *dst_p++ = *dst_ref++;
 						dst_p = dst_cpy;
@@ -464,7 +578,9 @@ namespace LZ4n
 					}
 					while (dst_p < dst_cpy)
 					{
-						*(ulong*)dst_p = *(ulong*)dst_ref; dst_p += 8; dst_ref += 8;
+						*(ulong*)dst_p = *(ulong*)dst_ref;
+						dst_p += 8;
+						dst_ref += 8;
 					}
 					dst_p = dst_cpy;
 				}
@@ -489,16 +605,16 @@ namespace LZ4n
 			fixed (int* dec32table = &DECODER_TABLE_32[0])
 			fixed (int* dec64table = &DECODER_TABLE_64[0])
 			{
-				byte* src_p = src;
-				byte* src_end = src_p + src_len;
+				var src_p = src;
+				var src_end = src_p + src_len;
 				byte* dst_ref;
 
-				byte* dst_p = dst;
-				byte* dst_end = dst_p + dst_maxlen;
+				var dst_p = dst;
+				var dst_end = dst_p + dst_maxlen;
 				byte* dst_cpy;
 
-				byte* dst_end_COPYLENGTH = dst_end - COPYLENGTH;
-				byte* src_end_COPYLENGTH = src_end - COPYLENGTH;
+				var dst_end_COPYLENGTH = dst_end - COPYLENGTH;
+				var src_end_COPYLENGTH = src_end - COPYLENGTH;
 
 				while (src_p < src_end)
 				{
@@ -523,34 +639,45 @@ namespace LZ4n
 					}
 					do
 					{
-						*(ulong*)dst_p = *(ulong*)src_p; dst_p += 8; src_p += 8;
+						*(ulong*)dst_p = *(ulong*)src_p;
+						dst_p += 8;
+						src_p += 8;
 					} while (dst_p < dst_cpy);
 					src_p -= (dst_p - dst_cpy);
 					dst_p = dst_cpy;
 
-					dst_ref = (dst_cpy) - (*(ushort*)(src_p)); src_p += 2;
+					dst_ref = (dst_cpy) - (*(ushort*)(src_p));
+					src_p += 2;
 					if (dst_ref < dst) goto _output_error;
 
-					if ((length = (token & ML_MASK)) == ML_MASK) 
+					if ((length = (token & ML_MASK)) == ML_MASK)
 					{
-						while (src_p < src_end) { length += (len = *src_p++); if (len != 255) break; }
+						while (src_p < src_end)
+						{
+							length += (len = *src_p++);
+							if (len != 255) break;
+						}
 					}
 
 					if (dst_p - dst_ref < STEPSIZE_64)
 					{
-						int dec64 = dec64table[dst_p - dst_ref];
+						var dec64 = dec64table[dst_p - dst_ref];
 						dst_p[0] = dst_ref[0];
 						dst_p[1] = dst_ref[1];
 						dst_p[2] = dst_ref[2];
 						dst_p[3] = dst_ref[3];
-						dst_p += 4; dst_ref += 4;
+						dst_p += 4;
+						dst_ref += 4;
 						dst_ref -= dec32table[dst_p - dst_ref];
 						*(uint*)dst_p = *(uint*)dst_ref;
-						dst_p += STEPSIZE_64 - 4; dst_ref -= dec64;
+						dst_p += STEPSIZE_64 - 4;
+						dst_ref -= dec64;
 					}
-					else 
+					else
 					{
-						*(ulong*)dst_p = *(ulong*)dst_ref; dst_p += 8; dst_ref += 8; 
+						*(ulong*)dst_p = *(ulong*)dst_ref;
+						dst_p += 8;
+						dst_ref += 8;
 					}
 					dst_cpy = dst_p + length - (STEPSIZE_64 - 4);
 					if (dst_cpy > dst_end_COPYLENGTH)
@@ -558,7 +685,9 @@ namespace LZ4n
 						if (dst_cpy > dst_end) goto _output_error;
 						while (dst_p < dst_end_COPYLENGTH)
 						{
-							*(ulong*)dst_p = *(ulong*)dst_ref; dst_p += 8; dst_ref += 8; 
+							*(ulong*)dst_p = *(ulong*)dst_ref;
+							dst_p += 8;
+							dst_ref += 8;
 						}
 						while (dst_p < dst_cpy) *dst_p++ = *dst_ref++;
 						dst_p = dst_cpy;
@@ -567,7 +696,9 @@ namespace LZ4n
 					}
 					while (dst_p < dst_cpy)
 					{
-						*(ulong*)dst_p = *(ulong*)dst_ref; dst_p += 8; dst_ref += 8; 
+						*(ulong*)dst_p = *(ulong*)dst_ref;
+						dst_p += 8;
+						dst_ref += 8;
 					}
 					dst_p = dst_cpy;
 				}

@@ -77,20 +77,19 @@ static inline int LZ4_compressCtx(void** ctx,
     const byte* const src_end = src_p + src_len;
     const byte* const src_mflimit = src_end - MFLIMIT;
 
+    byte* dst_p = (byte*) dst;
+    byte* const dst_end = dst_p + dst_maxlen;
+
 
     const byte* src_LASTLITERALS = (src_end - LASTLITERALS);
-    const byte* src_LASTLITERALS_1 = (src_LASTLITERALS - 1);
-    const byte* src_LASTLITERALS_3 = (src_LASTLITERALS - 3);
-    const byte* src_LASTLITERALS_STEPSIZE_1 = (src_LASTLITERALS - (STEPSIZE_32 - 1));
-
+    const byte* matchlimit_1 = (src_LASTLITERALS - 1);
+    const byte* matchlimit_3 = (src_LASTLITERALS - 3);
+ const byte* matchlimit_STEPSIZE_1 (src_LASTLITERALS - (STEPSIZE_32 - 1));
     const byte* dst_LASTLITERALS_1 = (dst_end - (1 + LASTLITERALS));
     const byte* dst_LASTLITERALS_3 = (dst_end - (2 + 1 + LASTLITERALS));
 
 
 
-
-    byte* dst_p = (byte*) dst;
-    byte* const dst_end = dst_p + dst_maxlen;
 
     int length;
     const int SKIPSTRENGTH = SKIPSTRENGTH;
@@ -166,7 +165,7 @@ static inline int LZ4_compressCtx(void** ctx,
             *dst_p++ = (byte)len;
         }
         else *xxx_token = (length<<ML_BITS);
-# 469 "..\\..\\..\\original\\lz4.c"
+# 468 "..\\..\\..\\original\\lz4.c"
         { byte* e = (dst_p) + (length); { do { (*(uint*)(dst_p)) = (*(uint*)(src_anchor)); dst_p += 4; src_anchor += 4;; (*(uint*)(dst_p)) = (*(uint*)(src_anchor)); dst_p += 4; src_anchor += 4;; } while (dst_p < e); }; dst_p = e; };
 
 _next_match:
@@ -177,7 +176,7 @@ _next_match:
         src_p+=MINMATCH; xxx_ref+=MINMATCH;
         src_anchor = src_p;
 
-        while (src_p < src_LASTLITERALS_STEPSIZE_1)
+        while (src_p < matchlimit_STEPSIZE_1)
 
 
 
@@ -227,7 +226,7 @@ _endCount:
 
 
 
-  h = ((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST);
+  uint h = ((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST);
         xxx_ref = src_base + hash_table[h];
         hash_table[h] = (byte*)(src_p - src_base);
 
@@ -259,12 +258,8 @@ _last_literals:
 
 
     return (int) (((byte*)dst_p)-dst);
-
-
-
-
 }
-# 578 "..\\..\\..\\original\\lz4.c"
+# 571 "..\\..\\..\\original\\lz4.c"
 static inline int LZ4_compress64kCtx(void** ctx,
                  const byte* src,
                  byte* dst,
@@ -284,20 +279,19 @@ static inline int LZ4_compress64kCtx(void** ctx,
     const byte* const src_end = src_p + src_len;
     const byte* const src_mflimit = src_end - MFLIMIT;
 
+    byte* dst_p = (byte*) dst;
+    byte* const dst_end = dst_p + dst_maxlen;
+
 
     const byte* src_LASTLITERALS = (src_end - LASTLITERALS);
-    const byte* src_LASTLITERALS_1 = (src_LASTLITERALS - 1);
-    const byte* src_LASTLITERALS_3 = (src_LASTLITERALS - 3);
-    const byte* src_LASTLITERALS_STEPSIZE_1 = (src_LASTLITERALS - (STEPSIZE_32 - 1));
-
+    const byte* matchlimit_1 = (src_LASTLITERALS - 1);
+    const byte* matchlimit_3 = (src_LASTLITERALS - 3);
+    const byte* matchlimit_STEPSIZE_1 = (src_LASTLITERALS - (STEPSIZE_32 - 1));
     const byte* dst_LASTLITERALS_1 = (dst_end - (1 + LASTLITERALS));
     const byte* dst_LASTLITERALS_3 = (dst_end - (2 + 1 + LASTLITERALS));
 
 
 
-
-    byte* dst_p = (byte*) dst;
-    byte* const dst_end = dst_p + dst_maxlen;
 
     int len, length;
     const int SKIPSTRENGTH = SKIPSTRENGTH;
@@ -389,7 +383,7 @@ _next_match:
         src_p+=MINMATCH; xxx_ref+=MINMATCH;
         src_anchor = src_p;
 
-        while (src_p<src_LASTLITERALS_STEPSIZE_1)
+        while (src_p<matchlimit_STEPSIZE_1)
 
 
 
@@ -431,7 +425,7 @@ _endCount:
 
 
 
-  h = ((((*(uint*)(src_p))) * 2654435761u) >> HASH64K_ADJUST);
+  uint h = ((((*(uint*)(src_p))) * 2654435761u) >> HASH64K_ADJUST);
         xxx_ref = src_base + hash_table[h];
         hash_table[h] = (ushort)(src_p - src_base);
 
@@ -459,10 +453,6 @@ _last_literals:
 
 
     return (int) (((byte*)dst_p)-dst);
-
-
-
-
 }
 
 
@@ -492,7 +482,7 @@ int LZ4_compress(const byte* src,
 {
     return LZ4_compress_limitedOutput(src, dst, src_len, LZ4_compressBound(src_len));
 }
-# 819 "..\\..\\..\\original\\lz4.c"
+# 807 "..\\..\\..\\original\\lz4.c"
 int LZ4_uncompress(const byte* src,
     byte* dst,
     int dst_len)
@@ -604,11 +594,12 @@ int LZ4_uncompress_unknownOutputSize(
 
 
     const byte* iend_COPYLENGTH = (src_end-COPYLENGTH);
-    const byte* oend_COPYLENGTH = (dst_end-COPYLENGTH);
- const byte* src_LASTLITERALS_3 = (src_end-(2+1+LASTLITERALS);
+ const byte* src_LASTLITERALS_3 = (src_end-(2+1+LASTLITERALS));
  const byte* src_LASTLITERALS_1 = (src_end-(LASTLITERALS+1));
-    const byte* oend_COPYLENGTH_STEPSIZE_4 = dst_end-(COPYLENGTH+(STEPSIZE_32-4));
+    const byte* oend_COPYLENGTH = (dst_end-COPYLENGTH);
+    const byte* oend_COPYLENGTH_STEPSIZE_4 = (dst_end-(COPYLENGTH+(STEPSIZE_32-4)));
     const byte* oend_LASTLITERALS = (dst_end - LASTLITERALS);
+ const byte* oend_MFLIMIT = (dst_end - MFLIMIT);
 
 
     int dec32table[] = {0, 3, 2, 3, 0, 0, 0, 0};
@@ -715,10 +706,5 @@ int LZ4_uncompress_unknownOutputSize(
 
 _output_error:
     return (int) (-(((byte*)src_p)-src));
-
-
-
-
-
 }
 # 183 "lz4_cs_adapter.h" 2
