@@ -483,10 +483,11 @@ namespace LZ4n
 			fixed (int* dec32table = &DECODER_TABLE_32[0])
 			fixed (int* dec64table = &DECODER_TABLE_64[0])
 			{
+				// r90
 				byte* src_p = src;
 				byte* xxx_ref;
 
-				byte* dst_p = (byte*)dst;
+				byte* dst_p = dst;
 				byte* dst_end = dst_p + dst_len;
 				byte* dst_cpy;
 
