@@ -11,7 +11,8 @@ namespace LZ4.Tests
 	public class ConformanceTests
 	{
 		private const int MAXIMUM_LENGTH = 1 * 10 * 1024 * 1024; // 10MB
-		private const string TEST_DATA_FOLDER = @"T:\Temp\Corpus";
+		//private const string TEST_DATA_FOLDER = @"T:\Temp\Corpus";
+		private const string TEST_DATA_FOLDER = @"D:\Archive\Corpus";
 
 		[Test]
 		public void TestCompressionConformance()
