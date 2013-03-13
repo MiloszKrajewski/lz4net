@@ -145,6 +145,49 @@ namespace LZ4s
 			}
 		}
 
+		private static int WildCopy(byte[] src, int src_0, byte[] dst, int dst_0, int dst_end)
+		{
+			Debug.Assert(src != dst);
+
+			// deal with this quickly
+			var length = dst_end - dst_0;
+			if (length <= 8)
+			{
+				dst[dst_0] = src[src_0];
+				dst[dst_0 + 1] = src[src_0 + 1];
+				dst[dst_0 + 2] = src[src_0 + 2];
+				dst[dst_0 + 3] = src[src_0 + 3];
+				dst[dst_0 + 4] = src[src_0 + 4];
+				dst[dst_0 + 5] = src[src_0 + 5];
+				dst[dst_0 + 6] = src[src_0 + 6];
+				dst[dst_0 + 7] = src[src_0 + 7];
+				return 8;
+			}
+
+			length = (length + 7) & ~7; // round up to 8
+			if (length < BLOCK_COPY_LIMIT)
+			{
+				do
+				{
+					dst[dst_0] = src[src_0];
+					dst[dst_0 + 1] = src[src_0 + 1];
+					dst[dst_0 + 2] = src[src_0 + 2];
+					dst[dst_0 + 3] = src[src_0 + 3];
+					dst[dst_0 + 4] = src[src_0 + 4];
+					dst[dst_0 + 5] = src[src_0 + 5];
+					dst[dst_0 + 6] = src[src_0 + 6];
+					dst[dst_0 + 7] = src[src_0 + 7];
+					src_0 += 8; dst_0 += 8;
+				} while (dst_0 < dst_end);
+			}
+			else
+			{
+				Buffer.BlockCopy(src, src_0, dst, dst_0, length);
+			}
+
+			return length;
+		}
+
 		// ReSharper restore RedundantCast
 
 		#endregion
@@ -173,7 +216,6 @@ namespace LZ4s
 			buffer[dst] = buffer[src];
 		}
 
-
 		private static int WildCopy32(byte[] src, int src_p, byte[] dst, int dst_p, int dst_end)
 		{
 			Debug.Assert(src != dst, "This implementation of WildCopy is meant to copy between different buffers");
@@ -195,6 +237,56 @@ namespace LZ4s
 			}
 			length = (length + 7) & ~7;
 			BlockCopy(src, src_p, dst, dst_p, length);
+			return length;
+		}
+
+		private static int WildCopy64(byte[] buffer, int src_p, int dst_p, int dst_end)
+		{
+			Debug.Assert(dst_p > src_p, "Copying backwards is not implemented");
+			buffer[dst_p + 7] = buffer[src_p + 7];
+			buffer[dst_p + 6] = buffer[src_p + 6];
+			buffer[dst_p + 5] = buffer[src_p + 5];
+			buffer[dst_p + 4] = buffer[src_p + 4];
+			buffer[dst_p + 3] = buffer[src_p + 3];
+			buffer[dst_p + 2] = buffer[src_p + 2];
+			buffer[dst_p + 1] = buffer[src_p + 1];
+			buffer[dst_p] = buffer[src_p];
+			dst_p += 8;
+
+			if (dst_p < dst_end)
+			{
+				src_p += 8;
+				var diff = dst_p - src_p;
+				var length = (dst_end - dst_p + 7) & ~0x7;
+
+				if (diff >= BLOCK_COPY_LIMIT)
+				{
+
+				}
+			}
+			else
+			{
+				return 8;
+			}
+
+
+			// NOTE: WildCopy and BlindCopy are identical but some mysterious maintanance reason they should be kep separate
+			var length = dst_end - dst_p;
+			if (length <= 8)
+			{
+				// copy 8 bytes anyway
+				buffer[dst_p] = buffer[src_p];
+				buffer[dst_p + 1] = buffer[src_p + 1];
+				buffer[dst_p + 2] = buffer[src_p + 2];
+				buffer[dst_p + 3] = buffer[src_p + 3];
+				buffer[dst_p + 4] = buffer[src_p + 4];
+				buffer[dst_p + 5] = buffer[src_p + 5];
+				buffer[dst_p + 6] = buffer[src_p + 6];
+				buffer[dst_p + 7] = buffer[src_p + 7];
+				return 8;
+			}
+			length = (length + 7) & ~7;
+			BlockCopy(buffer, src_p, buffer, dst_p, length);
 			return length;
 		}
 
