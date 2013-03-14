@@ -38,13 +38,13 @@ namespace LZ4s
 	{
 		#region Byte manipulation
 
-		// ReSharper disable RedundantCast
-
 		internal static void Poke2(byte[] buffer, int offset, ushort value)
 		{
 			buffer[offset] = (byte)value;
 			buffer[offset + 1] = (byte)(value >> 8);
 		}
+
+		// ReSharper disable RedundantCast
 
 		internal static ushort Peek2(byte[] buffer, int offset)
 		{
@@ -102,6 +102,8 @@ namespace LZ4s
 			return value1 ^ value2;
 		}
 
+		// ReSharper restore RedundantCast
+
 		private static bool Equal4(byte[] buffer, int offset1, int offset2)
 		{
 			// return Peek4(buffer, offset1) == Peek4(buffer, offset2);
@@ -118,40 +120,79 @@ namespace LZ4s
 			return buffer[offset1 + 1] == buffer[offset2 + 1];
 		}
 
-		private static void BlockCopy(byte[] src, int src0, byte[] dst, int dst0, int length)
+		private static void BlockCopy(byte[] src, int src_0, byte[] dst, int dst_0, int length)
 		{
 			Debug.Assert(src != dst, "BlockCopy does not handle copying to the same buffer");
 
 			if (length >= BLOCK_COPY_LIMIT)
 			{
-				Buffer.BlockCopy(src, src0, dst, dst0, length);
+				Buffer.BlockCopy(src, src_0, dst, dst_0, length);
 			}
 			else
 			{
+				while (length >= 8)
+				{
+					dst[dst_0] = src[src_0];
+					dst[dst_0 + 1] = src[src_0 + 1];
+					dst[dst_0 + 2] = src[src_0 + 2];
+					dst[dst_0 + 3] = src[src_0 + 3];
+					dst[dst_0 + 4] = src[src_0 + 4];
+					dst[dst_0 + 5] = src[src_0 + 5];
+					dst[dst_0 + 6] = src[src_0 + 6];
+					dst[dst_0 + 7] = src[src_0 + 7];
+					length -= 8; src_0 += 8; dst_0 += 8;
+				}
+
 				while (length >= 4)
 				{
-					dst[dst0] = src[src0];
-					dst[dst0 + 1] = src[src0 + 1];
-					dst[dst0 + 2] = src[src0 + 2];
-					dst[dst0 + 3] = src[src0 + 3];
-					length -= 4; src0 += 4; dst0 += 4;
+					dst[dst_0] = src[src_0];
+					dst[dst_0 + 1] = src[src_0 + 1];
+					dst[dst_0 + 2] = src[src_0 + 2];
+					dst[dst_0 + 3] = src[src_0 + 3];
+					length -= 4; src_0 += 4; dst_0 += 4;
 				}
 
 				while (length > 0)
 				{
-					dst[dst0++] = src[src0++];
+					dst[dst_0++] = src[src_0++];
 					length--;
 				}
 			}
 		}
 
+		#endregion
+
+		#region Byte block copy
+
+		private static void Copy4(byte[] buffer, int src, int dst)
+		{
+			Debug.Assert(dst > src, "Copying backwards is not implemented");
+			buffer[dst + 3] = buffer[src + 3];
+			buffer[dst + 2] = buffer[src + 2];
+			buffer[dst + 1] = buffer[src + 1];
+			buffer[dst] = buffer[src];
+		}
+
+		private static void Copy8(byte[] buffer, int src, int dst)
+		{
+			Debug.Assert(dst > src, "Copying backwards is not implemented");
+			buffer[dst + 7] = buffer[src + 7];
+			buffer[dst + 6] = buffer[src + 6];
+			buffer[dst + 5] = buffer[src + 5];
+			buffer[dst + 4] = buffer[src + 4];
+			buffer[dst + 3] = buffer[src + 3];
+			buffer[dst + 2] = buffer[src + 2];
+			buffer[dst + 1] = buffer[src + 1];
+			buffer[dst] = buffer[src];
+		}
+
 		private static int WildCopy(byte[] src, int src_0, byte[] dst, int dst_0, int dst_end)
 		{
-			Debug.Assert(src != dst);
+			Debug.Assert(src != dst, "This implementation of WildCopy is meant to copy between different buffers");
 
 			// deal with this quickly
-			var length = dst_end - dst_0;
-			if (length <= 8)
+			var len = dst_end - dst_0;
+			if (len <= 8)
 			{
 				dst[dst_0] = src[src_0];
 				dst[dst_0 + 1] = src[src_0 + 1];
@@ -164,8 +205,8 @@ namespace LZ4s
 				return 8;
 			}
 
-			length = (length + 7) & ~7; // round up to 8
-			if (length < BLOCK_COPY_LIMIT)
+			len = (len + 7) & ~7; // round up to 8
+			if (len < BLOCK_COPY_LIMIT)
 			{
 				do
 				{
@@ -182,320 +223,214 @@ namespace LZ4s
 			}
 			else
 			{
-				Buffer.BlockCopy(src, src_0, dst, dst_0, length);
+				Buffer.BlockCopy(src, src_0, dst, dst_0, len);
 			}
 
-			return length;
+			return len;
 		}
 
-		// ReSharper restore RedundantCast
-
-		#endregion
-
-		#region Byte block copy
-
-		private static void Copy4(byte[] buffer, int src, int dst)
+		private static int _WildCopy64x1(byte[] buf, int src_0, int dst_0, int dst_end)
 		{
-			Debug.Assert(dst - src > 0, "Copying backwards is not implemented");
-			buffer[dst + 3] = buffer[src + 3];
-			buffer[dst + 2] = buffer[src + 2];
-			buffer[dst + 1] = buffer[src + 1];
-			buffer[dst] = buffer[src];
-		}
-
-		private static void Copy8(byte[] buffer, int src, int dst)
-		{
-			Debug.Assert(dst - src > 0, "Copying backwards is not implemented");
-			buffer[dst + 7] = buffer[src + 7];
-			buffer[dst + 6] = buffer[src + 6];
-			buffer[dst + 5] = buffer[src + 5];
-			buffer[dst + 4] = buffer[src + 4];
-			buffer[dst + 3] = buffer[src + 3];
-			buffer[dst + 2] = buffer[src + 2];
-			buffer[dst + 1] = buffer[src + 1];
-			buffer[dst] = buffer[src];
-		}
-
-		private static int WildCopy32(byte[] src, int src_p, byte[] dst, int dst_p, int dst_end)
-		{
-			Debug.Assert(src != dst, "This implementation of WildCopy is meant to copy between different buffers");
-
-			// NOTE: WildCopy and BlindCopy are identical but some mysterious maintanance reason they should be kep separate
-			var length = dst_end - dst_p;
-			if (length <= 8)
-			{
-				// copy 8 bytes anyway
-				dst[dst_p] = src[src_p];
-				dst[dst_p + 1] = src[src_p + 1];
-				dst[dst_p + 2] = src[src_p + 2];
-				dst[dst_p + 3] = src[src_p + 3];
-				dst[dst_p + 4] = src[src_p + 4];
-				dst[dst_p + 5] = src[src_p + 5];
-				dst[dst_p + 6] = src[src_p + 6];
-				dst[dst_p + 7] = src[src_p + 7];
-				return 8;
-			}
-			length = (length + 7) & ~7;
-			BlockCopy(src, src_p, dst, dst_p, length);
-			return length;
-		}
-
-		private static int WildCopy64(byte[] buffer, int src_p, int dst_p, int dst_end)
-		{
-			Debug.Assert(dst_p > src_p, "Copying backwards is not implemented");
-			buffer[dst_p + 7] = buffer[src_p + 7];
-			buffer[dst_p + 6] = buffer[src_p + 6];
-			buffer[dst_p + 5] = buffer[src_p + 5];
-			buffer[dst_p + 4] = buffer[src_p + 4];
-			buffer[dst_p + 3] = buffer[src_p + 3];
-			buffer[dst_p + 2] = buffer[src_p + 2];
-			buffer[dst_p + 1] = buffer[src_p + 1];
-			buffer[dst_p] = buffer[src_p];
-			dst_p += 8;
-
-			if (dst_p < dst_end)
-			{
-				src_p += 8;
-				var diff = dst_p - src_p;
-				var length = (dst_end - dst_p + 7) & ~0x7;
-
-				if (diff >= BLOCK_COPY_LIMIT)
-				{
-
-				}
-			}
-			else
-			{
-				return 8;
-			}
-
-
-			// NOTE: WildCopy and BlindCopy are identical but some mysterious maintanance reason they should be kep separate
-			var length = dst_end - dst_p;
-			if (length <= 8)
-			{
-				// copy 8 bytes anyway
-				buffer[dst_p] = buffer[src_p];
-				buffer[dst_p + 1] = buffer[src_p + 1];
-				buffer[dst_p + 2] = buffer[src_p + 2];
-				buffer[dst_p + 3] = buffer[src_p + 3];
-				buffer[dst_p + 4] = buffer[src_p + 4];
-				buffer[dst_p + 5] = buffer[src_p + 5];
-				buffer[dst_p + 6] = buffer[src_p + 6];
-				buffer[dst_p + 7] = buffer[src_p + 7];
-				return 8;
-			}
-			length = (length + 7) & ~7;
-			BlockCopy(buffer, src_p, buffer, dst_p, length);
-			return length;
-		}
-
-		private static int WildCopy64(byte[] src, int src_p, byte[] dst, int dst_p, int dst_end)
-		{
-			Debug.Assert(src != dst, "This implementation of WildCopy is meant to copy between different buffers");
-
-			// NOTE: WildCopy and BlindCopy are identical but some mysterious maintanance reason they should be kep separate
-			var length = dst_end - dst_p;
-			if (length <= 8)
-			{
-				// copy 8 bytes anyway
-				dst[dst_p] = src[src_p];
-				dst[dst_p + 1] = src[src_p + 1];
-				dst[dst_p + 2] = src[src_p + 2];
-				dst[dst_p + 3] = src[src_p + 3];
-				dst[dst_p + 4] = src[src_p + 4];
-				dst[dst_p + 5] = src[src_p + 5];
-				dst[dst_p + 6] = src[src_p + 6];
-				dst[dst_p + 7] = src[src_p + 7];
-				return 8;
-			}
-			length = (length + 7) & ~7;
-			BlockCopy(src, src_p, dst, dst_p, length);
-			return length;
-		}
-
-		// ReSharper disable UnusedMethodReturnValue.Local
-
-		private static int BlindCopy32(byte[] src, int src_p, byte[] dst, int dst_p, int dst_end)
-		{
-			Debug.Assert(src != dst, "This implementation of BlindCopy is meant to copy between different buffers");
-
-			// NOTE: WildCopy and BlindCopy are identical but some mysterious maintanance reason they should be kep separate
-			var length = dst_end - dst_p;
-			if (length <= 8)
-			{
-				// copy 8 bytes anyway
-				dst[dst_p] = src[src_p];
-				dst[dst_p + 1] = src[src_p + 1];
-				dst[dst_p + 2] = src[src_p + 2];
-				dst[dst_p + 3] = src[src_p + 3];
-				dst[dst_p + 4] = src[src_p + 4];
-				dst[dst_p + 5] = src[src_p + 5];
-				dst[dst_p + 6] = src[src_p + 6];
-				dst[dst_p + 7] = src[src_p + 7];
-				return 8;
-			}
-			length = (length + 7) & ~7;
-			BlockCopy(src, src_p, dst, dst_p, length);
-			return length;
-		}
-
-		private static int BlindCopy64(byte[] src, int src_p, byte[] dst, int dst_p, int dst_end)
-		{
-			Debug.Assert(src != dst, "This implementation of BlindCopy is meant to copy between different buffers");
-
-			// NOTE: WildCopy and BlindCopy are identical but some mysterious maintanance reason they should be kep separate
-			var length = dst_end - dst_p;
-			if (length <= 8)
-			{
-				// copy 8 bytes anyway
-				dst[dst_p] = src[src_p];
-				dst[dst_p + 1] = src[src_p + 1];
-				dst[dst_p + 2] = src[src_p + 2];
-				dst[dst_p + 3] = src[src_p + 3];
-				dst[dst_p + 4] = src[src_p + 4];
-				dst[dst_p + 5] = src[src_p + 5];
-				dst[dst_p + 6] = src[src_p + 6];
-				dst[dst_p + 7] = src[src_p + 7];
-				return 8;
-			}
-			length = (length + 7) & ~7;
-			BlockCopy(src, src_p, dst, dst_p, length);
-			return length;
-		}
-
-		// ReSharper restore UnusedMethodReturnValue.Local
-
-		private static int SecureCopy32(byte[] buffer, int src, int dst, int dst_end)
-		{
-			var diff = dst - src;
+			var diff = dst_0 - src_0;
 
 			Debug.Assert(diff > 0, "Copying backwards is not implemented");
-			Debug.Assert(BLOCK_COPY_LIMIT > 4, "This method requires BLOCK_COPY_LIMIT > 4");
+			Debug.Assert(BLOCK_COPY_LIMIT >= 8, "This method requires BLOCK_COPY_LIMIT >= 8");
 
-			var length = (dst_end - dst + 7) & ~7;
-			if (length < 8) length = 8;
-			dst_end = dst + length; // the 'real' end (as it copies in 8 byte chunks)
-			var copied = length; // length can get modified, so we need a copy which is going to be returned
+			int len;
+			if ((len = dst_end - dst_0) <= 0) return 0;
+			int limit; // not initialized here - this variable has multiple purposes
 
-			if (diff >= BLOCK_COPY_LIMIT /* && BLOCK_COPY_LIMIT > 4 */)
+			if (diff >= BLOCK_COPY_LIMIT)
 			{
-				if (diff >= length)
+				if (diff >= len)
 				{
-					Buffer.BlockCopy(buffer, src, buffer, dst, length);
-					return copied; // done
+					Buffer.BlockCopy(buf, src_0, buf, dst_0, len);
+					return len;
 				}
 
-				while (length >= diff)
+				limit = len;
+				do // (len >= diff) - we know this for sure so no need to check
 				{
-					Buffer.BlockCopy(buffer, src, buffer, dst, diff);
-					src += diff; dst += diff; length -= diff;
-				}
-
-				// to be continued...
+					Buffer.BlockCopy(buf, src_0, buf, dst_0, diff);
+					src_0 += diff; dst_0 += diff; limit -= diff;
+				} while (limit >= diff);
 			}
-			else if (diff < 4)
+			else if (diff < STEPSIZE_64)
 			{
-				// NOTE
-				// this is very unlikely to be executed
-				// I even think this is impossible, but if I'm wrong it will save the day
-				while (dst < dst_end)
+				limit = len;
+				while (limit >= 8)
 				{
-					buffer[dst + 3] = buffer[src + 3];
-					buffer[dst + 2] = buffer[src + 2];
-					buffer[dst + 1] = buffer[src + 1];
-					buffer[dst] = buffer[src];
-					src += 4; dst += 4;
+					buf[dst_0 + 7] = buf[src_0 + 7];
+					buf[dst_0 + 6] = buf[src_0 + 6];
+					buf[dst_0 + 5] = buf[src_0 + 5];
+					buf[dst_0 + 4] = buf[src_0 + 4];
+					buf[dst_0 + 3] = buf[src_0 + 3];
+					buf[dst_0 + 2] = buf[src_0 + 2];
+					buf[dst_0 + 1] = buf[src_0 + 1];
+					buf[dst_0] = buf[src_0];
+					src_0 += 8; dst_0 += 8; limit -= 8;
 				}
-
-				return copied; // done
+				while (limit >= 4)
+				{
+					buf[dst_0 + 3] = buf[src_0 + 3];
+					buf[dst_0 + 2] = buf[src_0 + 2];
+					buf[dst_0 + 1] = buf[src_0 + 1];
+					buf[dst_0] = buf[src_0];
+					src_0 += 4; dst_0 += 4; limit -= 4;
+				}
+				while (limit-- > 0)
+				{
+					buf[dst_0++] = buf[src_0++];
+				}
+				return len;
 			}
 
-			// ...it continues here
-
-			while (dst < dst_end)
+			limit = len;
+			while (limit >= 8)
 			{
-				// x8
-				buffer[dst] = buffer[src];
-				buffer[dst + 1] = buffer[src + 1];
-				buffer[dst + 2] = buffer[src + 2];
-				buffer[dst + 3] = buffer[src + 3];
-				buffer[dst + 4] = buffer[src + 4];
-				buffer[dst + 5] = buffer[src + 5];
-				buffer[dst + 6] = buffer[src + 6];
-				buffer[dst + 7] = buffer[src + 7];
-				dst += 8; src += 8;
+				buf[dst_0] = buf[src_0];
+				buf[dst_0 + 1] = buf[src_0 + 1];
+				buf[dst_0 + 2] = buf[src_0 + 2];
+				buf[dst_0 + 3] = buf[src_0 + 3];
+				buf[dst_0 + 4] = buf[src_0 + 4];
+				buf[dst_0 + 5] = buf[src_0 + 5];
+				buf[dst_0 + 6] = buf[src_0 + 6];
+				buf[dst_0 + 7] = buf[src_0 + 7];
+				src_0 += 8; dst_0 += 8; limit -= 8;
 			}
-
-			return copied; // done
+			while (limit >= 4)
+			{
+				buf[dst_0] = buf[src_0];
+				buf[dst_0 + 1] = buf[src_0 + 1];
+				buf[dst_0 + 2] = buf[src_0 + 2];
+				buf[dst_0 + 3] = buf[src_0 + 3];
+				src_0 += 4; dst_0 += 4; limit -= 4;
+			}
+			while (limit-- > 0)
+			{
+				buf[dst_0++] = buf[src_0++];
+			}
+			return len;
 		}
 
-		private static int SecureCopy64(byte[] buffer, int src, int dst, int dst_end)
+		private static int WildCopy64(byte[] buf, int src_0, int dst_0, int dst_end)
 		{
-			var diff = dst - src;
+			var diff = dst_0 - src_0;
 
 			Debug.Assert(diff > 0, "Copying backwards is not implemented");
-			Debug.Assert(BLOCK_COPY_LIMIT > 8, "This method requires BLOCK_COPY_LIMIT > 8");
+			Debug.Assert(BLOCK_COPY_LIMIT >= 8, "This method requires BLOCK_COPY_LIMIT >= 8");
 
-			var length = (dst_end - dst + 7) & ~7;
-			if (length < 8) length = 8;
-			dst_end = dst + length; // the 'real' end (as it copies in 8 byte chunks)
-			var copied = length; // length can get modified, so we need a copy which is going to be returned
+			var len = (dst_end - dst_0 + 7) & ~7;
+			if (len == 0) len = 8;
+			int limit; // not initialized here - this variable has multiple purposes
 
-			if (diff >= BLOCK_COPY_LIMIT /* && BLOCK_COPY_LIMIT > 8 */)
+			if (diff >= BLOCK_COPY_LIMIT)
 			{
-				if (diff >= length)
+				if (diff >= len)
 				{
-					Buffer.BlockCopy(buffer, src, buffer, dst, length);
-					return copied; // done
+					Buffer.BlockCopy(buf, src_0, buf, dst_0, len);
+					return len;
 				}
 
-				while (length >= diff)
+				limit = len;
+				do // (len >= diff) - we know this for sure so no need to check
 				{
-					Buffer.BlockCopy(buffer, src, buffer, dst, diff);
-					src += diff; dst += diff; length -= diff;
+					Buffer.BlockCopy(buf, src_0, buf, dst_0, diff);
+					src_0 += diff; dst_0 += diff; limit -= diff;
+				} while (limit >= diff);
+			}
+			else if (diff < STEPSIZE_64)
+			{
+				limit = dst_0 + len;
+				while (dst_0 < limit)
+				{
+					buf[dst_0 + 7] = buf[src_0 + 7];
+					buf[dst_0 + 6] = buf[src_0 + 6];
+					buf[dst_0 + 5] = buf[src_0 + 5];
+					buf[dst_0 + 4] = buf[src_0 + 4];
+					buf[dst_0 + 3] = buf[src_0 + 3];
+					buf[dst_0 + 2] = buf[src_0 + 2];
+					buf[dst_0 + 1] = buf[src_0 + 1];
+					buf[dst_0] = buf[src_0];
+					src_0 += 8; dst_0 += 8;
+				}
+				return len;
+			}
+
+			limit = dst_0 + len;
+			while (dst_0 < limit)
+			{
+				buf[dst_0] = buf[src_0];
+				buf[dst_0 + 1] = buf[src_0 + 1];
+				buf[dst_0 + 2] = buf[src_0 + 2];
+				buf[dst_0 + 3] = buf[src_0 + 3];
+				buf[dst_0 + 4] = buf[src_0 + 4];
+				buf[dst_0 + 5] = buf[src_0 + 5];
+				buf[dst_0 + 6] = buf[src_0 + 6];
+				buf[dst_0 + 7] = buf[src_0 + 7];
+				src_0 += 8; dst_0 += 8;
+			}
+			return len;
+		}
+
+		private static int WildCopy32(byte[] buf, int src_0, int dst_0, int dst_end)
+		{
+			var diff = dst_0 - src_0;
+
+			Debug.Assert(diff > 0, "Copying backwards is not implemented");
+			Debug.Assert(BLOCK_COPY_LIMIT >= 8, "This method requires BLOCK_COPY_LIMIT >= 8");
+
+			var len = (dst_end - dst_0 + 7) & ~7;
+			if (len == 0) len = 8;
+			int limit; // not initialized here - this variable has multiple purposes
+
+			if (diff >= BLOCK_COPY_LIMIT)
+			{
+				if (diff >= len)
+				{
+					Buffer.BlockCopy(buf, src_0, buf, dst_0, len);
+					return len;
 				}
 
-				// to be continued...
-			}
-			else if (diff < 8)
-			{
-				while (dst < dst_end)
+				limit = len;
+				do // (len >= diff) - we know this for sure so no need to check
 				{
-					// NOTE
-					// this is very unlikely to be executed
-					// I even think this is impossible, but if I'm wrong it will save the day
-					buffer[dst + 7] = buffer[src + 7];
-					buffer[dst + 6] = buffer[src + 6];
-					buffer[dst + 5] = buffer[src + 5];
-					buffer[dst + 4] = buffer[src + 4];
-					buffer[dst + 3] = buffer[src + 3];
-					buffer[dst + 2] = buffer[src + 2];
-					buffer[dst + 1] = buffer[src + 1];
-					buffer[dst] = buffer[src];
-					src += 8; dst += 8;
-				}
-
-				return copied; // done
+					Buffer.BlockCopy(buf, src_0, buf, dst_0, diff);
+					src_0 += diff; dst_0 += diff; limit -= diff;
+				} while (limit >= diff);
 			}
-
-			// ...it continues here
-
-			while (dst < dst_end)
+			else if (diff < STEPSIZE_64)
 			{
-				// x8
-				buffer[dst] = buffer[src];
-				buffer[dst + 1] = buffer[src + 1];
-				buffer[dst + 2] = buffer[src + 2];
-				buffer[dst + 3] = buffer[src + 3];
-				buffer[dst + 4] = buffer[src + 4];
-				buffer[dst + 5] = buffer[src + 5];
-				buffer[dst + 6] = buffer[src + 6];
-				buffer[dst + 7] = buffer[src + 7];
-				dst += 8; src += 8;
+				limit = dst_0 + len;
+				while (dst_0 < limit)
+				{
+					buf[dst_0 + 3] = buf[src_0 + 3];
+					buf[dst_0 + 2] = buf[src_0 + 2];
+					buf[dst_0 + 1] = buf[src_0 + 1];
+					buf[dst_0] = buf[src_0];
+					buf[dst_0 + 7] = buf[src_0 + 7];
+					buf[dst_0 + 6] = buf[src_0 + 6];
+					buf[dst_0 + 5] = buf[src_0 + 5];
+					buf[dst_0 + 4] = buf[src_0 + 4];
+					src_0 += 8; dst_0 += 8;
+				}
+				return len;
 			}
 
-			return copied; // done
+			limit = dst_0 + len;
+			while (dst_0 < limit)
+			{
+				buf[dst_0] = buf[src_0];
+				buf[dst_0 + 1] = buf[src_0 + 1];
+				buf[dst_0 + 2] = buf[src_0 + 2];
+				buf[dst_0 + 3] = buf[src_0 + 3];
+				buf[dst_0 + 4] = buf[src_0 + 4];
+				buf[dst_0 + 5] = buf[src_0 + 5];
+				buf[dst_0 + 6] = buf[src_0 + 6];
+				buf[dst_0 + 7] = buf[src_0 + 7];
+				src_0 += 8; dst_0 += 8;
+			}
+			return len;
 		}
 
 		#endregion

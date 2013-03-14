@@ -142,7 +142,7 @@ static inline int LZ4_compressCtx(void** ctx,
         }
         else *xxx_token = (length<<ML_BITS);
 # 473 "..\\..\\..\\original\\lz4.c"
-        { _i = dst_p + length; src_anchor += BlindCopy32(_, src_anchor, _, dst_p, _i); dst_p = _i; };
+        { _i = dst_p + length; src_anchor += WildCopy32(_, src_anchor, _, dst_p, _i); dst_p = _i; };
 
 _next_match:
 
@@ -338,7 +338,7 @@ static inline int LZ4_compress64kCtx(void** ctx,
 
 
 
-        { _i = dst_p + length; src_anchor += BlindCopy32(_, src_anchor, _, dst_p, _i); dst_p = _i; };
+        { _i = dst_p + length; src_anchor += WildCopy32(_, src_anchor, _, dst_p, _i); dst_p = _i; };
 
 _next_match:
 
@@ -529,7 +529,7 @@ int LZ4_uncompress(const byte* src,
         {
 
             if (dst_cpy > dst_LASTLITERALS) goto _output_error;
-            { _i = SecureCopy32(_, xxx_ref, _, dst_p, dst_COPYLENGTH); xxx_ref += _i; dst_p += _i; };
+            if (dst_p < dst_COPYLENGTH) { _i = WildCopy32(_, xxx_ref, _, dst_p, dst_COPYLENGTH); xxx_ref += _i; dst_p += _i; };
 
 
 
@@ -660,7 +660,7 @@ int LZ4_uncompress_unknownOutputSize(
         {
 
             if (dst_cpy > dst_LASTLITERALS) goto _output_error;
-            { _i = SecureCopy32(_, xxx_ref, _, dst_p, dst_COPYLENGTH); xxx_ref += _i; dst_p += _i; };
+            if (dst_p < dst_COPYLENGTH) { _i = WildCopy32(_, xxx_ref, _, dst_p, dst_COPYLENGTH); xxx_ref += _i; dst_p += _i; };
 
 
 

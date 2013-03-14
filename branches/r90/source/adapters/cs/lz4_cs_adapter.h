@@ -98,20 +98,20 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
     #if LZ4_ARCH64	// 64-bit
         #define LZ4_COPYSTEP(s,d)      	{ Copy8(_, s, d); d += 8; s += 8; }
         #define LZ4_COPYPACKET(s,d)    	{ Copy8(_, s, d); d += 8; s += 8; }
-        #define LZ4_SECURECOPY(s,d,e) 	if (d < e) { _i = SecureCopy64(_, s, _, d, e); s += _i; d += _i; }
+        #define LZ4_SECURECOPY(s,d,e) 	if (d < e) { _i = WildCopy64(_, s, _, d, e); s += _i; d += _i; }
         #define HTYPE                   int
         #define INITBASE(base)          int base = src_0
         #define LZ4_WILDCOPY(s,d,e)     { _i = WildCopy64(_, s, _, d, e); s += _i; d += _i; }
-        #define LZ4_BLINDCOPY(s,d,l)    { _i = d + l; s += BlindCopy64(_, s, _, d, _i); d = _i; }
+        #define LZ4_BLINDCOPY(s,d,l)    { _i = d + l; s += WildCopy64(_, s, _, d, _i); d = _i; }
         #define LZ4_NbCommonBytes(val)  debruijn64[((U64)((U64)((val) & -(val)) * 0x0218A392CDABBD3FL)) >> 58]
     #else // 32-bit
         #define LZ4_COPYSTEP(s,d)       { Copy4(_, s, d); d += 4; s += 4; }
         #define LZ4_COPYPACKET(s,d)     { Copy2x4(_, s, d); d += 8; s += 8; }
-        #define LZ4_SECURECOPY(s,d,e)   { _i = SecureCopy32(_, s, _, d, e); s += _i; d += _i; }
+        #define LZ4_SECURECOPY(s,d,e)   if (d < e) { _i = WildCopy32(_, s, _, d, e); s += _i; d += _i; }
         #define HTYPE                   int
         #define INITBASE(base)          int base = src_0
         #define LZ4_WILDCOPY(s,d,e)     { _i = WildCopy32(_, s, _, d, e); s += _i; d += _i; }
-        #define LZ4_BLINDCOPY(s,d,l)    { _i = d + l; s += BlindCopy32(_, s, _, d, _i); d = _i; }
+        #define LZ4_BLINDCOPY(s,d,l)    { _i = d + l; s += WildCopy32(_, s, _, d, _i); d = _i; }
         #define LZ4_NbCommonBytes(val)  debruijn32[((U32)((U32)((val) & -(val)) * 0x077CB531u)) >> 27]
     #endif
     #define LZ4_WRITE_LITTLEENDIAN_16(p,v)  { Poke2(_, p, v); p += 2; }

@@ -51,20 +51,20 @@ namespace LZ4s
 
 			// ---- preprocessed source start here ----
 
-			int src_p = src_0;
-			int src_base = src_0;
-			int src_anchor = src_p;
-			int src_end = src_p + src_len;
-			int src_mflimit = src_end - MFLIMIT;
+			var src_p = src_0;
+			var src_base = src_0;
+			var src_anchor = src_p;
+			var src_end = src_p + src_len;
+			var src_mflimit = src_end - MFLIMIT;
 
-			int dst_p = dst_0;
-			int dst_end = dst_p + dst_maxlen;
+			var dst_p = dst_0;
+			var dst_end = dst_p + dst_maxlen;
 
-			int src_LASTLITERALS = src_end - LASTLITERALS;
-			int src_LASTLITERALS_1 = src_LASTLITERALS - 1;
-			int src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - STEPSIZE_32 + 1;
-			int dst_LASTLITERALS_1 = dst_end - 1 - LASTLITERALS;
-			int dst_LASTLITERALS_3 = dst_end - 2 - 1 - LASTLITERALS;
+			var src_LASTLITERALS = src_end - LASTLITERALS;
+			var src_LASTLITERALS_1 = src_LASTLITERALS - 1;
+			var src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - STEPSIZE_32 + 1;
+			var dst_LASTLITERALS_1 = dst_end - 1 - LASTLITERALS;
+			var dst_LASTLITERALS_3 = dst_end - 2 - 1 - LASTLITERALS;
 
 			int len, length;
 			uint h, h_fwd;
@@ -72,19 +72,20 @@ namespace LZ4s
 			if (src_len < MINLENGTH) goto _last_literals;
 
 			hash_table[(Peek4(src, src_p) * 2654435761u) >> HASH_ADJUST] = src_p - src_base;
-			src_p++; h_fwd = (Peek4(src, src_p) * 2654435761u) >> HASH_ADJUST;
+			src_p++;
+			h_fwd = (Peek4(src, src_p) * 2654435761u) >> HASH_ADJUST;
 
 			while (true)
 			{
-				int findMatchAttempts = (1 << SKIPSTRENGTH) + 3;
-				int src_p_fwd = src_p;
+				var findMatchAttempts = (1 << SKIPSTRENGTH) + 3;
+				var src_p_fwd = src_p;
 				int src_ref;
 				int dst_token;
 
 				do
 				{
 					h = h_fwd;
-					int step = findMatchAttempts++ >> SKIPSTRENGTH;
+					var step = findMatchAttempts++ >> SKIPSTRENGTH;
 					src_p = src_p_fwd;
 					src_p_fwd = src_p + step;
 
@@ -93,10 +94,13 @@ namespace LZ4s
 					h_fwd = (Peek4(src, src_p_fwd) * 2654435761u) >> HASH_ADJUST;
 					src_ref = src_base + hash_table[h];
 					hash_table[h] = src_p - src_base;
-
 				} while (src_ref < src_p - MAX_DISTANCE || !Equal4(src, src_ref, src_p));
 
-				while (src_p > src_anchor && src_ref > src_0 && src[src_p - 1] == src[src_ref - 1]) { src_p--; src_ref--; }
+				while (src_p > src_anchor && src_ref > src_0 && src[src_p - 1] == src[src_ref - 1])
+				{
+					src_p--;
+					src_ref--;
+				}
 
 				length = src_p - src_anchor;
 				dst_token = dst_p++;
@@ -108,7 +112,11 @@ namespace LZ4s
 					dst[dst_token] = RUN_MASK << ML_BITS;
 					if (len > 254)
 					{
-						do { dst[dst_p++] = 255; len -= 255; } while (len > 254);
+						do
+						{
+							dst[dst_p++] = 255;
+							len -= 255;
+						} while (len > 254);
 						dst[dst_p++] = (byte)len;
 						BlockCopy(src, src_anchor, dst, dst_p, length);
 						dst_p += length;
@@ -124,21 +132,34 @@ namespace LZ4s
 					dst[dst_token] = (byte)(length << ML_BITS);
 				}
 
-				_i = dst_p + length; /* src_anchor += */BlindCopy32(src, src_anchor, dst, dst_p, _i); dst_p = _i;
+				_i = dst_p + length; /* src_anchor += */
+				WildCopy(src, src_anchor, dst, dst_p, _i);
+				dst_p = _i;
 
 			_next_match:
-				Poke2(dst, dst_p, (ushort)(src_p - src_ref)); dst_p += 2;
+				Poke2(dst, dst_p, (ushort)(src_p - src_ref));
+				dst_p += 2;
 
-				src_p += MINMATCH; src_ref += MINMATCH;
+				src_p += MINMATCH;
+				src_ref += MINMATCH;
 				src_anchor = src_p;
 				while (src_p < src_LASTLITERALS_STEPSIZE_1)
 				{
 					var diff = (int)Xor4(src, src_ref, src_p);
-					if (diff == 0) { src_p += STEPSIZE_32; src_ref += STEPSIZE_32; continue; }
+					if (diff == 0)
+					{
+						src_p += STEPSIZE_32;
+						src_ref += STEPSIZE_32;
+						continue;
+					}
 					src_p += debruijn32[(uint)(diff & -diff) * 0x077CB531u >> 27];
 					goto _endCount;
 				}
-				if (src_p < src_LASTLITERALS_1 && Equal2(src, src_ref, src_p)) { src_p += 2; src_ref += 2; }
+				if (src_p < src_LASTLITERALS_1 && Equal2(src, src_ref, src_p))
+				{
+					src_p += 2;
+					src_ref += 2;
+				}
 				if (src_p < src_LASTLITERALS && src[src_ref] == src[src_p]) src_p++;
 
 			_endCount:
@@ -149,8 +170,16 @@ namespace LZ4s
 				{
 					dst[dst_token] += ML_MASK;
 					len -= ML_MASK;
-					for (; len > 509; len -= 510) { dst[dst_p++] = 255; dst[dst_p++] = 255; }
-					if (len > 254) { len -= 255; dst[dst_p++] = 255; }
+					for (; len > 509; len -= 510)
+					{
+						dst[dst_p++] = 255;
+						dst[dst_p++] = 255;
+					}
+					if (len > 254)
+					{
+						len -= 255;
+						dst[dst_p++] = 255;
+					}
 					dst[dst_p++] = (byte)len;
 				}
 				else
@@ -158,7 +187,11 @@ namespace LZ4s
 					dst[dst_token] += (byte)len;
 				}
 
-				if (src_p > src_mflimit) { src_anchor = src_p; break; }
+				if (src_p > src_mflimit)
+				{
+					src_anchor = src_p;
+					break;
+				}
 
 				hash_table[(Peek4(src, src_p - 2) * 2654435761u) >> HASH_ADJUST] = src_p - 2 - src_base;
 
@@ -166,14 +199,18 @@ namespace LZ4s
 				src_ref = src_base + hash_table[h];
 				hash_table[h] = src_p - src_base;
 
-				if (src_ref > src_p - MAX_DISTANCE - 1 && Equal4(src, src_ref, src_p)) { dst[dst_token = dst_p++] = 0; goto _next_match; }
+				if (src_ref > src_p - MAX_DISTANCE - 1 && Equal4(src, src_ref, src_p))
+				{
+					dst[dst_token = dst_p++] = 0;
+					goto _next_match;
+				}
 
 				src_anchor = src_p++;
 				h_fwd = (Peek4(src, src_p) * 2654435761u) >> HASH_ADJUST;
 			}
 
 		_last_literals:
-			int lastRun = src_end - src_anchor;
+			var lastRun = src_end - src_anchor;
 
 			if (dst_p + lastRun + 1 + (lastRun + 255 - RUN_MASK) / 255 > dst_end) return 0;
 
@@ -212,39 +249,40 @@ namespace LZ4s
 
 			// ---- preprocessed source start here ----
 
-			int src_p = src_0;
-			int src_anchor = src_p;
-			int src_base = src_p;
-			int src_end = src_p + src_len;
-			int src_mflimit = src_end - MFLIMIT;
-			int dst_p = dst_0;
-			int dst_end = dst_p + dst_maxlen;
+			var src_p = src_0;
+			var src_anchor = src_p;
+			var src_base = src_p;
+			var src_end = src_p + src_len;
+			var src_mflimit = src_end - MFLIMIT;
+			var dst_p = dst_0;
+			var dst_end = dst_p + dst_maxlen;
 
 
-			int src_LASTLITERALS = src_end - LASTLITERALS;
-			int src_LASTLITERALS_1 = src_LASTLITERALS - 1;
-			int src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - STEPSIZE_32 + 1;
-			int dst_LASTLITERALS_1 = dst_end - 1 - LASTLITERALS;
-			int dst_LASTLITERALS_3 = dst_end - 2 - 1 - LASTLITERALS;
+			var src_LASTLITERALS = src_end - LASTLITERALS;
+			var src_LASTLITERALS_1 = src_LASTLITERALS - 1;
+			var src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - STEPSIZE_32 + 1;
+			var dst_LASTLITERALS_1 = dst_end - 1 - LASTLITERALS;
+			var dst_LASTLITERALS_3 = dst_end - 2 - 1 - LASTLITERALS;
 
 			int len, length;
 			uint h, h_fwd;
 
 			if (src_len < MINLENGTH) goto _last_literals;
 
-			src_p++; h_fwd = (Peek4(src, src_p) * 2654435761u) >> HASH64K_ADJUST;
+			src_p++;
+			h_fwd = (Peek4(src, src_p) * 2654435761u) >> HASH64K_ADJUST;
 
 			while (true)
 			{
-				int findMatchAttempts = (1 << SKIPSTRENGTH) + 3;
-				int src_p_fwd = src_p;
+				var findMatchAttempts = (1 << SKIPSTRENGTH) + 3;
+				var src_p_fwd = src_p;
 				int src_ref;
 				int dst_token;
 
 				do
 				{
 					h = h_fwd;
-					int step = findMatchAttempts++ >> SKIPSTRENGTH;
+					var step = findMatchAttempts++ >> SKIPSTRENGTH;
 					src_p = src_p_fwd;
 					src_p_fwd = src_p + step;
 
@@ -253,11 +291,14 @@ namespace LZ4s
 					h_fwd = (Peek4(src, src_p_fwd) * 2654435761u) >> HASH64K_ADJUST;
 					src_ref = src_base + hash_table[h];
 					hash_table[h] = (ushort)(src_p - src_base);
-
 				} while (!Equal4(src, src_ref, src_p));
 
 
-				while (src_p > src_anchor && src_ref > src_0 && src[src_p - 1] == src[src_ref - 1]) { src_p--; src_ref--; }
+				while (src_p > src_anchor && src_ref > src_0 && src[src_p - 1] == src[src_ref - 1])
+				{
+					src_p--;
+					src_ref--;
+				}
 
 
 				length = src_p - src_anchor;
@@ -270,7 +311,11 @@ namespace LZ4s
 					dst[dst_token] = (RUN_MASK << ML_BITS);
 					if (len > 254)
 					{
-						do { dst[dst_p++] = 255; len -= 255; } while (len > 254);
+						do
+						{
+							dst[dst_p++] = 255;
+							len -= 255;
+						} while (len > 254);
 						dst[dst_p++] = (byte)len;
 						BlockCopy(src, src_anchor, dst, dst_p, length);
 						dst_p += length;
@@ -286,22 +331,35 @@ namespace LZ4s
 					dst[dst_token] = (byte)(length << ML_BITS);
 				}
 
-				_i = dst_p + length; /* src_anchor += */BlindCopy32(src, src_anchor, dst, dst_p, _i); dst_p = _i;
+				_i = dst_p + length; /* src_anchor += */
+				WildCopy(src, src_anchor, dst, dst_p, _i);
+				dst_p = _i;
 
 			_next_match:
-				Poke2(dst, dst_p, (ushort)(src_p - src_ref)); dst_p += 2;
+				Poke2(dst, dst_p, (ushort)(src_p - src_ref));
+				dst_p += 2;
 
 
-				src_p += MINMATCH; src_ref += MINMATCH;
+				src_p += MINMATCH;
+				src_ref += MINMATCH;
 				src_anchor = src_p;
 				while (src_p < src_LASTLITERALS_STEPSIZE_1)
 				{
 					var diff = (int)Xor4(src, src_ref, src_p);
-					if (diff == 0) { src_p += STEPSIZE_32; src_ref += STEPSIZE_32; continue; }
+					if (diff == 0)
+					{
+						src_p += STEPSIZE_32;
+						src_ref += STEPSIZE_32;
+						continue;
+					}
 					src_p += debruijn32[(uint)(diff & -diff) * 0x077CB531u >> 27];
 					goto _endCount;
 				}
-				if (src_p < src_LASTLITERALS_1 && Equal2(src, src_ref, src_p)) { src_p += 2; src_ref += 2; }
+				if (src_p < src_LASTLITERALS_1 && Equal2(src, src_ref, src_p))
+				{
+					src_p += 2;
+					src_ref += 2;
+				}
 				if (src_p < src_LASTLITERALS && src[src_ref] == src[src_p]) src_p++;
 
 			_endCount:
@@ -311,8 +369,16 @@ namespace LZ4s
 				{
 					dst[dst_token] += ML_MASK;
 					len -= ML_MASK;
-					for (; len > 509; len -= 510) { dst[dst_p++] = 255; dst[dst_p++] = 255; }
-					if (len > 254) { len -= 255; dst[dst_p++] = 255; }
+					for (; len > 509; len -= 510)
+					{
+						dst[dst_p++] = 255;
+						dst[dst_p++] = 255;
+					}
+					if (len > 254)
+					{
+						len -= 255;
+						dst[dst_p++] = 255;
+					}
 					dst[dst_p++] = (byte)len;
 				}
 				else
@@ -320,7 +386,11 @@ namespace LZ4s
 					dst[dst_token] += (byte)len;
 				}
 
-				if (src_p > src_mflimit) { src_anchor = src_p; break; }
+				if (src_p > src_mflimit)
+				{
+					src_anchor = src_p;
+					break;
+				}
 
 				hash_table[(Peek4(src, src_p - 2) * 2654435761u) >> HASH64K_ADJUST] = (ushort)(src_p - 2 - src_base);
 
@@ -328,19 +398,24 @@ namespace LZ4s
 				h = (Peek4(src, src_p) * 2654435761u) >> HASH64K_ADJUST;
 				src_ref = src_base + hash_table[h];
 				hash_table[h] = (ushort)(src_p - src_base);
-				if (Equal4(src, src_ref, src_p)) { dst[dst_token = dst_p++] = 0; goto _next_match; }
+				if (Equal4(src, src_ref, src_p))
+				{
+					dst[dst_token = dst_p++] = 0;
+					goto _next_match;
+				}
 
 				src_anchor = src_p++;
 				h_fwd = (Peek4(src, src_p) * 2654435761u) >> HASH64K_ADJUST;
 			}
 
 		_last_literals:
-			int lastRun = src_end - src_anchor;
+			var lastRun = src_end - src_anchor;
 			if (dst_p + lastRun + 1 + (lastRun - RUN_MASK + 255) / 255 > dst_end) return 0;
 			if (lastRun >= RUN_MASK)
 			{
 				dst[dst_p++] = RUN_MASK << ML_BITS;
-				lastRun -= RUN_MASK; for (; lastRun > 254; lastRun -= 255) dst[dst_p++] = 255;
+				lastRun -= RUN_MASK;
+				for (; lastRun > 254; lastRun -= 255) dst[dst_p++] = 255;
 				dst[dst_p++] = (byte)lastRun;
 			}
 			else
@@ -369,14 +444,14 @@ namespace LZ4s
 
 			// ---- preprocessed source start here ----
 
-			int src_p = src_0;
+			var src_p = src_0;
 			int dst_ref;
 
-			int dst_p = dst_0;
-			int dst_end = dst_p + dst_len;
+			var dst_p = dst_0;
+			var dst_end = dst_p + dst_len;
 			int dst_cpy;
 
-			int oend_COPYLENGTH = dst_end - COPYLENGTH;
+			var oend_COPYLENGTH = dst_end - COPYLENGTH;
 
 			byte token;
 
@@ -387,7 +462,9 @@ namespace LZ4s
 				token = src[src_p++];
 				if ((length = (token >> ML_BITS)) == RUN_MASK)
 				{
-					for (; (len = src[src_p++]) == 255; length += 255) { }
+					for (; (len = src[src_p++]) == 255; length += 255)
+					{
+					}
 					length += len;
 				}
 
@@ -399,9 +476,14 @@ namespace LZ4s
 					src_p += length;
 					break;
 				}
-				_i = WildCopy32(src, src_p, dst, dst_p, dst_cpy); src_p += _i; dst_p += _i; src_p -= dst_p - dst_cpy; dst_p = dst_cpy;
+				_i = WildCopy(src, src_p, dst, dst_p, dst_cpy);
+				src_p += _i;
+				dst_p += _i;
+				src_p -= dst_p - dst_cpy;
+				dst_p = dst_cpy;
 
-				dst_ref = dst_cpy - Peek2(src, src_p); src_p += 2;
+				dst_ref = dst_cpy - Peek2(src, src_p);
+				src_p += 2;
 				if (dst_ref < dst_0) goto _output_error;
 
 				if ((length = (token & ML_MASK)) == ML_MASK)
@@ -417,26 +499,33 @@ namespace LZ4s
 					dst[dst_p + 1] = dst[dst_ref + 1];
 					dst[dst_p + 2] = dst[dst_ref + 2];
 					dst[dst_p + 3] = dst[dst_ref + 3];
-					dst_p += 4; dst_ref += 4;
+					dst_p += 4;
+					dst_ref += 4;
 					dst_ref -= dec32table[dst_p - dst_ref];
 					Copy4(dst, dst_ref, dst_p);
-					dst_p += STEPSIZE_32 - 4; dst_ref -= dec64;
+					dst_p += STEPSIZE_32 - 4;
+					dst_ref -= dec64;
 				}
 				else
 				{
-					Copy4(dst, dst_ref, dst_p); dst_p += 4; dst_ref += 4;
+					Copy4(dst, dst_ref, dst_p);
+					dst_p += 4;
+					dst_ref += 4;
 				}
 				dst_cpy = dst_p + length - (STEPSIZE_32 - 4);
 				if (dst_cpy > oend_COPYLENGTH)
 				{
 					if (dst_cpy > dst_end) goto _output_error;
-					_i = SecureCopy32(dst, dst_ref, dst_p, oend_COPYLENGTH); dst_ref += _i; dst_p += _i;
+					_i = WildCopy32(dst, dst_ref, dst_p, oend_COPYLENGTH);
+					dst_ref += _i;
+					dst_p += _i;
 					while (dst_p < dst_cpy) dst[dst_p++] = dst[dst_ref++];
 					dst_p = dst_cpy;
 					if (dst_p == dst_end) goto _output_error;
 					continue;
 				}
-				/* _i = */SecureCopy32(dst, dst_ref, dst_p, dst_cpy); /* dst_ref += _i; dst_p += _i; */
+				/* _i = */
+				WildCopy32(dst, dst_ref, dst_p, dst_cpy); /* dst_ref += _i; dst_p += _i; */
 				dst_p = dst_cpy;
 			}
 
@@ -463,16 +552,16 @@ namespace LZ4s
 
 			// ---- preprocessed source start here ----
 
-			int src_p = src_0;
-			int src_end = src_p + src_len;
+			var src_p = src_0;
+			var src_end = src_p + src_len;
 			int dst_ref;
 
-			int dst_p = dst_0;
-			int dst_end = dst_p + dst_maxlen;
+			var dst_p = dst_0;
+			var dst_end = dst_p + dst_maxlen;
 			int dst_cpy;
 
-			int iend_COPYLENGTH = src_end - COPYLENGTH;
-			int oend_COPYLENGTH = dst_end - COPYLENGTH;
+			var iend_COPYLENGTH = src_end - COPYLENGTH;
+			var oend_COPYLENGTH = dst_end - COPYLENGTH;
 
 			while (src_p < src_end)
 			{
@@ -495,9 +584,14 @@ namespace LZ4s
 					dst_p += length;
 					break;
 				}
-				_i = WildCopy32(src, src_p, dst, dst_p, dst_cpy); src_p += _i; dst_p += _i; src_p -= dst_p - dst_cpy; dst_p = dst_cpy;
+				_i = WildCopy(src, src_p, dst, dst_p, dst_cpy);
+				src_p += _i;
+				dst_p += _i;
+				src_p -= dst_p - dst_cpy;
+				dst_p = dst_cpy;
 
-				dst_ref = dst_cpy - Peek2(src, src_p); src_p += 2;
+				dst_ref = dst_cpy - Peek2(src, src_p);
+				src_p += 2;
 				if (dst_ref < dst_0) goto _output_error;
 
 				if ((length = (token & ML_MASK)) == ML_MASK)
@@ -516,26 +610,33 @@ namespace LZ4s
 					dst[dst_p + 1] = dst[dst_ref + 1];
 					dst[dst_p + 2] = dst[dst_ref + 2];
 					dst[dst_p + 3] = dst[dst_ref + 3];
-					dst_p += 4; dst_ref += 4;
+					dst_p += 4;
+					dst_ref += 4;
 					dst_ref -= dec32table[dst_p - dst_ref];
 					Copy4(dst, dst_ref, dst_p);
-					dst_p += STEPSIZE_32 - 4; dst_ref -= dec64;
+					dst_p += STEPSIZE_32 - 4;
+					dst_ref -= dec64;
 				}
 				else
 				{
-					Copy4(dst, dst_ref, dst_p); dst_p += 4; dst_ref += 4;
+					Copy4(dst, dst_ref, dst_p);
+					dst_p += 4;
+					dst_ref += 4;
 				}
 				dst_cpy = dst_p + length - (STEPSIZE_32 - 4);
 				if (dst_cpy > oend_COPYLENGTH)
 				{
 					if (dst_cpy > dst_end) goto _output_error;
-					_i = SecureCopy32(dst, dst_ref, dst_p, oend_COPYLENGTH); dst_ref += _i; dst_p += _i;
+					_i = WildCopy32(dst, dst_ref, dst_p, oend_COPYLENGTH);
+					dst_ref += _i;
+					dst_p += _i;
 					while (dst_p < dst_cpy) dst[dst_p++] = dst[dst_ref++];
 					dst_p = dst_cpy;
 					if (dst_p == dst_end) goto _output_error;
 					continue;
 				}
-				/* _i = */SecureCopy32(dst, dst_ref, dst_p, dst_cpy); /* dst_ref += _i; dst_p += _i; */
+				/* _i = */
+				WildCopy32(dst, dst_ref, dst_p, dst_cpy); /* dst_ref += _i; dst_p += _i; */
 				dst_p = dst_cpy;
 			}
 
