@@ -516,7 +516,7 @@ namespace LZ4s
 				if (dst_cpy > oend_COPYLENGTH)
 				{
 					if (dst_cpy > dst_end) goto _output_error;
-					_i = WildCopy32(dst, dst_ref, dst_p, oend_COPYLENGTH);
+					_i = SecureCopy(dst, dst_ref, dst_p, oend_COPYLENGTH);
 					dst_ref += _i;
 					dst_p += _i;
 					while (dst_p < dst_cpy) dst[dst_p++] = dst[dst_ref++];
@@ -524,8 +524,7 @@ namespace LZ4s
 					if (dst_p == dst_end) goto _output_error;
 					continue;
 				}
-				/* _i = */
-				WildCopy32(dst, dst_ref, dst_p, dst_cpy); /* dst_ref += _i; dst_p += _i; */
+				SecureCopy(dst, dst_ref, dst_p, dst_cpy);
 				dst_p = dst_cpy;
 			}
 
@@ -627,7 +626,7 @@ namespace LZ4s
 				if (dst_cpy > oend_COPYLENGTH)
 				{
 					if (dst_cpy > dst_end) goto _output_error;
-					_i = WildCopy32(dst, dst_ref, dst_p, oend_COPYLENGTH);
+					_i = SecureCopy(dst, dst_ref, dst_p, oend_COPYLENGTH);
 					dst_ref += _i;
 					dst_p += _i;
 					while (dst_p < dst_cpy) dst[dst_p++] = dst[dst_ref++];
@@ -636,7 +635,7 @@ namespace LZ4s
 					continue;
 				}
 				/* _i = */
-				WildCopy32(dst, dst_ref, dst_p, dst_cpy); /* dst_ref += _i; dst_p += _i; */
+				SecureCopy(dst, dst_ref, dst_p, dst_cpy); /* dst_ref += _i; dst_p += _i; */
 				dst_p = dst_cpy;
 			}
 

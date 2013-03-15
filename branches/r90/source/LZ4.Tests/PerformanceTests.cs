@@ -1,24 +1,23 @@
 ﻿using System;
-using NUnit.Framework;
-using LZ4.Tests.Helpers;
 using System.Linq;
 using System.Threading;
-using System.IO;
-using System.IO.Compression;
+using LZ4.Tests.Helpers;
+using NUnit.Framework;
 
 namespace LZ4.Tests
 {
 	[TestFixture]
 	public class PerformanceTests
 	{
-		private const string TEST_DATA_FOLDER = @"T:\Temp\Corpus";
+		//private const string TEST_DATA_FOLDER = @"T:\Temp\Corpus";
+		private const string TEST_DATA_FOLDER = @"D:\Archive\Corpus";
 
 		[Test]
 		public void TestCompressionPerformance()
 		{
 			var compressors = new[] {
-				new TimedMethod("Copy", Copy),
-				new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Encode64(b, 0, l)),
+				//new TimedMethod("Copy", Copy),
+				//new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Encode64(b, 0, l)),
 				//new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Encode32(b, 0, l)),
 				//new TimedMethod("C++/CLI 64", (b, l) => LZ4cc.LZ4Codec.Encode64(b, 0, l)),
 				//new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Encode32(b, 0, l)),
@@ -29,8 +28,8 @@ namespace LZ4.Tests
 			};
 
 			var decompressors = new[] {
-				new TimedMethod("Copy", Copy),
-				new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Decode64(b, 0, b.Length, l)),
+				//new TimedMethod("Copy", Copy),
+				//new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Decode64(b, 0, b.Length, l)),
 				//new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Decode32(b, 0, b.Length, l)),
 				//new TimedMethod("C++/CLI 64", (b, l) => LZ4cc.LZ4Codec.Decode64(b, 0, b.Length, l)),
 				//new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Decode32(b, 0, b.Length, l)),
