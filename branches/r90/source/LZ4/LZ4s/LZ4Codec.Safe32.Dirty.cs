@@ -524,7 +524,10 @@ namespace LZ4s
 					if (dst_p == dst_end) goto _output_error;
 					continue;
 				}
-				SecureCopy(dst, dst_ref, dst_p, dst_cpy);
+				if (dst_p < dst_cpy)
+				{
+					SecureCopy(dst, dst_ref, dst_p, dst_cpy);
+				}
 				dst_p = dst_cpy;
 			}
 

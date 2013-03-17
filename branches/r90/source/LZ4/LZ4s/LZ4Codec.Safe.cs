@@ -36,6 +36,22 @@ namespace LZ4s
 	/// <summary>Safe LZ4 codec.</summary>
 	public static partial class LZ4Codec
 	{
+		#region Helper
+
+		// ReSharper disable UnusedParameter.Local
+
+		[Conditional("DEBUG")]
+		private static void Assert(bool condition, string errorMessage)
+		{
+			if (!condition) throw new ArgumentException(errorMessage);
+			Debug.Assert(condition, errorMessage);
+		}
+
+		// ReSharper restore UnusedParameter.Local
+
+
+		#endregion
+
 		#region Byte manipulation
 
 		// ReSharper disable RedundantCast
@@ -126,7 +142,7 @@ namespace LZ4s
 
 		private static void Copy4(byte[] buf, int src, int dst)
 		{
-			Debug.Assert(dst - src > 0, "Copying backwards is not implemented");
+			Assert(dst - src > 0, "Copying backwards is not implemented");
 			buf[dst + 3] = buf[src + 3];
 			buf[dst + 2] = buf[src + 2];
 			buf[dst + 1] = buf[src + 1];
@@ -135,7 +151,7 @@ namespace LZ4s
 
 		private static void Copy8(byte[] buf, int src, int dst)
 		{
-			Debug.Assert(dst - src > 0, "Copying backwards is not implemented");
+			Assert(dst - src > 0, "Copying backwards is not implemented");
 			buf[dst + 7] = buf[src + 7];
 			buf[dst + 6] = buf[src + 6];
 			buf[dst + 5] = buf[src + 5];
@@ -148,7 +164,7 @@ namespace LZ4s
 
 		private static void BlockCopy(byte[] src, int src_0, byte[] dst, int dst_0, int len)
 		{
-			Debug.Assert(src != dst, "BlockCopy does not handle copying to the same buffer");
+			Assert(src != dst, "BlockCopy does not handle copying to the same buffer");
 
 			if (len >= BLOCK_COPY_LIMIT)
 			{
@@ -187,10 +203,10 @@ namespace LZ4s
 
 		private static int WildCopy(byte[] src, int src_0, byte[] dst, int dst_0, int dst_end)
 		{
-			Debug.Assert(src != dst, "BlockCopy does not handle copying to the same buffer");
-
 			var len = dst_end - dst_0;
-			if (len <= 0) return 0;
+
+			Assert(src != dst, "BlockCopy does not handle copying to the same buffer");
+			Assert(len > 0, "Length have to be greater than 0");
 
 			if (len >= BLOCK_COPY_LIMIT)
 			{
@@ -232,12 +248,12 @@ namespace LZ4s
 		private static int SecureCopy(byte[] buffer, int src, int dst, int dst_end)
 		{
 			var diff = dst - src;
-
-			Debug.Assert(diff >= 4, "Target must be at least 4 bytes further than source");
-			Debug.Assert(BLOCK_COPY_LIMIT > 4, "This method requires BLOCK_COPY_LIMIT > 4");
-
 			var length = dst_end - dst;
 			var len = length;
+
+			Assert(diff >= 4, "Target must be at least 4 bytes further than source");
+			Assert(BLOCK_COPY_LIMIT > 4, "This method requires BLOCK_COPY_LIMIT > 4");
+			Assert(len > 0, "Length have to be greater than 0");
 
 			if (diff >= BLOCK_COPY_LIMIT)
 			{

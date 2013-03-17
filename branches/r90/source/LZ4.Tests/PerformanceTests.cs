@@ -9,8 +9,8 @@ namespace LZ4.Tests
 	[TestFixture]
 	public class PerformanceTests
 	{
-		//private const string TEST_DATA_FOLDER = @"T:\Temp\Corpus";
-		private const string TEST_DATA_FOLDER = @"D:\Archive\Corpus";
+		private const string TEST_DATA_FOLDER = @"T:\Temp\Corpus";
+		//private const string TEST_DATA_FOLDER = @"D:\Archive\Corpus";
 
 		[Test]
 		public void TestCompressionPerformance()
