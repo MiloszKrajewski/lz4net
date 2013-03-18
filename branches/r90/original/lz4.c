@@ -372,7 +372,9 @@ static inline int LZ4_compressCtx(void** ctx,
 #ifdef LZ4_MK_OPT
     const BYTE* matchlimit = iend - LASTLITERALS;
     const BYTE* matchlimit_1 = matchlimit - 1;
+    #if (LZ4_ARCH64 == 1)
     const BYTE* matchlimit_3 = matchlimit - 3;
+    #endif
     const BYTE* matchlimit_STEPSIZE_1 = matchlimit - (STEPSIZE - 1);
     const BYTE* oend_LASTLITERALS_1 = oend - (1 + LASTLITERALS);
     const BYTE* oend_LASTLITERALS_3 = oend - (2 + 1 + LASTLITERALS);
@@ -598,7 +600,9 @@ static inline int LZ4_compress64kCtx(void** ctx,
 #ifdef LZ4_MK_OPT
     const BYTE* matchlimit = iend - LASTLITERALS;
     const BYTE* matchlimit_1 = matchlimit - 1;
+    #if (LZ4_ARCH64 == 1)
     const BYTE* matchlimit_3 = matchlimit - 3;
+    #endif
     const BYTE* matchlimit_STEPSIZE_1 = matchlimit - (STEPSIZE - 1);
     const BYTE* oend_LASTLITERALS_1 = oend - (1 + LASTLITERALS);
     const BYTE* oend_LASTLITERALS_3 = oend - (2 + 1 + LASTLITERALS);
@@ -928,7 +932,6 @@ int LZ4_uncompress_unknownOutputSize(
     BYTE* cpy;
 
 #ifdef LZ4_MK_OPT
-    const BYTE* iend_COPYLENGTH = (iend-COPYLENGTH);
     const BYTE* iend_LASTLITERALS_3 = (iend-(2+1+LASTLITERALS));
     const BYTE* iend_LASTLITERALS_1 = (iend-(LASTLITERALS+1));
     const BYTE* oend_COPYLENGTH = (oend-COPYLENGTH);

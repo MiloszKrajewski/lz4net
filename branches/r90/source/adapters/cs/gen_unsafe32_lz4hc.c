@@ -1,7 +1,13 @@
 # 1 "lz4hc_cs_adapter.h"
 # 1 "<command-line>"
 # 1 "lz4hc_cs_adapter.h"
-# 62 "lz4hc_cs_adapter.h"
+// externaly defined:
+//   - GEN_SAFE: generate safe code
+//   - GEN_X64: generate 64-bit version
+# 59 "lz4hc_cs_adapter.h"
+// LZ4HC
+
+
 private const int MAXD = 1 << MAXD_LOG;
 private const int MAXD_MASK = MAXD - 1;
 private const int HASHHC_LOG = MAXD_LOG - 1;
@@ -9,6 +15,12 @@ private const int HASHHC_TABLESIZE = 1 << HASHHC_LOG;
 private const int HASHHC_MASK = HASHHC_TABLESIZE - 1;
 private const int MAX_NB_ATTEMPTS = 256;
 private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
+
+
+
+
+
+// end of LZ4HC
 # 204 "lz4hc_cs_adapter.h"
 private class LZ4HC_Data_Structure
 {
@@ -19,8 +31,71 @@ private class LZ4HC_Data_Structure
 };
 
 
-
+// GOGOGO
 # 1 "..\\..\\..\\original\\lz4hc.c" 1
+/*
+
+   LZ4 HC - High Compression Mode of LZ4
+
+   Copyright (C) 2011-2012, Yann Collet.
+
+   BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
+
+
+
+   Redistribution and use in source and binary forms, with or without
+
+   modification, are permitted provided that the following conditions are
+
+   met:
+
+
+
+       * Redistributions of source code must retain the above copyright
+
+   notice, this list of conditions and the following disclaimer.
+
+       * Redistributions in binary form must reproduce the above
+
+   copyright notice, this list of conditions and the following disclaimer
+
+   in the documentation and/or other materials provided with the
+
+   distribution.
+
+
+
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+
+   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+
+   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+
+   OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+
+   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+
+   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+
+   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+
+   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+
+   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+
+   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+   You can contact the author at :
+
+   - LZ4 homepage : http://fastcompression.blogspot.com/p/lz4.html
+
+   - LZ4 source repository : http://code.google.com/p/lz4/
+
+*/
 # 311 "..\\..\\..\\original\\lz4hc.c"
 inline static int LZ4HC_Init (LZ4HC_Data_Structure* hc4, const byte* src_base)
 {
@@ -43,13 +118,13 @@ inline static void* LZ4HC_Create (const byte* src_base)
 
 inline static int LZ4HC_Free (void** LZ4HC_Data)
 {
- (*LZ4HC_Data);
+ /* gc */(*LZ4HC_Data);
  *LZ4HC_Data = NULL;
  return (1);
 }
 
 
-
+// Update chains up to ip (excluded)
 forceinline static void LZ4HC_Insert (LZ4HC_Data_Structure* hc4, const byte* src_p)
 {
  ushort* chainTable = hc4->chainTable;
@@ -95,14 +170,14 @@ forceinline static int LZ4HC_InsertAndFindBestMatch (LZ4HC_Data_Structure* hc4, 
  int nbAttempts=MAX_NB_ATTEMPTS;
     int ml=0;
 
-
+ // HC4 match finder
  LZ4HC_Insert(hc4, src_p);
  xxx_ref = (hash_table[((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST)] + src_base);
 
 
-    if (xxx_ref >= src_p-4)
+    if (xxx_ref >= src_p-4) // potential repetition
     {
-        if ((*(uint*)(xxx_ref)) == (*(uint*)(src_p)))
+        if ((*(uint*)(xxx_ref)) == (*(uint*)(src_p))) // confirmed
         {
             const ushort delta = (ushort)(src_p-xxx_ref);
             const byte* ptr = src_p;
@@ -111,13 +186,13 @@ forceinline static int LZ4HC_InsertAndFindBestMatch (LZ4HC_Data_Structure* hc4, 
             end = src_p + ml - (MINMATCH-1);
             while(ptr < end-delta)
             {
-                chainTable[(int)(ptr) & MAXD_MASK] = delta;
+                chainTable[(int)(ptr) & MAXD_MASK] = delta; // Pre-Load
                 ptr++;
             }
             do
             {
                 chainTable[(int)(ptr) & MAXD_MASK] = delta;
-                hash_table[HASH_VALUE(ptr)] = (ptr) - src_base;
+                hash_table[HASH_VALUE(ptr)] = (ptr) - src_base; // Head of chain
                 ptr++;
             } while(ptr < end);
             hc4->nextToUpdate = end;
@@ -152,7 +227,7 @@ forceinline static int LZ4HC_InsertAndGetWiderMatch (LZ4HC_Data_Structure* hc4, 
  int nbAttempts = MAX_NB_ATTEMPTS;
  int delta = (int)(src_p-startLimit);
 
-
+ // First Match
  LZ4HC_Insert(hc4, src_p);
  xxx_ref = (hash_table[((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST)] + src_base);
 
@@ -207,24 +282,24 @@ forceinline static int LZ4_encodeSequence(const byte** src_p, byte** dst_p, cons
  int length, len;
  byte* xxx_token;
 
-
+ // Encode Literal length
  length = (int)(*src_p - *src_anchor);
  xxx_token = (*dst_p)++;
  if (length>=(int)RUN_MASK) { *xxx_token=(RUN_MASK<<ML_BITS); len = length-RUN_MASK; for(; len > 254 ; len-=255) *(*dst_p)++ = 255; *(*dst_p)++ = (byte)len; }
  else *xxx_token = (length<<ML_BITS);
 
-
+ // Copy Literals
  { byte* e = (*dst_p) + (length); { do { (*(uint*)(*dst_p)) = (*(uint*)(*src_anchor)); *dst_p += 4; *src_anchor += 4;; (*(uint*)(*dst_p)) = (*(uint*)(*src_anchor)); *dst_p += 4; *src_anchor += 4;; } while (*dst_p < e); }; *dst_p = e; };
 
-
+ // Encode Offset
  { (*(ushort*)(*dst_p)) = (ushort)(*src_p-xxx_ref); *dst_p += 2; };
 
-
+ // Encode MatchLength
  len = (int)(ml-MINMATCH);
  if (len>=(int)ML_MASK) { *xxx_token+=ML_MASK; len-=ML_MASK; for(; len > 509 ; len-=510) { *(*dst_p)++ = 255; *(*dst_p)++ = 255; } if (len > 254) { len-=255; *(*dst_p)++ = 255; } *(*dst_p)++ = (byte)len; }
  else *xxx_token += len;
 
-
+ // Prepare next loop
  *src_p += ml;
  *src_anchor = *src_p;
 
@@ -232,9 +307,9 @@ forceinline static int LZ4_encodeSequence(const byte** src_p, byte** dst_p, cons
 }
 
 
-
-
-
+//****************************
+// Compression CODE
+//****************************
 
 int LZ4_compressHCCtx(LZ4HC_Data_Structure* ctx,
      const byte* src,
@@ -260,13 +335,13 @@ int LZ4_compressHCCtx(LZ4HC_Data_Structure* ctx,
 
  src_p++;
 
-
+ // Main Loop
  while (src_p < src_mflimit)
  {
   ml = LZ4HC_InsertAndFindBestMatch (ctx, src_p, src_LASTLITERALS, (&xxx_ref));
   if (!ml) { src_p++; continue; }
 
-
+  // saved, in case we would skip too much
   start0 = src_p;
   ref0 = xxx_ref;
   ml0 = ml;
@@ -276,7 +351,7 @@ _Search2:
    ml2 = LZ4HC_InsertAndGetWiderMatch(ctx, src_p + ml - 2, src_p + 1, src_LASTLITERALS, ml, &ref2, &start2);
   else ml2=ml;
 
-  if (ml2 == ml)
+  if (ml2 == ml) // No better match
   {
    LZ4_encodeSequence(&src_p, &dst_p, &src_anchor, ml, xxx_ref);
    continue;
@@ -284,7 +359,7 @@ _Search2:
 
   if (start0 < src_p)
   {
-   if (start2 < src_p + ml0)
+   if (start2 < src_p + ml0) // empirical
    {
     src_p = start0;
     xxx_ref = ref0;
@@ -292,8 +367,8 @@ _Search2:
    }
   }
 
-
-  if ((start2 - src_p) < 3)
+  // Here, start0==ip
+  if ((start2 - src_p) < 3) // First Match too small : removed
   {
    ml = ml2;
    src_p = start2;
@@ -302,9 +377,9 @@ _Search2:
   }
 
 _Search3:
-
-
-
+  // Currently we have :
+  // ml2 > ml1, and
+  // ip1+3 <= ip2 (usually < ip1+ml1)
   if ((start2 - src_p) < OPTIMAL_ML)
   {
    int correction;
@@ -319,15 +394,15 @@ _Search3:
     ml2 -= correction;
    }
   }
-
+  // Now, we have start2 = ip+new_ml, with new_ml=min(ml, OPTIMAL_ML=18)
 
   if (start2 + ml2 < src_mflimit)
    ml3 = LZ4HC_InsertAndGetWiderMatch(ctx, start2 + ml2 - 3, start2, src_LASTLITERALS, ml2, &ref3, &start3);
   else ml3=ml2;
 
-  if (ml3 == ml2)
+  if (ml3 == ml2) // No better match : 2 sequences to encode
   {
-
+   // ip & ref are known; Now for ml
    if (start2 < src_p+ml)
    {
     if ((start2 - src_p) < OPTIMAL_ML)
@@ -348,16 +423,16 @@ _Search3:
      ml = (int)(start2 - src_p);
     }
    }
-
+   // Now, encode 2 sequences
    LZ4_encodeSequence(&src_p, &dst_p, &src_anchor, ml, xxx_ref);
    src_p = start2;
    LZ4_encodeSequence(&src_p, &dst_p, &src_anchor, ml2, ref2);
    continue;
   }
 
-  if (start3 < src_p+ml+3)
+  if (start3 < src_p+ml+3) // Not enough space for match 2 : remove it
   {
-   if (start3 >= (src_p+ml))
+   if (start3 >= (src_p+ml)) // can write Seq1 immediately ==> Seq2 is removed, so Seq3 becomes Seq1
    {
     if (start2 < src_p+ml)
     {
@@ -390,8 +465,8 @@ _Search3:
    goto _Search3;
   }
 
-
-
+  // OK, now we have 3 ascending matches; let's write at least the first one
+  // ip & ref are known; Now for ml
   if (start2 < src_p+ml)
   {
    if ((start2 - src_p) < (int)ML_MASK)
@@ -426,7 +501,7 @@ _Search3:
 
  }
 
-
+ // Encode Last Literals
  {
   int lastRun = (int)(src_end - src_anchor);
   if (lastRun>=(int)RUN_MASK) { *dst_p++=(RUN_MASK<<ML_BITS); lastRun-=RUN_MASK; for(; lastRun > 254 ; lastRun-=255) *dst_p++ = 255; *dst_p++ = (byte) lastRun; }
@@ -435,7 +510,7 @@ _Search3:
   dst_p += src_end-src_anchor;
  }
 
-
+ // End
  return (int) (((byte*)dst_p)-dst);
 }
 

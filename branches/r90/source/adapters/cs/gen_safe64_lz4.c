@@ -45,7 +45,10 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
     7, 0, 1, 2, 3, 3, 4, 6, 2, 6, 5, 5, 3, 4, 5, 6,
     7, 1, 2, 4, 6, 4, 4, 5, 7, 2, 6, 5, 7, 6, 7, 7
 };
-# 192 "lz4_cs_adapter.h"
+# 98 "lz4_cs_adapter.h"
+    // #define COPY4(x,s,d) { byte[] xxx; xxx[d] = xxx[s]; xxx[d + 1] = xxx[s + 1]; xxx[d + 2] = xxx[s + 2]; xxx[d + 3] = xxx[s + 3]; }
+    // #define COPY8(x,s,d) { byte[] xxx; xxx[d] = xxx[s]; xxx[d + 1] = xxx[s + 1]; xxx[d + 2] = xxx[s + 2]; xxx[d + 3] = xxx[s + 3]; xxx[d + 4] = xxx[s + 4]; xxx[d + 5] = xxx[s + 5]; xxx[d + 6] = xxx[s + 6]; xxx[d + 7] = xxx[s + 7]; }
+# 195 "lz4_cs_adapter.h"
 // GOGOGO
 # 1 "..\\..\\..\\original\\lz4.c" 1
 /*
@@ -152,8 +155,8 @@ static inline int LZ4_compressCtx(void** ctx,
     if (src_len < MINLENGTH) goto _last_literals;
 # 405 "..\\..\\..\\original\\lz4.c"
     // First Byte
-    hash_table[(((Peek4(_, src_p)) * 2654435761u) >> HASH_ADJUST)] = (int)(src_p - src_base);
-    src_p++; h_fwd = (((Peek4(_, src_p)) * 2654435761u) >> HASH_ADJUST);
+    hash_table[(((Peek4(src, src_p)) * 2654435761u) >> HASH_ADJUST)] = (int)(src_p - src_base);
+    src_p++; h_fwd = (((Peek4(src, src_p)) * 2654435761u) >> HASH_ADJUST);
 
     // Main Loop
     while (1)
@@ -172,14 +175,14 @@ static inline int LZ4_compressCtx(void** ctx,
 
             if (src_p_fwd > src_mflimit) goto _last_literals;
 
-            h_fwd = (((Peek4(_, src_p_fwd)) * 2654435761u) >> HASH_ADJUST);
+            h_fwd = (((Peek4(src, src_p_fwd)) * 2654435761u) >> HASH_ADJUST);
             xxx_ref = src_base + hash_table[h];
             hash_table[h] = (int)(src_p - src_base);
 
         } while ((xxx_ref < src_p - MAX_DISTANCE) || (!Equal4(src, src_ref, src_p)));
 
         // Catch up
-        while ((src_p>src_anchor) && (xxx_ref>(int)src) && (src_p[-1]==xxx_ref[-1])) { src_p--; xxx_ref--; }
+        while ((src_p>src_anchor) && (xxx_ref>(int)src) && (src[src_p - 1] == xxx[xxx_ref - 1])) { src_p--; xxx_ref--; }
 
         // Encode Literal length
         length = (int)(src_p - src_anchor);
@@ -195,7 +198,7 @@ static inline int LZ4_compressCtx(void** ctx,
             {
                 do { dst[dst_p++] = 255; len -= 255; } while (len>254);
                 dst[dst_p++] = (byte)len;
-                /* if (l > 0) */BlockCopy(_, src_anchor, _, dst_p, length);
+                BlockCopy(_, src_anchor, _, dst_p, length);
                 dst_p += length;
                 goto _next_match;
             }
@@ -205,7 +208,7 @@ static inline int LZ4_compressCtx(void** ctx,
         else *xxx_token = (length<<ML_BITS);
 # 472 "..\\..\\..\\original\\lz4.c"
         // Copy Literals
-        /* if (l > 0) */{ _i = dst_p + length; src_anchor += WildCopy(_, src_anchor, _, dst_p, _i); dst_p = _i; };
+        if (length > 0) /*?*/{ _i = dst_p + length; src_anchor += WildCopy(_, src_anchor, _, dst_p, _i); dst_p = _i; };
 
 _next_match:
         // Encode Offset
@@ -220,7 +223,7 @@ _next_match:
         {
             ulong diff = (long)Xor8(src, src_ref, src_p);
             if (!diff) { src_p += STEPSIZE_64; xxx_ref += STEPSIZE_64; continue; }
-            src_p += debruijn64[((ulong)((ulong)((diff) & -(diff)) * 0x0218A392CDABBD3FL)) >> 58];
+            src_p += debruijn64[((ulong)((diff) & -(diff)) * 0x0218A392CDABBD3FL) >> 58];
             goto _endCount;
         }
 
@@ -250,11 +253,11 @@ _endCount:
         if (src_p > src_mflimit) { src_anchor = src_p; break; }
 
         // Fill table
-        hash_table[(((Peek4(_, src_p-2)) * 2654435761u) >> HASH_ADJUST)] = (int)(src_p - 2 - src_base);
+        hash_table[(((Peek4(src, src_p-2)) * 2654435761u) >> HASH_ADJUST)] = (int)(src_p - 2 - src_base);
 
         // Test next position
 
-        uint h = (((Peek4(_, src_p)) * 2654435761u) >> HASH_ADJUST);
+        uint h = (((Peek4(src, src_p)) * 2654435761u) >> HASH_ADJUST);
         xxx_ref = src_base + hash_table[h];
         hash_table[h] = (int)(src_p - src_base);
 
@@ -262,7 +265,7 @@ _endCount:
 
         // Prepare next loop
         src_anchor = src_p++;
-        h_fwd = (((Peek4(_, src_p)) * 2654435761u) >> HASH_ADJUST);
+        h_fwd = (((Peek4(src, src_p)) * 2654435761u) >> HASH_ADJUST);
     }
 
 _last_literals:
@@ -274,7 +277,7 @@ _last_literals:
 
         if (lastRun>=(int)RUN_MASK) { dst[dst_p++]=(RUN_MASK<<ML_BITS); lastRun-=RUN_MASK; for(; lastRun > 254 ; lastRun-=255) dst[dst_p++] = 255; dst[dst_p++] = (byte) lastRun; }
         else dst[dst_p++] = (lastRun<<ML_BITS);
-        /* if (l > 0) */BlockCopy(_, src_anchor, _, dst_p, src_end - src_anchor);
+        BlockCopy(_, src_anchor, _, dst_p, src_end - src_anchor);
         dst_p += src_end-src_anchor;
     }
 
@@ -318,7 +321,7 @@ static inline int LZ4_compress64kCtx(void** ctx,
     if (src_len < MINLENGTH) goto _last_literals;
 # 631 "..\\..\\..\\original\\lz4.c"
     // First Byte
-    src_p++; h_fwd = (((Peek4(_, src_p)) * 2654435761u) >> HASH64K_ADJUST);
+    src_p++; h_fwd = (((Peek4(src, src_p)) * 2654435761u) >> HASH64K_ADJUST);
 
     // Main Loop
     while (1)
@@ -337,14 +340,14 @@ static inline int LZ4_compress64kCtx(void** ctx,
 
             if (src_p_fwd > src_mflimit) goto _last_literals;
 
-            h_fwd = (((Peek4(_, src_p_fwd)) * 2654435761u) >> HASH64K_ADJUST);
+            h_fwd = (((Peek4(src, src_p_fwd)) * 2654435761u) >> HASH64K_ADJUST);
             xxx_ref = src_base + hash_table[h];
             hash_table[h] = (ushort)(src_p - src_base);
 
         } while (!Equal4(src, src_ref, src_p));
 
         // Catch up
-        while ((src_p>src_anchor) && (xxx_ref>(int)src) && (src_p[-1]==xxx_ref[-1])) { src_p--; xxx_ref--; }
+        while ((src_p>src_anchor) && (xxx_ref>(int)src) && (src[src_p - 1] == xxx[xxx_ref - 1])) { src_p--; xxx_ref--; }
 
         // Encode Literal length
         length = (int)(src_p - src_anchor);
@@ -360,7 +363,7 @@ static inline int LZ4_compress64kCtx(void** ctx,
             {
                 do { dst[dst_p++] = 255; len -= 255; } while (len>254);
                 dst[dst_p++] = (byte)len;
-                /* if (l > 0) */BlockCopy(_, src_anchor, _, dst_p, length);
+                BlockCopy(_, src_anchor, _, dst_p, length);
                 dst_p += length;
                 goto _next_match;
             }
@@ -370,7 +373,7 @@ static inline int LZ4_compress64kCtx(void** ctx,
         else *xxx_token = (length<<ML_BITS);
 
         // Copy Literals
-        /* if (l > 0) */{ _i = dst_p + length; src_anchor += WildCopy(_, src_anchor, _, dst_p, _i); dst_p = _i; };
+        if (length > 0) /*?*/{ _i = dst_p + length; src_anchor += WildCopy(_, src_anchor, _, dst_p, _i); dst_p = _i; };
 
 _next_match:
         // Encode Offset
@@ -385,7 +388,7 @@ _next_match:
         {
             ulong diff = (long)Xor8(src, src_ref, src_p);
             if (!diff) { src_p+=STEPSIZE_64; xxx_ref+=STEPSIZE_64; continue; }
-            src_p += debruijn64[((ulong)((ulong)((diff) & -(diff)) * 0x0218A392CDABBD3FL)) >> 58];
+            src_p += debruijn64[((ulong)((diff) & -(diff)) * 0x0218A392CDABBD3FL) >> 58];
             goto _endCount;
         }
 
@@ -408,11 +411,11 @@ _endCount:
         if (src_p > src_mflimit) { src_anchor = src_p; break; }
 
         // Fill table
-        hash_table[(((Peek4(_, src_p-2)) * 2654435761u) >> HASH64K_ADJUST)] = (ushort)(src_p - 2 - src_base);
+        hash_table[(((Peek4(src, src_p-2)) * 2654435761u) >> HASH64K_ADJUST)] = (ushort)(src_p - 2 - src_base);
 
         // Test next position
 
-        uint h = (((Peek4(_, src_p)) * 2654435761u) >> HASH64K_ADJUST);
+        uint h = (((Peek4(src, src_p)) * 2654435761u) >> HASH64K_ADJUST);
         xxx_ref = src_base + hash_table[h];
         hash_table[h] = (ushort)(src_p - src_base);
 
@@ -420,7 +423,7 @@ _endCount:
 
         // Prepare next loop
         src_anchor = src_p++;
-        h_fwd = (((Peek4(_, src_p)) * 2654435761u) >> HASH64K_ADJUST);
+        h_fwd = (((Peek4(src, src_p)) * 2654435761u) >> HASH64K_ADJUST);
     }
 
 _last_literals:
@@ -430,7 +433,7 @@ _last_literals:
         if (dst_p + lastRun + 1 + (lastRun-RUN_MASK+255)/255 > dst_end) return 0;
         if (lastRun>=(int)RUN_MASK) { dst[dst_p++]=(RUN_MASK<<ML_BITS); lastRun-=RUN_MASK; for(; lastRun > 254 ; lastRun-=255) dst[dst_p++] = 255; dst[dst_p++] = (byte) lastRun; }
         else dst[dst_p++] = (lastRun<<ML_BITS);
-        /* if (l > 0) */BlockCopy(_, src_anchor, _, dst_p, src_end - src_anchor);
+        BlockCopy(_, src_anchor, _, dst_p, src_end - src_anchor);
         dst_p += src_end-src_anchor;
     }
 
@@ -500,7 +503,7 @@ int LZ4_uncompress(int src,
 
         // get runlength
         xxx_token = src[src_p++];
-        if ((length=(xxx_token>>ML_BITS)) == RUN_MASK) { int len; for (;(len=src[src_p++])==255;length+=255) { } length += len; }
+        if ((length=(xxx_token>>ML_BITS)) == RUN_MASK) { int len; for (;(len=src[src_p++])==255;length+=255) { /* do nothing */ } length += len; }
 
         // copy literals
         dst_cpy = dst_p+length;
@@ -509,18 +512,18 @@ int LZ4_uncompress(int src,
 
         {
             if (dst_cpy != dst_end) goto _output_error; // Error : not enough place for another match (min 4) + 5 literals
-            /* if (l > 0) */BlockCopy(_, src_p, _, dst_p, length);
+            BlockCopy(_, src_p, _, dst_p, length);
             src_p += length;
             break; // EOF
         }
-        /* if (d < e) */{ _i = WildCopy(_, src_p, _, dst_p, dst_cpy); src_p += _i; dst_p += _i; }; src_p -= (dst_p-dst_cpy); dst_p = dst_cpy;
+        if (dst_p < dst_cpy) /*?*/{ _i = WildCopy(_, src_p, _, dst_p, dst_cpy); src_p += _i; dst_p += _i; }; src_p -= (dst_p-dst_cpy); dst_p = dst_cpy;
 
         // get offset
         { xxx_ref = (dst_cpy) - Peek2(_, src_p); }; src_p+=2;
         if (xxx_ref < (int)dst) goto _output_error; // Error : offset outside destination buffer
 
         // get matchlength
-        if ((length=(xxx_token&ML_MASK)) == ML_MASK) { for (;*src_p==255;length+=255) {src_p++;} length += src[src_p++]; }
+        if ((length=(xxx_token&ML_MASK)) == ML_MASK) { for (;*src_p==255;length+=255) src_p++; length += src[src_p++]; }
 
         // copy repeated sequence
         if ((dst_p-xxx_ref)<STEPSIZE_64)
@@ -533,9 +536,9 @@ int LZ4_uncompress(int src,
             dst[dst_p + 2] = dst[xxx_ref + 2];
             dst[dst_p + 3] = dst[xxx_ref + 3];
             dst_p += 4; xxx_ref += 4; xxx_ref -= dec32table[dst_p-xxx_ref];
-            { byte[] xxx; dst[dst_p] = xxx[xxx_ref]; dst[dst_p + 1] = xxx[xxx_ref + 1]; dst[dst_p + 2] = xxx[xxx_ref + 2]; dst[dst_p + 3] = xxx[xxx_ref + 3]; };
+            Copy4(_, xxx_ref, dst_p);
             dst_p += STEPSIZE_64-4; xxx_ref -= dec64;
-        } else { { { byte[] xxx; xxx[dst_p] = xxx[xxx_ref]; xxx[dst_p + 1] = xxx[xxx_ref + 1]; xxx[dst_p + 2] = xxx[xxx_ref + 2]; xxx[dst_p + 3] = xxx[xxx_ref + 3]; xxx[dst_p + 4] = xxx[xxx_ref + 4]; xxx[dst_p + 5] = xxx[xxx_ref + 5]; xxx[dst_p + 6] = xxx[xxx_ref + 6]; xxx[dst_p + 7] = xxx[xxx_ref + 7]; }; dst_p += 8; xxx_ref += 8; }; }
+        } else { { Copy8(_, xxx_ref, dst_p); dst_p += 8; xxx_ref += 8; }; }
         dst_cpy = dst_p + length - (STEPSIZE_64-4);
 
         if (dst_cpy > dst_COPYLENGTH_STEPSIZE_4)
@@ -550,7 +553,7 @@ int LZ4_uncompress(int src,
             continue;
         }
 
-        /* if (d < e) */{ _i = WildCopy(_, xxx_ref, _, dst_p, dst_cpy); xxx_ref += _i; dst_p += _i; };
+        if (dst_p < dst_cpy) /*?*/{ _i = WildCopy(_, xxx_ref, _, dst_p, dst_cpy); xxx_ref += _i; dst_p += _i; };
         dst_p = dst_cpy; // correction
     }
 
@@ -603,7 +606,7 @@ int LZ4_uncompress_unknownOutputSize(
         if ((length=(xxx_token>>ML_BITS)) == RUN_MASK)
         {
             int s=255;
-            while ((src_p<src_end) && (s==255)) { s=src[src_p++]; length += s; }
+            while ((src_p<src_end) && (s==255)) length += (s = src[src_p++]);
         }
 
         // copy literals
@@ -614,11 +617,11 @@ int LZ4_uncompress_unknownOutputSize(
         {
             if (dst_cpy > dst_end) goto _output_error; // Error : writes beyond output buffer
             if (src_p+length != src_end) goto _output_error; // Error : LZ4 format requires to consume all input at this stage (no match within the last 11 bytes, and at least 8 remaining input bytes for another match+literals)
-            /* if (l > 0) */BlockCopy(_, src_p, _, dst_p, length);
+            BlockCopy(_, src_p, _, dst_p, length);
             dst_p += length;
             break; // Necessarily EOF, due to parsing restrictions
         }
-        /* if (d < e) */{ _i = WildCopy(_, src_p, _, dst_p, dst_cpy); src_p += _i; dst_p += _i; }; src_p -= (dst_p-dst_cpy); dst_p = dst_cpy;
+        if (dst_p < dst_cpy) /*?*/{ _i = WildCopy(_, src_p, _, dst_p, dst_cpy); src_p += _i; dst_p += _i; }; src_p -= (dst_p-dst_cpy); dst_p = dst_cpy;
 
         // get offset
         { xxx_ref = (dst_cpy) - Peek2(_, src_p); }; src_p+=2;
@@ -649,9 +652,9 @@ int LZ4_uncompress_unknownOutputSize(
             dst[dst_p + 2] = dst[xxx_ref + 2];
             dst[dst_p + 3] = dst[xxx_ref + 3];
             dst_p += 4; xxx_ref += 4; xxx_ref -= dec32table[dst_p-xxx_ref];
-            { byte[] xxx; dst[dst_p] = xxx[xxx_ref]; dst[dst_p + 1] = xxx[xxx_ref + 1]; dst[dst_p + 2] = xxx[xxx_ref + 2]; dst[dst_p + 3] = xxx[xxx_ref + 3]; };
+            Copy4(_, xxx_ref, dst_p);
             dst_p += STEPSIZE_64-4; xxx_ref -= dec64;
-        } else { { { byte[] xxx; xxx[dst_p] = xxx[xxx_ref]; xxx[dst_p + 1] = xxx[xxx_ref + 1]; xxx[dst_p + 2] = xxx[xxx_ref + 2]; xxx[dst_p + 3] = xxx[xxx_ref + 3]; xxx[dst_p + 4] = xxx[xxx_ref + 4]; xxx[dst_p + 5] = xxx[xxx_ref + 5]; xxx[dst_p + 6] = xxx[xxx_ref + 6]; xxx[dst_p + 7] = xxx[xxx_ref + 7]; }; dst_p += 8; xxx_ref += 8; }; }
+        } else { { Copy8(_, xxx_ref, dst_p); dst_p += 8; xxx_ref += 8; }; }
         dst_cpy = dst_p + length - (STEPSIZE_64-4);
 
         if (dst_cpy>dst_COPYLENGTH_STEPSIZE_4)
@@ -666,7 +669,7 @@ int LZ4_uncompress_unknownOutputSize(
             continue;
         }
 
-        /* if (d < e) */{ _i = WildCopy(_, xxx_ref, _, dst_p, dst_cpy); xxx_ref += _i; dst_p += _i; };
+        if (dst_p < dst_cpy) /*?*/{ _i = WildCopy(_, xxx_ref, _, dst_p, dst_cpy); xxx_ref += _i; dst_p += _i; };
         dst_p=dst_cpy; // correction
     }
 
@@ -677,4 +680,4 @@ int LZ4_uncompress_unknownOutputSize(
 _output_error:
     return (int) (-(((int)src_p)-src));
 }
-# 193 "lz4_cs_adapter.h" 2
+# 196 "lz4_cs_adapter.h" 2

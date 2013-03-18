@@ -45,7 +45,7 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
     7, 0, 1, 2, 3, 3, 4, 6, 2, 6, 5, 5, 3, 4, 5, 6,
     7, 1, 2, 4, 6, 4, 4, 5, 7, 2, 6, 5, 7, 6, 7, 7
 };
-# 192 "lz4_cs_adapter.h"
+# 195 "lz4_cs_adapter.h"
 // GOGOGO
 # 1 "..\\..\\..\\original\\lz4.c" 1
 /*
@@ -777,4 +777,4 @@ int LZ4_uncompress_unknownOutputSize(
 _output_error:
     return (int) (-(((byte*)src_p)-src));
 }
-# 193 "lz4_cs_adapter.h" 2
+# 196 "lz4_cs_adapter.h" 2
