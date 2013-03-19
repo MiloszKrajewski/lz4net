@@ -142,7 +142,7 @@ static inline int LZ4_compressCtx(void** ctx,
 
     int src_LASTLITERALS = src_end - LASTLITERALS;
     int src_LASTLITERALS_1 = src_LASTLITERALS - 1;
-    int src_LASTLITERALS_3 = src_LASTLITERALS - 3;
+
     int src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - (STEPSIZE_32 - 1);
     int dst_LASTLITERALS_1 = dst_end - (1 + LASTLITERALS);
     int dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
@@ -153,13 +153,13 @@ static inline int LZ4_compressCtx(void** ctx,
 
     // Init
     if (src_len < MINLENGTH) goto _last_literals;
-# 405 "..\\..\\..\\original\\lz4.c"
+# 407 "..\\..\\..\\original\\lz4.c"
     // First Byte
     hash_table[(((Peek4(src, src_p)) * 2654435761u) >> HASH_ADJUST)] = (int)(src_p - src_base);
     src_p++; h_fwd = (((Peek4(src, src_p)) * 2654435761u) >> HASH_ADJUST);
 
     // Main Loop
-    while (1)
+    while (true)
     {
         int findMatchAttempts = (1U << SKIPSTRENGTH) + 3;
         int src_p_fwd = src_p;
@@ -206,7 +206,7 @@ static inline int LZ4_compressCtx(void** ctx,
             dst[dst_p++] = (byte)len;
         }
         else *xxx_token = (length<<ML_BITS);
-# 472 "..\\..\\..\\original\\lz4.c"
+# 474 "..\\..\\..\\original\\lz4.c"
         // Copy Literals
         if (length > 0) /*?*/{ _i = dst_p + length; src_anchor += WildCopy(_, src_anchor, _, dst_p, _i); dst_p = _i; };
 
@@ -284,7 +284,7 @@ _last_literals:
 }
 
 // Note : this function is valid only if isize < LZ4_64KLIMIT
-# 576 "..\\..\\..\\original\\lz4.c"
+# 578 "..\\..\\..\\original\\lz4.c"
 static inline int LZ4_compress64kCtx(void** ctx,
                  int src,
                  int dst,
@@ -306,7 +306,7 @@ static inline int LZ4_compress64kCtx(void** ctx,
 
     int src_LASTLITERALS = src_end - LASTLITERALS;
     int src_LASTLITERALS_1 = src_LASTLITERALS - 1;
-    int src_LASTLITERALS_3 = src_LASTLITERALS - 3;
+
     int src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - (STEPSIZE_32 - 1);
     int dst_LASTLITERALS_1 = dst_end - (1 + LASTLITERALS);
     int dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
@@ -317,12 +317,12 @@ static inline int LZ4_compress64kCtx(void** ctx,
 
     // Init
     if (src_len < MINLENGTH) goto _last_literals;
-# 631 "..\\..\\..\\original\\lz4.c"
+# 635 "..\\..\\..\\original\\lz4.c"
     // First Byte
     src_p++; h_fwd = (((Peek4(src, src_p)) * 2654435761u) >> HASH64K_ADJUST);
 
     // Main Loop
-    while (1)
+    while (true)
     {
         int findMatchAttempts = (1U << SKIPSTRENGTH) + 3;
         int src_p_fwd = src_p;
@@ -491,7 +491,7 @@ int LZ4_uncompress(int src,
     int dec32table[] = {0, 3, 2, 3, 0, 0, 0, 0};
 
     // Main Loop
-    while (1)
+    while (true)
     {
         int length;
 
@@ -574,7 +574,6 @@ int LZ4_uncompress_unknownOutputSize(
     int dst_end = dst_p + dst_maxlen;
     int dst_cpy;
 
-    int src_COPYLENGTH = (src_end-COPYLENGTH);
     int src_LASTLITERALS_3 = (src_end-(2+1+LASTLITERALS));
     int src_LASTLITERALS_1 = (src_end-(LASTLITERALS+1));
     int dst_COPYLENGTH = (dst_end-COPYLENGTH);
@@ -588,7 +587,7 @@ int LZ4_uncompress_unknownOutputSize(
     if (src_p==src_end) goto _output_error; // A correctly formed null-compressed LZ4 must have at least one byte (token=0)
 
     // Main Loop
-    while (1)
+    while (true)
     {
         uint xxx_token;
         int length;

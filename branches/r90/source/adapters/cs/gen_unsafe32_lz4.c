@@ -56,15 +56,11 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
 
    BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
 
-
-
    Redistribution and use in source and binary forms, with or without
 
    modification, are permitted provided that the following conditions are
 
    met:
-
-
 
        * Redistributions of source code must retain the above copyright
 
@@ -77,8 +73,6 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
    in the documentation and/or other materials provided with the
 
    distribution.
-
-
 
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 
@@ -101,8 +95,6 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
 
    You can contact the author at :
 
@@ -127,7 +119,7 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
 // return : the number of bytes written in buffer 'dest', or 0 if the compression fails
 
 static inline int LZ4_compressCtx(void** ctx,
-    const byte* src,
+    byte* src,
     byte* dst,
     int src_len,
     int dst_maxlen)
@@ -136,48 +128,39 @@ static inline int LZ4_compressCtx(void** ctx,
     struct refTables *srt = (struct refTables *) (*ctx);
     byte** hash_table;
 
-
-
-
-    const byte* src_p = (byte*) src;
+    byte* src_p = (byte*) src;
     const int src_base = 0;
-    const byte* src_anchor = src_p;
-    const byte* const src_end = src_p + src_len;
-    const byte* const src_mflimit = src_end - MFLIMIT;
+    byte* src_anchor = src_p;
+    byte* src_end = src_p + src_len;
+    byte* src_mflimit = src_end - MFLIMIT;
 
     byte* dst_p = (byte*) dst;
-    byte* const dst_end = dst_p + dst_maxlen;
+    byte* dst_end = dst_p + dst_maxlen;
 
+    byte* src_LASTLITERALS = src_end - LASTLITERALS;
+    byte* src_LASTLITERALS_1 = src_LASTLITERALS - 1;
 
-    const byte* src_LASTLITERALS = src_end - LASTLITERALS;
-    const byte* src_LASTLITERALS_1 = src_LASTLITERALS - 1;
-    const byte* src_LASTLITERALS_3 = src_LASTLITERALS - 3;
-    const byte* src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - (STEPSIZE_32 - 1);
-    const byte* dst_LASTLITERALS_1 = dst_end - (1 + LASTLITERALS);
-    const byte* dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
-
-
-
+    byte* src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - (STEPSIZE_32 - 1);
+    byte* dst_LASTLITERALS_1 = dst_end - (1 + LASTLITERALS);
+    byte* dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
 
     int length;
-
-
 
     uint h_fwd;
 
     // Init
     if (src_len < MINLENGTH) goto _last_literals;
-# 405 "..\\..\\..\\original\\lz4.c"
+# 407 "..\\..\\..\\original\\lz4.c"
     // First Byte
     hash_table[((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST)] = (byte*)(src_p - src_base);
     src_p++; h_fwd = ((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST);
 
     // Main Loop
-    while (1)
+    while (true)
     {
         int findMatchAttempts = (1U << SKIPSTRENGTH) + 3;
-        const byte* src_p_fwd = src_p;
-        const byte* xxx_ref;
+        byte* src_p_fwd = src_p;
+        byte* xxx_ref;
         byte* xxx_token;
 
         // Find a match
@@ -204,9 +187,6 @@ static inline int LZ4_compressCtx(void** ctx,
 
         if (dst_p + length + (length>>8) > dst_LASTLITERALS_3) return 0; // Check output limit
 
-
-
-
         if (length>=(int)RUN_MASK)
         {
             int len = length-RUN_MASK;
@@ -223,9 +203,9 @@ static inline int LZ4_compressCtx(void** ctx,
             *dst_p++ = (byte)len;
         }
         else *xxx_token = (length<<ML_BITS);
-# 472 "..\\..\\..\\original\\lz4.c"
+# 474 "..\\..\\..\\original\\lz4.c"
         // Copy Literals
-        { _p = dst_p + (length); { do { *(uint*)dst_p = *(uint*)src_anchor; dst_p += 4; src_anchor += 4; *(uint*)dst_p = *(uint*)src_anchor; dst_p += 4; src_anchor += 4; } while (dst_p < e); }; dst_p = e; };
+        { _p = dst_p + (length); { do { *(uint*)dst_p = *(uint*)src_anchor; dst_p += 4; src_anchor += 4; *(uint*)dst_p = *(uint*)src_anchor; dst_p += 4; src_anchor += 4; } while (dst_p < _p); }; dst_p = _p; };
 
 _next_match:
         // Encode Offset
@@ -237,8 +217,6 @@ _next_match:
 
         while (src_p < src_LASTLITERALS_STEPSIZE_1)
 
-
-
         {
             uint diff = (*(uint*)(xxx_ref)) ^ (*(uint*)(src_p));
             if (!diff) { src_p += STEPSIZE_32; xxx_ref += STEPSIZE_32; continue; }
@@ -246,16 +224,8 @@ _next_match:
             goto _endCount;
         }
 
-
-
-
         if ((src_p<src_LASTLITERALS_1) && ((*(ushort*)(xxx_ref)) == (*(ushort*)(src_p)))) { src_p+=2; xxx_ref+=2; }
         if ((src_p<src_LASTLITERALS) && (*xxx_ref == *src_p)) src_p++;
-
-
-
-
-
 
 _endCount:
 
@@ -263,9 +233,6 @@ _endCount:
         length = (int)(src_p - src_anchor);
 
         if (dst_p + (length>>8) > dst_LASTLITERALS_1) return 0; // Check output limit
-
-
-
 
         if (length>=(int)ML_MASK)
         {
@@ -289,10 +256,6 @@ _endCount:
         xxx_ref = src_base + hash_table[h];
         hash_table[h] = (byte*)(src_p - src_base);
 
-
-
-
-
         if ((xxx_ref > src_p - (MAX_DISTANCE + 1)) && ((*(uint*)(xxx_ref)) == (*(uint*)(src_p)))) { xxx_token = dst_p++; *xxx_token=0; goto _next_match; }
 
         // Prepare next loop
@@ -307,8 +270,6 @@ _last_literals:
 
         if ((byte*)dst_p + lastRun + 1 + ((lastRun+255-RUN_MASK)/255) > dst_end) return 0;
 
-
-
         if (lastRun>=(int)RUN_MASK) { *dst_p++=(RUN_MASK<<ML_BITS); lastRun-=RUN_MASK; for(; lastRun > 254 ; lastRun-=255) *dst_p++ = 255; *dst_p++ = (byte) lastRun; }
         else *dst_p++ = (lastRun<<ML_BITS);
         BlockCopy(src_anchor, dst_p, (int)(src_end - src_anchor));
@@ -320,9 +281,9 @@ _last_literals:
 }
 
 // Note : this function is valid only if isize < LZ4_64KLIMIT
-# 576 "..\\..\\..\\original\\lz4.c"
+# 578 "..\\..\\..\\original\\lz4.c"
 static inline int LZ4_compress64kCtx(void** ctx,
-                 const byte* src,
+                 byte* src,
                  byte* dst,
                  int src_len,
                  int dst_maxlen)
@@ -331,47 +292,38 @@ static inline int LZ4_compress64kCtx(void** ctx,
     struct refTables *srt = (struct refTables *) (*ctx);
     ushort* hash_table;
 
-
-
-
-    const byte* src_p = (byte*) src;
-    const byte* src_anchor = src_p;
-    const byte* const src_base = src_p;
-    const byte* const src_end = src_p + src_len;
-    const byte* const src_mflimit = src_end - MFLIMIT;
+    byte* src_p = (byte*) src;
+    byte* src_anchor = src_p;
+    byte* src_base = src_p;
+    byte* src_end = src_p + src_len;
+    byte* src_mflimit = src_end - MFLIMIT;
 
     byte* dst_p = (byte*) dst;
-    byte* const dst_end = dst_p + dst_maxlen;
+    byte* dst_end = dst_p + dst_maxlen;
 
+    byte* src_LASTLITERALS = src_end - LASTLITERALS;
+    byte* src_LASTLITERALS_1 = src_LASTLITERALS - 1;
 
-    const byte* src_LASTLITERALS = src_end - LASTLITERALS;
-    const byte* src_LASTLITERALS_1 = src_LASTLITERALS - 1;
-    const byte* src_LASTLITERALS_3 = src_LASTLITERALS - 3;
-    const byte* src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - (STEPSIZE_32 - 1);
-    const byte* dst_LASTLITERALS_1 = dst_end - (1 + LASTLITERALS);
-    const byte* dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
-
-
-
+    byte* src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - (STEPSIZE_32 - 1);
+    byte* dst_LASTLITERALS_1 = dst_end - (1 + LASTLITERALS);
+    byte* dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
 
     int len, length;
-
-
 
     uint h_fwd;
 
     // Init
     if (src_len < MINLENGTH) goto _last_literals;
-# 631 "..\\..\\..\\original\\lz4.c"
+# 635 "..\\..\\..\\original\\lz4.c"
     // First Byte
     src_p++; h_fwd = ((((*(uint*)(src_p))) * 2654435761u) >> HASH64K_ADJUST);
 
     // Main Loop
-    while (1)
+    while (true)
     {
         int findMatchAttempts = (1U << SKIPSTRENGTH) + 3;
-        const byte* src_p_fwd = src_p;
-        const byte* xxx_ref;
+        byte* src_p_fwd = src_p;
+        byte* xxx_ref;
         byte* xxx_token;
 
         // Find a match
@@ -398,10 +350,6 @@ static inline int LZ4_compress64kCtx(void** ctx,
 
         if (dst_p + length + (length>>8) > dst_LASTLITERALS_3) return 0; // Check output limit
 
-
-
-
-
         if (length>=(int)RUN_MASK)
         {
             int len = length-RUN_MASK;
@@ -419,12 +367,8 @@ static inline int LZ4_compress64kCtx(void** ctx,
         }
         else *xxx_token = (length<<ML_BITS);
 
-
-
-
-
         // Copy Literals
-        { _p = dst_p + (length); { do { *(uint*)dst_p = *(uint*)src_anchor; dst_p += 4; src_anchor += 4; *(uint*)dst_p = *(uint*)src_anchor; dst_p += 4; src_anchor += 4; } while (dst_p < e); }; dst_p = e; };
+        { _p = dst_p + (length); { do { *(uint*)dst_p = *(uint*)src_anchor; dst_p += 4; src_anchor += 4; *(uint*)dst_p = *(uint*)src_anchor; dst_p += 4; src_anchor += 4; } while (dst_p < _p); }; dst_p = _p; };
 
 _next_match:
         // Encode Offset
@@ -436,8 +380,6 @@ _next_match:
 
         while (src_p<src_LASTLITERALS_STEPSIZE_1)
 
-
-
         {
             uint diff = (*(uint*)(xxx_ref)) ^ (*(uint*)(src_p));
             if (!diff) { src_p+=STEPSIZE_32; xxx_ref+=STEPSIZE_32; continue; }
@@ -445,16 +387,8 @@ _next_match:
             goto _endCount;
         }
 
-
-
-
         if ((src_p<src_LASTLITERALS_1) && ((*(ushort*)(xxx_ref)) == (*(ushort*)(src_p)))) { src_p+=2; xxx_ref+=2; }
         if ((src_p<src_LASTLITERALS) && (*xxx_ref == *src_p)) src_p++;
-
-
-
-
-
 
 _endCount:
 
@@ -462,8 +396,6 @@ _endCount:
         len = (int)(src_p - src_anchor);
 
         if (dst_p + (len>>8) > dst_LASTLITERALS_1) return 0; // Check output limit
-
-
 
         if (len>=(int)ML_MASK) { *xxx_token+=ML_MASK; len-=ML_MASK; for(; len > 509 ; len-=510) { *dst_p++ = 255; *dst_p++ = 255; } if (len > 254) { len-=255; *dst_p++ = 255; } *dst_p++ = (byte)len; }
         else *xxx_token += len;
@@ -479,10 +411,6 @@ _endCount:
         uint h = ((((*(uint*)(src_p))) * 2654435761u) >> HASH64K_ADJUST);
         xxx_ref = src_base + hash_table[h];
         hash_table[h] = (ushort)(src_p - src_base);
-
-
-
-
 
         if ((*(uint*)(xxx_ref)) == (*(uint*)(src_p))) { xxx_token = dst_p++; *xxx_token=0; goto _next_match; }
 
@@ -506,8 +434,7 @@ _last_literals:
     return (int) (((byte*)dst_p)-dst);
 }
 
-
-int LZ4_compress_limitedOutput(const byte* src,
+int LZ4_compress_limitedOutput(byte* src,
     byte* dst,
     int src_len,
     int dst_maxlen)
@@ -521,12 +448,9 @@ int LZ4_compress_limitedOutput(const byte* src,
     free(ctx);
     return result;
 
-
-
-
 }
 
-int LZ4_compress(const byte* src,
+int LZ4_compress(byte* src,
     byte* dst,
     int src_len)
 {
@@ -543,46 +467,39 @@ int LZ4_compress(const byte* src,
 //      LZ4_uncompress_unknownOutputSize() also insures that it will never read outside of the input buffer.
 //      A corrupted input will produce an error result, a negative int, indicating the position of the error within input stream.
 
-int LZ4_uncompress(const byte* src,
+int LZ4_uncompress(byte* src,
     byte* dst,
     int dst_len)
 {
     // Local Variables
-    const byte* src_p = (const byte*) src;
-    const byte* xxx_ref;
+    byte* src_p = (byte*) src;
+    byte* xxx_ref;
 
     byte* dst_p = (byte*) dst;
-    byte* const dst_end = dst_p + dst_len;
+    byte* dst_end = dst_p + dst_len;
     byte* dst_cpy;
 
-
-  const byte* dst_LASTLITERALS = dst_end - LASTLITERALS;
-        const byte* dst_COPYLENGTH = dst_end - COPYLENGTH;
-        const byte* dst_COPYLENGTH_STEPSIZE_4 = dst_end - COPYLENGTH - (STEPSIZE_32 - 4);
-
+  byte* dst_LASTLITERALS = dst_end - LASTLITERALS;
+        byte* dst_COPYLENGTH = dst_end - COPYLENGTH;
+        byte* dst_COPYLENGTH_STEPSIZE_4 = dst_end - COPYLENGTH - (STEPSIZE_32 - 4);
 
     uint xxx_token;
 
     int dec32table[] = {0, 3, 2, 3, 0, 0, 0, 0};
 
-
-
-
     // Main Loop
-    while (1)
+    while (true)
     {
         int length;
 
         // get runlength
         xxx_token = *src_p++;
-        if ((length=(xxx_token>>ML_BITS)) == RUN_MASK) { int len; for (;(len=*src_p++)==255;length+=255) { } length += len; }
+        if ((length=(xxx_token>>ML_BITS)) == RUN_MASK) { int len; for (;(len=*src_p++)==255;length+=255) { /* do nothing */ } length += len; }
 
         // copy literals
         dst_cpy = dst_p+length;
 
         if (dst_cpy>dst_COPYLENGTH)
-
-
 
         {
             if (dst_cpy != dst_end) goto _output_error; // Error : not enough place for another match (min 4) + 5 literals
@@ -594,16 +511,14 @@ int LZ4_uncompress(const byte* src,
 
         // get offset
         { xxx_ref = (dst_cpy) - (*(ushort*)(src_p)); }; src_p+=2;
-        if (xxx_ref < (byte* const)dst) goto _output_error; // Error : offset outside destination buffer
+        if (xxx_ref < (byte*)dst) goto _output_error; // Error : offset outside destination buffer
 
         // get matchlength
-        if ((length=(xxx_token&ML_MASK)) == ML_MASK) { for (;*src_p==255;length+=255) {src_p++;} length += *src_p++; }
+        if ((length=(xxx_token&ML_MASK)) == ML_MASK) { for (;*src_p==255;length+=255) src_p++; length += *src_p++; }
 
         // copy repeated sequence
         if ((dst_p-xxx_ref)<STEPSIZE_32)
         {
-
-
 
             const int dec64 = 0;
 
@@ -617,18 +532,12 @@ int LZ4_uncompress(const byte* src,
         } else { *(uint*)dst_p = *(uint*)xxx_ref; dst_p += 4; xxx_ref += 4;; }
         dst_cpy = dst_p + length - (STEPSIZE_32-4);
 
-
         if (dst_cpy > dst_COPYLENGTH_STEPSIZE_4)
-
-
 
         {
 
             if (dst_cpy > dst_LASTLITERALS) goto _output_error; // Error : last 5 bytes must be literals
             { do { *(uint*)dst_p = *(uint*)xxx_ref; dst_p += 4; xxx_ref += 4; *(uint*)dst_p = *(uint*)xxx_ref; dst_p += 4; xxx_ref += 4; } while (dst_p < dst_COPYLENGTH); };
-
-
-
 
             while(dst_p<dst_cpy) *dst_p++=*xxx_ref++;
             dst_p=dst_cpy;
@@ -648,40 +557,34 @@ _output_error:
 }
 
 int LZ4_uncompress_unknownOutputSize(
-    const byte* src,
+    byte* src,
     byte* dst,
     int src_len,
     int dst_maxlen)
 {
     // Local Variables
-    const byte* src_p = (const byte*) src;
-    const byte* const src_end = src_p + src_len;
-    const byte* xxx_ref;
+    byte* src_p = (byte*) src;
+    byte* src_end = src_p + src_len;
+    byte* xxx_ref;
 
     byte* dst_p = (byte*) dst;
-    byte* const dst_end = dst_p + dst_maxlen;
+    byte* dst_end = dst_p + dst_maxlen;
     byte* dst_cpy;
 
-
-    const byte* src_COPYLENGTH = (src_end-COPYLENGTH);
-    const byte* src_LASTLITERALS_3 = (src_end-(2+1+LASTLITERALS));
-    const byte* src_LASTLITERALS_1 = (src_end-(LASTLITERALS+1));
-    const byte* dst_COPYLENGTH = (dst_end-COPYLENGTH);
-    const byte* dst_COPYLENGTH_STEPSIZE_4 = (dst_end-(COPYLENGTH+(STEPSIZE_32-4)));
-    const byte* dst_LASTLITERALS = (dst_end - LASTLITERALS);
-    const byte* dst_MFLIMIT = (dst_end - MFLIMIT);
-
+    byte* src_LASTLITERALS_3 = (src_end-(2+1+LASTLITERALS));
+    byte* src_LASTLITERALS_1 = (src_end-(LASTLITERALS+1));
+    byte* dst_COPYLENGTH = (dst_end-COPYLENGTH);
+    byte* dst_COPYLENGTH_STEPSIZE_4 = (dst_end-(COPYLENGTH+(STEPSIZE_32-4)));
+    byte* dst_LASTLITERALS = (dst_end - LASTLITERALS);
+    byte* dst_MFLIMIT = (dst_end - MFLIMIT);
 
     int dec32table[] = {0, 3, 2, 3, 0, 0, 0, 0};
-
-
-
 
     // Special case
     if (src_p==src_end) goto _output_error; // A correctly formed null-compressed LZ4 must have at least one byte (token=0)
 
     // Main Loop
-    while (1)
+    while (true)
     {
         uint xxx_token;
         int length;
@@ -699,8 +602,6 @@ int LZ4_uncompress_unknownOutputSize(
 
         if ((dst_cpy>dst_MFLIMIT) || (src_p+length>src_LASTLITERALS_3))
 
-
-
         {
             if (dst_cpy > dst_end) goto _output_error; // Error : writes beyond output buffer
             if (src_p+length != src_end) goto _output_error; // Error : LZ4 format requires to consume all input at this stage (no match within the last 11 bytes, and at least 8 remaining input bytes for another match+literals)
@@ -712,15 +613,13 @@ int LZ4_uncompress_unknownOutputSize(
 
         // get offset
         { xxx_ref = (dst_cpy) - (*(ushort*)(src_p)); }; src_p+=2;
-        if (xxx_ref < (byte* const)dst) goto _output_error; // Error : offset outside of destination buffer
+        if (xxx_ref < (byte*)dst) goto _output_error; // Error : offset outside of destination buffer
 
         // get matchlength
         if ((length=(xxx_token&ML_MASK)) == ML_MASK)
         {
 
             while (src_p<src_LASTLITERALS_1) // Error : a minimum input bytes must remain for LASTLITERALS + token
-
-
 
             {
                 int s = *src_p++;
@@ -734,8 +633,6 @@ int LZ4_uncompress_unknownOutputSize(
         if (dst_p-xxx_ref<STEPSIZE_32)
         {
 
-
-
             const int dec64 = 0;
 
             dst_p[0] = xxx_ref[0];
@@ -748,18 +645,12 @@ int LZ4_uncompress_unknownOutputSize(
         } else { *(uint*)dst_p = *(uint*)xxx_ref; dst_p += 4; xxx_ref += 4;; }
         dst_cpy = dst_p + length - (STEPSIZE_32-4);
 
-
         if (dst_cpy>dst_COPYLENGTH_STEPSIZE_4)
-
-
 
         {
 
             if (dst_cpy > dst_LASTLITERALS) goto _output_error; // Error : last 5 bytes must be literals
             { do { *(uint*)dst_p = *(uint*)xxx_ref; dst_p += 4; xxx_ref += 4; *(uint*)dst_p = *(uint*)xxx_ref; dst_p += 4; xxx_ref += 4; } while (dst_p < dst_COPYLENGTH); };
-
-
-
 
             while(dst_p<dst_cpy) *dst_p++=*xxx_ref++;
             dst_p=dst_cpy;

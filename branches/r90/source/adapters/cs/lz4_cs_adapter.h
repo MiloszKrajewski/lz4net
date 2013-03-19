@@ -139,8 +139,8 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
         #define LZ4_NbCommonBytes(val)  debruijn32[((U32)((U32)((val) & -(val)) * 0x077CB531u)) >> 27]
     #endif
     #define LZ4_WILDCOPY(s,d,e)     		{ do { LZ4_COPYPACKET(s, d) } while (d < e); }
-    #define LZ4_BLINDCOPY(s,d,l)    		{ _p = d + (l); LZ4_WILDCOPY(s, d, e); d = e; }
-    #define LZ4_WRITE_LITTLEENDIAN_16(p,v)  { *(ushort)p = v; p += 2; }
+    #define LZ4_BLINDCOPY(s,d,l)    		{ _p = d + (l); LZ4_WILDCOPY(s, d, _p); d = _p; }
+    #define LZ4_WRITE_LITTLEENDIAN_16(p,v)  { *(ushort*)p = v; p += 2; }
     #define memcpy(d,s,l)                   BlockCopy(s, d, (int)(l))
 #endif
 

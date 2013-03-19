@@ -40,10 +40,10 @@ namespace LZ4
 		#region fields
 
 		/// <summary>Encoding service.</summary>
-		private readonly static ILZ4Service _encode;
+		private readonly static ILZ4Service Encoder;
 
 		/// <summary>Decoding service.</summary>
-		private readonly static ILZ4Service _decode;
+		private readonly static ILZ4Service Decoder;
 
 		// ReSharper disable InconsistentNaming
 
@@ -88,7 +88,7 @@ namespace LZ4
 
 			if (IntPtr.Size == 4)
 			{
-				_encode =
+				Encoder =
 					_service_MM32 ??
 					_service_MM64 ??
 					_service_N32 ??
@@ -97,7 +97,7 @@ namespace LZ4
 					_service_CC64 ??
 					_service_S32 ??
 					_service_S64;
-				_decode =
+				Decoder =
 					_service_MM32 ??
 					_service_MM64 ??
 					_service_CC32 ??
@@ -109,7 +109,7 @@ namespace LZ4
 			}
 			else
 			{
-				_encode =
+				Encoder =
 					_service_MM64 ??
 					_service_MM32 ??
 					_service_N64 ??
@@ -118,7 +118,7 @@ namespace LZ4
 					_service_CC32 ??
 					_service_S32 ??
 					_service_S64;
-				_decode =
+				Decoder =
 					_service_MM64 ??
 					_service_CC64 ??
 					_service_N32 ??
@@ -129,7 +129,7 @@ namespace LZ4
 					_service_S32;
 			}
 
-			if (_encode == null || _decode == null)
+			if (Encoder == null || Decoder == null)
 			{
 				throw new NotSupportedException("No LZ4 compression service found");
 			}
@@ -248,7 +248,7 @@ namespace LZ4
 		/// <value>The name of the codec.</value>
 		public static string CodecName
 		{
-			get { return string.Format("{0}/{1}", _encode.CodecName, _decode.CodecName); }
+			get { return string.Format("{0}/{1}", Encoder.CodecName, Decoder.CodecName); }
 		}
 
 		/// <summary>Get maximum output length.</summary>
@@ -277,7 +277,7 @@ namespace LZ4
 			int outputOffset,
 			int outputLength)
 		{
-			return _encode.Encode(input, inputOffset, inputLength, output, outputOffset, outputLength);
+			return Encoder.Encode(input, inputOffset, inputLength, output, outputOffset, outputLength);
 		}
 
 		/// <summary>Encodes the specified input.</summary>
@@ -329,7 +329,7 @@ namespace LZ4
 			int outputLength,
 			bool knownOutputLength)
 		{
-			return _decode.Decode(input, inputOffset, inputLength, output, outputOffset, outputLength, knownOutputLength);
+			return Decoder.Decode(input, inputOffset, inputLength, output, outputOffset, outputLength, knownOutputLength);
 		}
 
 		/// <summary>Decodes the specified input.</summary>
