@@ -372,10 +372,8 @@ namespace LZ4s
 
 			_next_match:
 				// Encode Offset
-				{
-					Poke2(dst, dst_p, (ushort)(src_p - src_ref));
-					dst_p += 2;
-				}
+				Poke2(dst, dst_p, (ushort)(src_p - src_ref));
+				dst_p += 2;
 
 				// Start Counting
 				src_p += MINMATCH;
@@ -476,7 +474,7 @@ namespace LZ4s
 			dst_p += src_end - src_anchor;
 
 			// End
-			return ((dst_p) - dst_0);
+			return dst_p - dst_0;
 		}
 
 		#endregion
@@ -693,8 +691,7 @@ namespace LZ4s
 					{
 						int s = src[src_p++];
 						length += s;
-						if (s == 255) continue;
-						break;
+						if (s != 255) break;
 					}
 				}
 

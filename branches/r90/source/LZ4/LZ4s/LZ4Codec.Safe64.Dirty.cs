@@ -298,7 +298,6 @@ namespace LZ4s
 			var dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
 
 			int len, length;
-
 			uint h, h_fwd;
 
 			// Init
@@ -361,7 +360,9 @@ namespace LZ4s
 						goto _next_match;
 					}
 					else
+					{
 						dst[dst_p++] = (byte)len;
+					}
 				}
 				else
 				{
@@ -693,9 +694,7 @@ namespace LZ4s
 				dst_p = dst_cpy;
 
 				// get offset
-				{
-					dst_ref = (dst_cpy) - Peek2(src, src_p);
-				}
+				dst_ref = (dst_cpy) - Peek2(src, src_p);
 				src_p += 2;
 				if (dst_ref < dst_0) goto _output_error; // Error : offset outside of destination buffer
 

@@ -15,7 +15,7 @@ rem call :run LZ4Sharp64
 rem call :run Unsafe32
 rem call :run LZ4Sharp32
 call :run Safe64
-rem call :run Safe32
+call :run Safe32
 
 goto :cycle
 
