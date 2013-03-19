@@ -4,8 +4,6 @@
 
 #define LZ4_ARCH64 0
 #define LZ4_FUNC(name) I32_ ## name
-//#ifdef __cplusplus_cli
-	#define LZ4_MK_OPT
-//#endif
+#define LZ4_MK_OPT
 
 #include "..\..\..\original\lz4.h"
