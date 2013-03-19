@@ -304,7 +304,7 @@ static inline int LZ4_NbCommonBytes (register U32 val)
 {
 #if defined(LZ4_BIG_ENDIAN)
     #if defined(_MSC_VER) && !defined(LZ4_FORCE_SW_BITCOUNT)
-    unsigned long r = 0;
+    unsigned long r;
     _BitScanReverse( &r, val );
     return (int)(r>>3);
     #elif defined(__GNUC__) && (GCC_VERSION >= 304) && !defined(LZ4_FORCE_SW_BITCOUNT)
@@ -317,7 +317,7 @@ static inline int LZ4_NbCommonBytes (register U32 val)
     #endif
 #else
     #if defined(_MSC_VER) && !defined(LZ4_FORCE_SW_BITCOUNT)
-    unsigned long r = 0;
+    unsigned long r;
     _BitScanForward( &r, val );
     return (int)(r>>3);
     #elif defined(__GNUC__) && (GCC_VERSION >= 304) && !defined(LZ4_FORCE_SW_BITCOUNT)

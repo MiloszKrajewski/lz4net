@@ -37,10 +37,14 @@
 // CPU Feature Detection
 //**************************************
 // 32 or 64 bits ?
+#ifndef LZ4_ARCH64
+
 #if (defined(__x86_64__) || defined(__x86_64) || defined(__amd64__) || defined(__amd64) || defined(__ppc64__) || defined(_WIN64) || defined(__LP64__) || defined(_LP64) )   // Detects 64 bits mode
 #define LZ4_ARCH64 1
 #else
 #define LZ4_ARCH64 0
+#endif
+
 #endif
 
 // Little Endian or Big Endian ? 
@@ -87,7 +91,7 @@
 #  define inline __inline             // Visual is not C99, but supports some kind of inline
 #  define forceinline __forceinline   
 #include <intrin.h>             // For Visual 2005
-#  if LZ4_ARCH64	// 64-bit
+#  if LZ4_ARCH64 && defined(_M_X64) // 64-bit
 #    pragma intrinsic(_BitScanForward64) // For Visual 2005
 #    pragma intrinsic(_BitScanReverse64) // For Visual 2005
 #  else
@@ -130,6 +134,7 @@
 #define U32		unsigned __int32
 #define S32		__int32
 #define U64		unsigned __int64
+#define S64       __int64
 #else
 #include <stdint.h>
 #define BYTE	uint8_t
@@ -137,6 +142,7 @@
 #define U32		uint32_t
 #define S32		int32_t
 #define U64		uint64_t
+#define S64       int64_t
 #endif
 
 #ifndef LZ4_FORCE_UNALIGNED_ACCESS
@@ -246,7 +252,7 @@ typedef struct
 inline static int LZ4_NbCommonBytes (register U64 val)
 {
 #if defined(LZ4_BIG_ENDIAN)
-    #if defined(_MSC_VER) && !defined(LZ4_FORCE_SW_BITCOUNT)
+    #if defined(_MSC_VER) && !defined(LZ4_FORCE_SW_BITCOUNT) && defined(_M_X64)
     unsigned long r = 0;
     _BitScanReverse64( &r, val );
     return (int)(r>>3);
@@ -260,7 +266,7 @@ inline static int LZ4_NbCommonBytes (register U64 val)
 	return r;
     #endif
 #else
-    #if defined(_MSC_VER) && !defined(LZ4_FORCE_SW_BITCOUNT)
+    #if defined(_MSC_VER) && !defined(LZ4_FORCE_SW_BITCOUNT) && defined(_M_X64)
     unsigned long r = 0;
     _BitScanForward64( &r, val );
     return (int)(r>>3);
@@ -268,8 +274,12 @@ inline static int LZ4_NbCommonBytes (register U64 val)
     return (__builtin_ctzll(val) >> 3); 
     #else
 	static const int DeBruijnBytePos[64] = { 0, 0, 0, 0, 0, 1, 1, 2, 0, 3, 1, 3, 1, 4, 2, 7, 0, 2, 3, 6, 1, 5, 3, 5, 1, 3, 4, 4, 2, 5, 6, 7, 7, 0, 1, 2, 3, 3, 4, 6, 2, 6, 5, 5, 3, 4, 5, 6, 7, 1, 2, 4, 6, 4, 4, 5, 7, 2, 6, 5, 7, 6, 7, 7 };
+#ifdef LZ4_MK_OPT
+    return DeBruijnBytePos[((U64)((U64)((S64)val & -(S64)val) * 0x0218A392CDABBD3F)) >> 58];
+#else
 	return DeBruijnBytePos[((U64)((val & -val) * 0x0218A392CDABBD3F)) >> 58];
-    #endif
+#endif
+	#endif
 #endif
 }
 
@@ -299,8 +309,12 @@ inline static int LZ4_NbCommonBytes (register U32 val)
     return (__builtin_ctz(val) >> 3); 
     #else
 	static const int DeBruijnBytePos[32] = { 0, 0, 3, 0, 3, 1, 3, 0, 3, 2, 2, 1, 3, 2, 0, 1, 3, 3, 1, 2, 2, 2, 2, 0, 3, 1, 2, 0, 1, 0, 1, 1 };
+#ifdef LZ4_MK_OPT
+    return DeBruijnBytePos[((U32)((U32)((S32)val & -(S32)val) * 0x077CB531U)) >> 27];
+#else
 	return DeBruijnBytePos[((U32)((val & -(S32)val) * 0x077CB531U)) >> 27];
-    #endif
+#endif
+	#endif
 #endif
 }
 

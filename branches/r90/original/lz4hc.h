@@ -33,6 +33,9 @@
 */
 #pragma once
 
+#ifdef LZ4_FUNC
+    #define LZ4_compressHC LZ4_FUNC(LZ4_compressHC)
+#endif
 
 #if defined (__cplusplus)
 extern "C" {
