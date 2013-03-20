@@ -572,11 +572,9 @@ namespace LZ4s
 				}
 				if (dst_p < dst_cpy)
 				{
-					_i = WildCopy(src, src_p, dst, dst_p, dst_cpy);
-					src_p += _i;
-					dst_p += _i;
+					WildCopy(src, src_p, dst, dst_p, dst_cpy);
 				}
-				src_p -= (dst_p - dst_cpy);
+				src_p += dst_cpy - dst_p;
 				dst_p = dst_cpy;
 
 				// get offset
@@ -709,11 +707,9 @@ namespace LZ4s
 				}
 				if (dst_p < dst_cpy)
 				{
-					_i = WildCopy(src, src_p, dst, dst_p, dst_cpy);
-					src_p += _i;
-					dst_p += _i;
+					WildCopy(src, src_p, dst, dst_p, dst_cpy);
 				}
-				src_p -= (dst_p - dst_cpy);
+				src_p += dst_cpy - dst_p;
 				dst_p = dst_cpy;
 
 				// get offset
