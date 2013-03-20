@@ -142,7 +142,7 @@ namespace LZ4s
 
 		private static void Copy4(byte[] buf, int src, int dst)
 		{
-			Assert(dst - src > 0, "Copying backwards is not implemented");
+			Assert(dst > src, "Copying backwards is not implemented");
 			buf[dst + 3] = buf[src + 3];
 			buf[dst + 2] = buf[src + 2];
 			buf[dst + 1] = buf[src + 1];
@@ -151,7 +151,7 @@ namespace LZ4s
 
 		private static void Copy8(byte[] buf, int src, int dst)
 		{
-			Assert(dst - src > 0, "Copying backwards is not implemented");
+			Assert(dst > src, "Copying backwards is not implemented");
 			buf[dst + 7] = buf[src + 7];
 			buf[dst + 6] = buf[src + 6];
 			buf[dst + 5] = buf[src + 5];
@@ -214,18 +214,20 @@ namespace LZ4s
 			}
 			else
 			{
-				while (len >= 8)
-				{
-					dst[dst_0] = src[src_0];
-					dst[dst_0 + 1] = src[src_0 + 1];
-					dst[dst_0 + 2] = src[src_0 + 2];
-					dst[dst_0 + 3] = src[src_0 + 3];
-					dst[dst_0 + 4] = src[src_0 + 4];
-					dst[dst_0 + 5] = src[src_0 + 5];
-					dst[dst_0 + 6] = src[src_0 + 6];
-					dst[dst_0 + 7] = src[src_0 + 7];
-					len -= 8; src_0 += 8; dst_0 += 8;
-				}
+				// apparently (tested) this is an overkill
+				// it seems to be faster without this 8-byte loop
+				//while (len >= 8)
+				//{
+				//	dst[dst_0] = src[src_0];
+				//	dst[dst_0 + 1] = src[src_0 + 1];
+				//	dst[dst_0 + 2] = src[src_0 + 2];
+				//	dst[dst_0 + 3] = src[src_0 + 3];
+				//	dst[dst_0 + 4] = src[src_0 + 4];
+				//	dst[dst_0 + 5] = src[src_0 + 5];
+				//	dst[dst_0 + 6] = src[src_0 + 6];
+				//	dst[dst_0 + 7] = src[src_0 + 7];
+				//	len -= 8; src_0 += 8; dst_0 += 8;
+				//}
 
 				while (len >= 4)
 				{
@@ -270,18 +272,20 @@ namespace LZ4s
 				} while (len >= diff);
 			}
 
-			while (len >= 8)
-			{
-				buffer[dst] = buffer[src];
-				buffer[dst + 1] = buffer[src + 1];
-				buffer[dst + 2] = buffer[src + 2];
-				buffer[dst + 3] = buffer[src + 3];
-				buffer[dst + 4] = buffer[src + 4];
-				buffer[dst + 5] = buffer[src + 5];
-				buffer[dst + 6] = buffer[src + 6];
-				buffer[dst + 7] = buffer[src + 7];
-				dst += 8; src += 8; len -= 8;
-			}
+			// apparently (tested) this is an overkill
+			// it seems to be faster without this 8-byte loop
+			//while (len >= 8)
+			//{
+			//	buffer[dst] = buffer[src];
+			//	buffer[dst + 1] = buffer[src + 1];
+			//	buffer[dst + 2] = buffer[src + 2];
+			//	buffer[dst + 3] = buffer[src + 3];
+			//	buffer[dst + 4] = buffer[src + 4];
+			//	buffer[dst + 5] = buffer[src + 5];
+			//	buffer[dst + 6] = buffer[src + 6];
+			//	buffer[dst + 7] = buffer[src + 7];
+			//	dst += 8; src += 8; len -= 8;
+			//}
 
 			while (len >= 4)
 			{

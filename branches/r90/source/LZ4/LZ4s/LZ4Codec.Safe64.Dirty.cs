@@ -585,15 +585,13 @@ namespace LZ4s
 				}
 				if (dst_p < dst_cpy)
 				{
-					_i = WildCopy(src, src_p, dst, dst_p, dst_cpy);
-					src_p += _i;
-					dst_p += _i;
+					WildCopy(src, src_p, dst, dst_p, dst_cpy);
 				}
-				src_p -= (dst_p - dst_cpy);
+				src_p += dst_cpy - dst_p;
 				dst_p = dst_cpy;
 
 				// get offset
-				dst_ref = (dst_cpy) - Peek2(src, src_p);
+				dst_ref = dst_cpy - Peek2(src, src_p);
 				src_p += 2;
 				if (dst_ref < dst_0) goto _output_error; // Error : offset outside destination buffer
 
@@ -723,15 +721,13 @@ namespace LZ4s
 				}
 				if (dst_p < dst_cpy)
 				{
-					_i = WildCopy(src, src_p, dst, dst_p, dst_cpy);
-					src_p += _i;
-					dst_p += _i;
+					WildCopy(src, src_p, dst, dst_p, dst_cpy);
 				}
-				src_p -= (dst_p - dst_cpy);
+				src_p += dst_cpy - dst_p;
 				dst_p = dst_cpy;
 
 				// get offset
-				dst_ref = (dst_cpy) - Peek2(src, src_p);
+				dst_ref = dst_cpy - Peek2(src, src_p);
 				src_p += 2;
 				if (dst_ref < dst_0) goto _output_error; // Error : offset outside of destination buffer
 
@@ -792,11 +788,11 @@ namespace LZ4s
 			}
 
 			// end of decoding
-			return ((dst_p) - dst_0);
+			return dst_p - dst_0;
 
 			// write overflow error detected
 		_output_error:
-			return (-((src_p) - src_0));
+			return -(src_p - src_0);
 		}
 
 		#endregion
