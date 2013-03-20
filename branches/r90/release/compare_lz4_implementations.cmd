@@ -1,19 +1,20 @@
 @echo off
 
 setlocal ENABLEDELAYEDEXPANSION
-set FILES=D:\Archive\Corpus
+rem set FILES=D:\Archive\Corpus
+set FILES=T:\Temp\Corpus
 set PROJECT=LZ4.Tests.Continuous
 
 :cycle
 
-rem call :run MixedMode64
-rem call :run MixedMode32
-rem call :run CppCLI64
-rem call :run CppCLI32
-rem call :run Unsafe64
-rem call :run LZ4Sharp64
-rem call :run Unsafe32
-rem call :run LZ4Sharp32
+call :run MixedMode64
+call :run MixedMode32
+call :run CppCLI64
+call :run CppCLI32
+call :run Unsafe64
+call :run LZ4Sharp64
+call :run Unsafe32
+call :run LZ4Sharp32
 call :run Safe64
 call :run Safe32
 
