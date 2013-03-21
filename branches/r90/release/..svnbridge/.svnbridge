@@ -1,3 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?><ItemProperties xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><Properties><Property><Name>svn:ignore</Name><Value>compare_lz4_implementations.xml.csv
+﻿<?xml version="1.0" encoding="utf-8"?><ItemProperties xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Properties><Property><Name>svn:ignore</Name><Value>compare_lz4_implementations.xml.csv
 compare_lz4_implementations.xml
+</Value></Property><Property><Name>svn:ignore</Name><Value>compare_lz4_implementations.xml.csv
+compare_lz4_implementations.xml
+8cpy.compare_lz4_implementations.xml
+8cpy.compare_lz4_implementations.xml.csv
 </Value></Property></Properties></ItemProperties>
