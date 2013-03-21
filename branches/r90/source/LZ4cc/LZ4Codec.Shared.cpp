@@ -28,6 +28,16 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace NAMESPACE {
 
 void LZ4Codec::CheckArguments(
+	array<Byte>^ input, int inputOffset, int% inputLength)
+{
+	if (inputLength < 0) inputLength = input->Length - inputOffset;
+
+	if (input == nullptr) throw gcnew ArgumentNullException("input");
+	if (inputOffset < 0 || inputOffset + inputLength > input->Length)
+		throw gcnew ArgumentException("inputOffset and inputLength are invalid for given input");
+}
+
+void LZ4Codec::CheckArguments(
 	array<Byte>^ input, int inputOffset, int% inputLength,
 	array<Byte>^ output, int outputOffset, int% outputLength)
 {

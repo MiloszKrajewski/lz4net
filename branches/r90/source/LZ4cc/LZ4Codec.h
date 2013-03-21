@@ -34,6 +34,9 @@ namespace NAMESPACE {
 
     private:
 		static void CheckArguments(
+			array<Byte>^ input, int inputOffset, int% inputLength);
+
+		static void CheckArguments(
 			array<Byte>^ input, int inputOffset, int% inputLength,
 			array<Byte>^ output, int outputOffset, int% outputLength);
 
@@ -70,6 +73,12 @@ namespace NAMESPACE {
 			array<Byte>^ input, int inputOffset, int inputLength, 
 			int outputLength);
 
+		static int Encode32hc(
+			byte* input, int inputLength, byte* output);
+
+		static array<Byte>^ Encode32hc(
+			array<Byte>^ input, int inputOffset, int inputLength);
+
         // region: 64-bit
 
         static int Encode64(
@@ -96,6 +105,12 @@ namespace NAMESPACE {
 		static array<Byte>^ Decode64(
 			array<Byte>^ input, int inputOffset, int inputLength, 
 			int outputLength);
+
+		static int Encode64hc(
+			byte* input, int inputLength, byte* output);
+
+		static array<Byte>^ Encode64hc(
+			array<Byte>^ input, int inputOffset, int inputLength);
 	};
 
 }

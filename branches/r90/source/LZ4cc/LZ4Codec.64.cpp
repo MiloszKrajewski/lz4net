@@ -136,4 +136,40 @@ array<Byte>^ LZ4Codec::Decode64(
 	return result;
 }
 
+int LZ4Codec::Encode64hc(
+	byte* input, int inputLength, byte* output)
+{
+    return LZ4_FUNC(LZ4_compressHC)((char*)input, (char*)output, inputLength);
+}
+
+array<Byte>^ LZ4Codec::Encode64hc(
+	array<Byte>^ input, int inputOffset, int inputLength)
+{
+	CheckArguments(
+		input, inputOffset, inputLength);
+
+    pin_ptr<Byte> inputPtr = &input[inputOffset];
+
+    int outputLength = MaximumOutputLength(inputLength);
+    array<Byte>^ output = gcnew array<Byte>(outputLength);
+
+    pin_ptr<Byte> outputPtr = &output[0];
+
+    byte* i = (byte*)inputPtr;
+    byte* o = (byte*)outputPtr;
+
+    int length = Encode64hc(i, inputLength, o);
+
+	if (length != outputLength)
+	{
+		if (length < 0)
+			throw gcnew InvalidOperationException("Compression has been corrupted");
+		array<Byte>^ buffer = gcnew array<Byte>(length);
+		Buffer::BlockCopy(output, 0, buffer, 0, length);
+		return buffer;
+	}
+
+	return output;
+}
+
 }

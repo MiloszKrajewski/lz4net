@@ -35,6 +35,7 @@
 
 #ifdef LZ4_FUNC
     #define LZ4_compressHC LZ4_FUNC(LZ4_compressHC)
+	#define LZ4HC_Data_Structure LZ4_FUNC(LZ4HC_Data_Structure)
 #endif
 
 #if defined (__cplusplus)

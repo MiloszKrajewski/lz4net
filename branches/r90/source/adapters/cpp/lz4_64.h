@@ -7,3 +7,4 @@
 #define LZ4_MK_OPT
 
 #include "..\..\..\original\lz4.h"
+#include "..\..\..\original\lz4hc.h"
