@@ -110,13 +110,13 @@
 	-->
 
 	<replace rx="true">
-		<text><![CDATA[\*(?<name>(?<prefix>(dst|src))_($(ident))(\+\+|\-\-))]]></text>
+		<text><![CDATA[\*(?<name>(?<prefix>(xxx|dst|src))_($(ident))(\+\+|\-\-))]]></text>
 		<with><![CDATA[$(prefix)[$(name)]]]></with>
 	</replace>
 
 	<replace rx="true">
 		<text><![CDATA[dst_p\[(?<i1>\d+)\]\s*=\s*xxx_ref\[(?<i2>\d+)\];]]></text>
-		<with><![CDATA[dst[dst_p + $(i1)] = dst[xxx_ref + $(i2)];]]></with>
+		<with><![CDATA[dst[dst_p + $(i1)] = dst[dst_ref + $(i2)];]]></with>
 	</replace>
 	
 	<replace rx="true" rerun="true">
