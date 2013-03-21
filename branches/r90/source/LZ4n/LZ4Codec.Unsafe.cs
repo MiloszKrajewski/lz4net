@@ -418,7 +418,7 @@ namespace LZ4n
 
 		private unsafe class LZ4HC_Data_Structure
 		{
-			public byte* src;
+			public byte* src_base;
 			public uint[] hashTable;
 			public ushort[] chainTable;
 			public byte* nextToUpdate;
@@ -438,7 +438,7 @@ namespace LZ4n
 			}
 
 			hc4.nextToUpdate = src + 1;
-			hc4.src = src;
+			hc4.src_base = src;
 			return hc4;
 		}
 

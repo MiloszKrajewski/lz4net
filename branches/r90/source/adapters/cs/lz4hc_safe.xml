@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rx>
+	<macro name="ident" text="[a-zA-Z0-9_]+"/>
+	<replace text="const byte* const" with="int" rerun="false"/>
+	<replace text="const byte*" with="int" rerun="false"/>
+	<replace text="byte* const" with="int" rerun="false"/>
+	<replace text="byte*" with="int" rerun="false"/>
+	<replace text="while (1)" with="while (true)"/>
+	
+	<replace rx="true" rerun="true">
+		<text><![CDATA[[\x20\t]*(?<eol>\r?\n)]]></text>
+		<with escaped="true">\r\n</with>
+	</replace>
+	
+	<replace rx="true" rerun="true">
+		<text><![CDATA[(?<eol>\r?\n\r?\n)(\r?\n)+]]></text>
+		<with escaped="true">\r\n\r\n</with>
+	</replace>
+	
+	<replace rx="true">
+		<text>\{\s*\}</text>
+		<with>{ /* do nothing */ }</with>
+	</replace>
+	
+	<replace>
+		<text>Peek4(_, dst_p) = Peek4(_, xxx_ref)</text>
+		<with>Copy4(_, xxx_ref, dst_p)</with>
+	</replace>
+	
+	<replace>
+		<text>Peek8(_, xxx_ref) ^ Peek8(_, src_p)</text>
+		<with>(long)Xor8(src, src_ref, src_p)</with>
+	</replace>
+	
+	<replace>
+		<text>Peek4(_, xxx_ref) ^ Peek4(_, src_p)</text>
+		<with>(int)Xor4(src, src_ref, src_p)</with>
+	</replace>
+
+	<replace>
+		<text>Peek4(_, xxx_ref) != Peek4(_, src_p)</text>
+		<with>!Equal4(src, src_ref, src_p)</with>
+	</replace>
+	
+	<replace>
+		<text>Peek4(_, xxx_ref) == Peek4(_, src_p)</text>
+		<with>Equal4(src, src_ref, src_p)</with>
+	</replace>
+	
+	<replace>
+		<text>Peek2(_, xxx_ref) == Peek2(_, src_p)</text>
+		<with>Equal2(src, src_ref, src_p)</with>
+	</replace>
+	
+	<replace>
+		<text>(*xxx_ref == *src_p)</text>
+		<with>(src[src_ref] == src[src_p])</with>
+	</replace>
+	
+	<replace>
+		<text>src_p[-1]==xxx_ref[-1]</text>
+		<with>src[src_p - 1] == xxx[xxx_ref - 1]</with>
+	</replace>
+	
+	<replace>
+		<text>int src_p = (int) src;</text>
+		<with>int src_p = src_0;</with>
+	</replace>
+	
+	<replace>
+		<text>int dst_p = (int) dst;</text>
+		<with>int dst_p = dst_0;</with>
+	</replace>
+	
+	<replace>
+		<text>{src_p++;}</text>
+		<with>src_p++;</with>
+	</replace>
+
+	<replace rx="true">
+		<text><![CDATA[Peek4\(_,\s*(?<i1>(?<prefix>xxx|src|dst)_$(ident).*?)\)]]></text>
+		<with><![CDATA[Peek4($(prefix), $(i1))]]></with>
+	</replace>
+	
+	<replace rx="true">
+		<text><![CDATA[\*(?<name>(?<prefix>(xxx|dst|src))_($(ident))(\+\+|\-\-))]]></text>
+		<with><![CDATA[$(prefix)[$(name)]]]></with>
+	</replace>
+
+	<replace rx="true">
+		<text><![CDATA[dst_p\[(?<i1>\d+)\]\s*=\s*xxx_ref\[(?<i2>\d+)\];]]></text>
+		<with><![CDATA[dst[dst_p + $(i1)] = dst[dst_ref + $(i2)];]]></with>
+	</replace>
+</rx>

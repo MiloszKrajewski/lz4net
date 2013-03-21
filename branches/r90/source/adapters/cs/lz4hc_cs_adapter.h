@@ -193,7 +193,7 @@ private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 #define skipStrength SKIPSTRENGTH
 #define anchor src_anchor
 #define mflimit src_mflimit
-#define HashTable hash_table
+#define HashTable hashTable
 
 #define matchlimit src_LASTLITERALS
 #define iend_LASTLITERALS_1 src_LASTLITERALS_1

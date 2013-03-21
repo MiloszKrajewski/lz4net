@@ -128,16 +128,16 @@ inline static int LZ4HC_Free (void** LZ4HC_Data)
 forceinline static void LZ4HC_Insert (LZ4HC_Data_Structure* hc4, const byte* src_p)
 {
  ushort* chainTable = hc4->chainTable;
- int* hash_table = hc4->hashTable;
+ int* hashTable = hc4->hashTable;
  int src_base = 0;
 
  while(hc4->nextToUpdate < src_p)
  {
         const byte* p = hc4->nextToUpdate;
-        int delta = (p) - (hash_table[(((Peek4(_, p)) * 2654435761u) >> HASH_ADJUST)] + src_base);
+        int delta = (p) - (hashTable[(((Peek4(_, p)) * 2654435761u) >> HASH_ADJUST)] + src_base);
         if (delta>MAX_DISTANCE) delta = MAX_DISTANCE;
         chainTable[((int)p) & MAXD_MASK] = (ushort)delta;
-        hash_table[(((Peek4(_, p)) * 2654435761u) >> HASH_ADJUST)] = (p) - src_base;
+        hashTable[(((Peek4(_, p)) * 2654435761u) >> HASH_ADJUST)] = (p) - src_base;
   hc4->nextToUpdate++;
  }
 }
@@ -164,7 +164,7 @@ forceinline static int LZ4HC_CommonLength (const byte* p1, const byte* p2, const
 forceinline static int LZ4HC_InsertAndFindBestMatch (LZ4HC_Data_Structure* hc4, const byte* src_p, const byte* const src_LASTLITERALS, const byte** matchpos)
 {
  ushort* const chainTable = hc4->chainTable;
- int* const hash_table = hc4->hashTable;
+ int* const hashTable = hc4->hashTable;
  const byte* xxx_ref;
  int src_base = 0;
  int nbAttempts=MAX_NB_ATTEMPTS;
@@ -172,7 +172,7 @@ forceinline static int LZ4HC_InsertAndFindBestMatch (LZ4HC_Data_Structure* hc4, 
 
  // HC4 match finder
  LZ4HC_Insert(hc4, src_p);
- xxx_ref = (hash_table[(((Peek4(_, src_p)) * 2654435761u) >> HASH_ADJUST)] + src_base);
+ xxx_ref = (hashTable[(((Peek4(_, src_p)) * 2654435761u) >> HASH_ADJUST)] + src_base);
 
 
     if (xxx_ref >= src_p-4) // potential repetition
@@ -192,7 +192,7 @@ forceinline static int LZ4HC_InsertAndFindBestMatch (LZ4HC_Data_Structure* hc4, 
             do
             {
                 chainTable[((int)ptr) & MAXD_MASK] = delta;
-                hash_table[(((Peek4(_, ptr)) * 2654435761u) >> HASH_ADJUST)] = (ptr) - src_base; // Head of chain
+                hashTable[(((Peek4(_, ptr)) * 2654435761u) >> HASH_ADJUST)] = (ptr) - src_base; // Head of chain
                 ptr++;
             } while(ptr < end);
             hc4->nextToUpdate = end;
@@ -221,7 +221,7 @@ forceinline static int LZ4HC_InsertAndFindBestMatch (LZ4HC_Data_Structure* hc4, 
 forceinline static int LZ4HC_InsertAndGetWiderMatch (LZ4HC_Data_Structure* hc4, const byte* src_p, const byte* startLimit, const byte* src_LASTLITERALS, int longest, const byte** matchpos, const byte** startpos)
 {
  ushort* const chainTable = hc4->chainTable;
- int* const hash_table = hc4->hashTable;
+ int* const hashTable = hc4->hashTable;
  int src_base = 0;
  const byte* xxx_ref;
  int nbAttempts = MAX_NB_ATTEMPTS;
@@ -229,7 +229,7 @@ forceinline static int LZ4HC_InsertAndGetWiderMatch (LZ4HC_Data_Structure* hc4, 
 
  // First Match
  LZ4HC_Insert(hc4, src_p);
- xxx_ref = (hash_table[(((Peek4(_, src_p)) * 2654435761u) >> HASH_ADJUST)] + src_base);
+ xxx_ref = (hashTable[(((Peek4(_, src_p)) * 2654435761u) >> HASH_ADJUST)] + src_base);
 
  while ((xxx_ref >= src_p-MAX_DISTANCE) && (xxx_ref >= hc4->src_base) && (nbAttempts))
  {
