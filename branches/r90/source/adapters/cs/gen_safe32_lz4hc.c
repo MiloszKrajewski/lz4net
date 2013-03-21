@@ -21,13 +21,13 @@ private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 
 
 // end of LZ4HC
-# 204 "lz4hc_cs_adapter.h"
+# 205 "lz4hc_cs_adapter.h"
 private class LZ4HC_Data_Structure
 {
- public byte[] src_base;
+ public byte* src_base;
  public int hashTable[HASHHC_TABLESIZE];
  public ushort chainTable[MAXD];
- public int nextToUpdate;
+ public byte* nextToUpdate;
 };
 
 
@@ -96,11 +96,11 @@ private class LZ4HC_Data_Structure
    - LZ4 source repository : http://code.google.com/p/lz4/
 
 */
-# 311 "..\\..\\..\\original\\lz4hc.c"
+# 328 "..\\..\\..\\original\\lz4hc.c"
 inline static int LZ4HC_Init (LZ4HC_Data_Structure* hc4, const byte* src_base)
 {
- BlockSet((void*)hc4->hashTable, sizeof(hc4->hashTable), 0);
- BlockSet(hc4->chainTable, sizeof(hc4->chainTable), 0xFF);
+ BlockFill((void*)hc4->hashTable, sizeof(hc4->hashTable), 0);
+ BlockFill(hc4->chainTable, sizeof(hc4->chainTable), 0xFF);
  hc4->nextToUpdate = src_base + 0;
  hc4->src_base = src_base;
  return 1;
@@ -136,8 +136,8 @@ forceinline static void LZ4HC_Insert (LZ4HC_Data_Structure* hc4, const byte* src
         const byte* p = hc4->nextToUpdate;
         int delta = (p) - (hash_table[(((Peek4(_, p)) * 2654435761u) >> HASH_ADJUST)] + src_base);
         if (delta>MAX_DISTANCE) delta = MAX_DISTANCE;
-        chainTable[(int)(p) & MAXD_MASK] = (ushort)delta;
-        hash_table[HASH_VALUE(p)] = (p) - src_base;
+        chainTable[((int)p) & MAXD_MASK] = (ushort)delta;
+        hash_table[(((Peek4(_, p)) * 2654435761u) >> HASH_ADJUST)] = (p) - src_base;
   hc4->nextToUpdate++;
  }
 }
@@ -186,19 +186,19 @@ forceinline static int LZ4HC_InsertAndFindBestMatch (LZ4HC_Data_Structure* hc4, 
             end = src_p + ml - (MINMATCH-1);
             while(ptr < end-delta)
             {
-                chainTable[(int)(ptr) & MAXD_MASK] = delta; // Pre-Load
+                chainTable[((int)ptr) & MAXD_MASK] = delta; // Pre-Load
                 ptr++;
             }
             do
             {
-                chainTable[(int)(ptr) & MAXD_MASK] = delta;
-                hash_table[HASH_VALUE(ptr)] = (ptr) - src_base; // Head of chain
+                chainTable[((int)ptr) & MAXD_MASK] = delta;
+                hash_table[(((Peek4(_, ptr)) * 2654435761u) >> HASH_ADJUST)] = (ptr) - src_base; // Head of chain
                 ptr++;
             } while(ptr < end);
             hc4->nextToUpdate = end;
             *matchpos = xxx_ref;
         }
-        xxx_ref = ((xxx_ref) - (int)chainTable[(int)(xxx_ref) & MAXD_MASK]);
+        xxx_ref = ((xxx_ref) - (int)chainTable[((int)xxx_ref) & MAXD_MASK]);
     }
 
 
@@ -211,7 +211,7 @@ forceinline static int LZ4HC_InsertAndFindBestMatch (LZ4HC_Data_Structure* hc4, 
             int mlt = LZ4HC_CommonLength(src_p+MINMATCH, xxx_ref+MINMATCH, src_LASTLITERALS) + MINMATCH;
             if (mlt > ml) { ml = mlt; *matchpos = xxx_ref; }
   }
-  xxx_ref = ((xxx_ref) - (int)chainTable[(int)(xxx_ref) & MAXD_MASK]);
+  xxx_ref = ((xxx_ref) - (int)chainTable[((int)xxx_ref) & MAXD_MASK]);
  }
 
     return (int)ml;
@@ -270,7 +270,7 @@ _endCount:
     *startpos = startt;
    }
   }
-  xxx_ref = ((xxx_ref) - (int)chainTable[(int)(xxx_ref) & MAXD_MASK]);
+  xxx_ref = ((xxx_ref) - (int)chainTable[((int)xxx_ref) & MAXD_MASK]);
  }
 
  return longest;
@@ -311,7 +311,7 @@ forceinline static int LZ4_encodeSequence(const byte** src_p, byte** dst_p, cons
 // Compression CODE
 //****************************
 
-int LZ4_compressHCCtx(LZ4HC_Data_Structure* ctx,
+static int LZ4_compressHCCtx(LZ4HC_Data_Structure* ctx,
      const byte* src,
      byte* dst,
      int src_len)
@@ -520,9 +520,9 @@ int LZ4_compressHC(const byte* src,
      int src_len)
 {
  void* ctx = LZ4HC_Create((const byte*)src);
- int result = LZ4_compressHCCtx(ctx, src, dst, src_len);
+ int result = LZ4_compressHCCtx((LZ4HC_Data_Structure*)ctx, src, dst, src_len);
  LZ4HC_Free (&ctx);
 
  return result;
 }
-# 215 "lz4hc_cs_adapter.h" 2
+# 216 "lz4hc_cs_adapter.h" 2

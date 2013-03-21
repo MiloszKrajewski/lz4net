@@ -209,7 +209,7 @@ static inline int LZ4_compressCtx(void** ctx,
 
 _next_match:
         // Encode Offset
-        { *(ushort)dst_p = (ushort)(src_p-xxx_ref); dst_p += 2; };
+        { *(ushort*)dst_p = (ushort)(src_p-xxx_ref); dst_p += 2; };
 
         // Start Counting
         src_p+=MINMATCH; xxx_ref+=MINMATCH; // MinMatch already verified
@@ -372,7 +372,7 @@ static inline int LZ4_compress64kCtx(void** ctx,
 
 _next_match:
         // Encode Offset
-        { *(ushort)dst_p = (ushort)(src_p-xxx_ref); dst_p += 2; };
+        { *(ushort*)dst_p = (ushort)(src_p-xxx_ref); dst_p += 2; };
 
         // Start Counting
         src_p+=MINMATCH; xxx_ref+=MINMATCH; // MinMatch verified

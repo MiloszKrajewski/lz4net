@@ -69,7 +69,7 @@ private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 
 #define ALLOCATOR(s) (new byte[s])
 #define FREEMEM /* gc */
-#define MEM_INIT(b,v,l) BlockSet(b, l, v)
+#define MEM_INIT(b,v,l) BlockFill(b, l, v)
 
 // end of LZ4HC
 
@@ -163,8 +163,9 @@ private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 #define LZ4_HASH64K_FUNCTION(i) (((i) * 2654435761u) >> HASH64K_ADJUST)
 #define LZ4_HASH64K_VALUE(p)    LZ4_HASH64K_FUNCTION(A32(p))
 
+#define HASH_VALUE              LZ4_HASH_VALUE
 #define HASH_POINTER(p)         (HashTable[LZ4_HASH_VALUE(p)] + base)
-#define DELTANEXT(p)            chainTable[(size_t)(p) & MAXD_MASK] 
+#define DELTANEXT(p)            chainTable[((size_t)p) & MAXD_MASK] 
 #define GETNEXT(p)              ((p) - (size_t)DELTANEXT(p))
 
 #define __inline
@@ -203,10 +204,10 @@ private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 
 private class LZ4HC_Data_Structure
 {
-	public byte[] base;
+	public byte* src_base;
 	public HTYPE hashTable[HASHTABLESIZE];
 	public U16 chainTable[MAXD];
-	public int nextToUpdate;
+	public byte* nextToUpdate;
 };
 
 

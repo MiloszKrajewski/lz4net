@@ -535,10 +535,10 @@ int LZ4_uncompress(int src,
 
             int dec64 = dec64table[dst_p-xxx_ref];
 
-            dst[dst_p + 0] = dst[xxx_ref + 0];
-            dst[dst_p + 1] = dst[xxx_ref + 1];
-            dst[dst_p + 2] = dst[xxx_ref + 2];
-            dst[dst_p + 3] = dst[xxx_ref + 3];
+            dst[dst_p + 0] = dst[dst_ref + 0];
+            dst[dst_p + 1] = dst[dst_ref + 1];
+            dst[dst_p + 2] = dst[dst_ref + 2];
+            dst[dst_p + 3] = dst[dst_ref + 3];
             dst_p += 4; xxx_ref += 4; xxx_ref -= dec32table[dst_p-xxx_ref];
             Copy4(_, xxx_ref, dst_p);
             dst_p += STEPSIZE_64-4; xxx_ref -= dec64;
@@ -552,7 +552,7 @@ int LZ4_uncompress(int src,
             if (dst_cpy > dst_LASTLITERALS) goto _output_error; // Error : last 5 bytes must be literals
             if (dst_p < dst_COPYLENGTH) { _i = WildCopy(_, xxx_ref, _, dst_p, dst_COPYLENGTH); xxx_ref += _i; dst_p += _i; };
 
-            while(dst_p<dst_cpy) dst[dst_p++]=*xxx_ref++;
+            while(dst_p<dst_cpy) dst[dst_p++]=xxx[xxx_ref++];
             dst_p=dst_cpy;
             continue;
         }
@@ -650,10 +650,10 @@ int LZ4_uncompress_unknownOutputSize(
 
             int dec64 = dec64table[dst_p-xxx_ref];
 
-            dst[dst_p + 0] = dst[xxx_ref + 0];
-            dst[dst_p + 1] = dst[xxx_ref + 1];
-            dst[dst_p + 2] = dst[xxx_ref + 2];
-            dst[dst_p + 3] = dst[xxx_ref + 3];
+            dst[dst_p + 0] = dst[dst_ref + 0];
+            dst[dst_p + 1] = dst[dst_ref + 1];
+            dst[dst_p + 2] = dst[dst_ref + 2];
+            dst[dst_p + 3] = dst[dst_ref + 3];
             dst_p += 4; xxx_ref += 4; xxx_ref -= dec32table[dst_p-xxx_ref];
             Copy4(_, xxx_ref, dst_p);
             dst_p += STEPSIZE_64-4; xxx_ref -= dec64;
@@ -667,7 +667,7 @@ int LZ4_uncompress_unknownOutputSize(
             if (dst_cpy > dst_LASTLITERALS) goto _output_error; // Error : last 5 bytes must be literals
             if (dst_p < dst_COPYLENGTH) { _i = WildCopy(_, xxx_ref, _, dst_p, dst_COPYLENGTH); xxx_ref += _i; dst_p += _i; };
 
-            while(dst_p<dst_cpy) dst[dst_p++]=*xxx_ref++;
+            while(dst_p<dst_cpy) dst[dst_p++]=xxx[xxx_ref++];
             dst_p=dst_cpy;
             continue;
         }

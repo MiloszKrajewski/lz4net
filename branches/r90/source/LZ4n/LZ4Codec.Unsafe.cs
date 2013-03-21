@@ -44,6 +44,24 @@ namespace LZ4n
 			if (len >= 1) { *dst = *src; /* d++; s++; l--; */ }
 		}
 
+		/// <summary>Copies block of memory.</summary>
+		/// <param name="src">The source.</param>
+		/// <param name="dst">The destination.</param>
+		/// <param name="len">The length (in bytes).</param>
+		private unsafe static void BlockFill(byte* dst, int len, byte val)
+		{
+			if (len >= 8)
+			{
+				ulong mask = val;
+				mask |= mask << 8;
+				mask |= mask << 16;
+				mask |= mask << 32;
+				do { *(ulong*)dst = mask; dst += 8; len -= 8; } while (len >= 8);
+			}
+
+			while (len-- > 0) *dst++ = val;
+		}
+
 		#region Encode32
 
 		/// <summary>Encodes the specified input.</summary>
@@ -93,7 +111,7 @@ namespace LZ4n
 			int outputLength)
 		{
 			CheckArguments(
-				input, inputOffset, ref inputLength, 
+				input, inputOffset, ref inputLength,
 				output, outputOffset, ref outputLength);
 
 			if (outputLength == 0) return 0;
@@ -153,14 +171,14 @@ namespace LZ4n
 			if (knownOutputLength)
 			{
 				var length = LZ4_uncompress_32(input, output, outputLength);
-				if (length != inputLength) 
+				if (length != inputLength)
 					throw new ArgumentException("LZ4 block is corrupted, or invalid length has been given.");
 				return outputLength;
 			}
 			else
 			{
 				var length = LZ4_uncompress_unknownOutputSize_32(input, output, inputLength, outputLength);
-				if (length < 0) 
+				if (length < 0)
 					throw new ArgumentException("LZ4 block is corrupted, or invalid length has been given.");
 				return length;
 			}
@@ -392,6 +410,41 @@ namespace LZ4n
 			if (length != outputLength)
 				throw new ArgumentException("outputLength is not valid");
 			return result;
+		}
+
+		#endregion
+
+		#region HC utilities
+
+		private unsafe class LZ4HC_Data_Structure
+		{
+			public byte* src;
+			public uint[] hashTable;
+			public ushort[] chainTable;
+			public byte* nextToUpdate;
+		};
+
+		private static unsafe LZ4HC_Data_Structure LZ4HC_Create(byte* src)
+		{
+			var hc4 = new LZ4HC_Data_Structure
+			{
+				hashTable = new uint[HASHHC_TABLESIZE],
+				chainTable = new ushort[MAXD]
+			};
+
+			fixed (ushort* ct = &hc4.chainTable[0])
+			{
+				BlockFill((byte*)ct, MAXD*sizeof(ushort), 0xFF);
+			}
+
+			hc4.nextToUpdate = src + 1;
+			hc4.src = src;
+			return hc4;
+		}
+
+		private static unsafe int LZ4_compressHC(byte* src, byte* dst, int src_len)
+		{
+			return LZ4_compressHCCtx(LZ4HC_Create(src), src, dst, src_len);
 		}
 
 		#endregion
