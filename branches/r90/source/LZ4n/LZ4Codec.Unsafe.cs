@@ -447,6 +447,52 @@ namespace LZ4n
 			return LZ4_compressHCCtx(LZ4HC_Create(src), src, dst, src_len);
 		}
 
+		/// <summary>Encodes the specified input.</summary>
+		/// <param name="input">The input.</param>
+		/// <param name="inputOffset">The input offset.</param>
+		/// <param name="inputLength">Length of the input.</param>
+		/// <param name="output">The output.</param>
+		/// <param name="outputOffset">The output offset.</param>
+		/// <param name="outputLength">Length of the output.</param>
+		/// <returns>Number of bytes written.</returns>
+		public unsafe static int Encode64hc(
+			byte[] input,
+			int inputOffset,
+			int inputLength,
+			byte[] output,
+			int outputOffset,
+			int outputLength)
+		{
+			CheckArguments(
+				input, inputOffset, ref inputLength,
+				output, outputOffset, ref outputLength);
+			if (outputLength < MaximumOutputLength(inputLength))
+				throw new ArgumentException("outputLength is too small");
+
+			fixed (byte* inputPtr = &input[inputOffset])
+			fixed (byte* outputPtr = &output[outputOffset])
+			{
+				return LZ4_compressHC(inputPtr, outputPtr, inputLength);
+			}
+		}
+
+		public static byte[] Encode64hc(
+			byte[] input, int inputOffset, int inputLength)
+		{
+			var outputLength = MaximumOutputLength(inputLength);
+			var result = new byte[outputLength];
+			var length = Encode64hc(input, inputOffset, inputLength, result, 0, outputLength);
+
+			if (length != outputLength)
+			{
+				var buffer = new byte[length];
+				Buffer.BlockCopy(result, 0, buffer, 0, length);
+				return buffer;
+			}
+
+			return result;
+		}
+
 		#endregion
 	}
 }

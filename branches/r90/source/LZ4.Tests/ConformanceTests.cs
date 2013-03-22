@@ -25,24 +25,24 @@ namespace LZ4.Tests
 
 			var compressors = new[] {
 				new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Encode64(b, 0, l)),
-				//new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Encode32(b, 0, l)),
-				//new TimedMethod("C++/CLI 64", (b, l) => LZ4cc.LZ4Codec.Encode64(b, 0, l)),
-				//new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Encode32(b, 0, l)),
+				new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Encode32(b, 0, l)),
+				new TimedMethod("C++/CLI 64", (b, l) => LZ4cc.LZ4Codec.Encode64(b, 0, l)),
+				new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Encode32(b, 0, l)),
 				new TimedMethod("Unsafe 64", (b, l) => LZ4n.LZ4Codec.Encode64(b, 0, l)),
 				new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Encode32(b, 0, l)),
-				//new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Encode64(b, 0, l)),
-				//new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Encode32(b, 0, l)),
+				new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Encode64(b, 0, l)),
+				new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Encode32(b, 0, l)),
 			};
 
 			var decompressors = new[] {
 				new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Decode64(b, 0, b.Length, l)),
-				//new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Decode32(b, 0, b.Length, l)),
-				//new TimedMethod("C++/CLI 64", (b, l) => LZ4cc.LZ4Codec.Decode64(b, 0, b.Length, l)),
-				//new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Decode32(b, 0, b.Length, l)),
+				new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Decode32(b, 0, b.Length, l)),
+				new TimedMethod("C++/CLI 64", (b, l) => LZ4cc.LZ4Codec.Decode64(b, 0, b.Length, l)),
+				new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Decode32(b, 0, b.Length, l)),
 				new TimedMethod("Unsafe 64", (b, l) => LZ4n.LZ4Codec.Decode64(b, 0, b.Length, l)),
 				new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Decode32(b, 0, b.Length, l)),
-				//new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l)),
-				//new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Decode32(b, 0, b.Length, l)),
+				new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l)),
+				new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Decode32(b, 0, b.Length, l)),
 			};
 
 			var total = 0;
@@ -82,6 +82,57 @@ namespace LZ4.Tests
 			}
 			*/
 		}
+
+		[Test]
+		public void TestCompressionConformanceHC()
+		{
+			var provider = new BlockDataProvider(TEST_DATA_FOLDER);
+
+			var r = new Random(0);
+
+			Console.WriteLine("Architecture: {0}bit", IntPtr.Size * 8);
+
+			var compressors = new[] {
+				new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Encode64hc(b, 0, l)),
+				//new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Encode32jc(b, 0, l)),
+				new TimedMethod("C++/CLI 64", (b, l) => LZ4cc.LZ4Codec.Encode64hc(b, 0, l)),
+				//new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Encode32(b, 0, l)),
+				new TimedMethod("Unsafe 64", (b, l) => LZ4n.LZ4Codec.Encode64hc(b, 0, l)),
+				//new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Encode32(b, 0, l)),
+				//new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Encode64(b, 0, l)),
+				//new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Encode32(b, 0, l)),
+			};
+
+			var decompressors = new[] {
+				new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Decode64(b, 0, b.Length, l)),
+				//new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Decode32(b, 0, b.Length, l)),
+				new TimedMethod("C++/CLI 64", (b, l) => LZ4cc.LZ4Codec.Decode64(b, 0, b.Length, l)),
+				//new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Decode32(b, 0, b.Length, l)),
+				new TimedMethod("Unsafe 64", (b, l) => LZ4n.LZ4Codec.Decode64(b, 0, b.Length, l)),
+				//new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Decode32(b, 0, b.Length, l)),
+				//new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l)),
+				//new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Decode32(b, 0, b.Length, l)),
+			};
+
+			var total = 0;
+			const long limit = 1L * 1024 * 1024 * 1024;
+			var last_pct = 0;
+
+			while (total < limit)
+			{
+				var length = RandomLength(r, MAXIMUM_LENGTH);
+				var block = provider.GetBytes(length);
+				TestData(block, compressors, decompressors);
+				total += block.Length;
+				var pct = (int)((double)total * 100 / limit);
+				if (pct > last_pct)
+				{
+					Console.WriteLine("{0}%...", pct);
+					last_pct = pct;
+				}
+			}
+		}
+
 
 		private static void AssertEqual(byte[] expected, byte[] actual, string name)
 		{
