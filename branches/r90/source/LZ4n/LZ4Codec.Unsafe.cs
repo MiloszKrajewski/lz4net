@@ -45,9 +45,9 @@ namespace LZ4n
 		}
 
 		/// <summary>Copies block of memory.</summary>
-		/// <param name="src">The source.</param>
 		/// <param name="dst">The destination.</param>
 		/// <param name="len">The length (in bytes).</param>
+		/// <param name="val">The value.</param>
 		private unsafe static void BlockFill(byte* dst, int len, byte val)
 		{
 			if (len >= 8)

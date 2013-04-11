@@ -29,6 +29,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using LZ4.Services;
+using LibZ.Bootstrap;
 
 namespace LZ4
 {
@@ -72,6 +73,8 @@ namespace LZ4
 		/// <summary>Initializes the <see cref="LZ4Codec"/> class.</summary>
 		static LZ4Codec()
 		{
+			LibZResolver.RegisterAllResourceContainers(typeof(LZ4Codec));
+
 			// NOTE: this method exploits the fact that assemblies are loaded first time they
 			// are needed so we can safely try load and handle if not loaded
 			// I may change in future versions of .NET
