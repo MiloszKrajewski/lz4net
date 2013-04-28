@@ -1,0 +1,1 @@
+// this is fake string.h
