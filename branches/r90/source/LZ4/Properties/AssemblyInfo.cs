@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("LZ4")]
-[assembly: AssemblyDescription("LZ4 compression codec (Safe)")]
+[assembly: AssemblyDescription("LZ4 compression integrator")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Milosz Krajewski")]
 [assembly: AssemblyProduct("LZ4")]
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.88")]
-[assembly: AssemblyFileVersion("1.0.0.88")]
+[assembly: AssemblyVersion("1.0.0.90")]
+[assembly: AssemblyFileVersion("1.0.0.90")]

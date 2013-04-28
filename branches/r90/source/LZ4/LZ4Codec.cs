@@ -29,7 +29,6 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using LZ4.Services;
-using LibZ.Bootstrap;
 
 namespace LZ4
 {
@@ -73,8 +72,6 @@ namespace LZ4
 		/// <summary>Initializes the <see cref="LZ4Codec"/> class.</summary>
 		static LZ4Codec()
 		{
-			LibZResolver.RegisterAllResourceContainers(typeof(LZ4Codec));
-
 			// NOTE: this method exploits the fact that assemblies are loaded first time they
 			// are needed so we can safely try load and handle if not loaded
 			// I may change in future versions of .NET
@@ -183,15 +180,15 @@ namespace LZ4
 				"non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
 			// generate some well-known array of bytes
-			const string inputText = loremIpsum;
-			var original = Encoding.UTF8.GetBytes(loremIpsum);
+			const string inputText = loremIpsum + loremIpsum + loremIpsum + loremIpsum + loremIpsum;
+			var original = Encoding.UTF8.GetBytes(inputText);
 
 			// compress it
 			var encoded = new byte[MaximumOutputLength(original.Length)];
 			var encodedLength = service.Encode(original, 0, original.Length, encoded, 0, encoded.Length);
 			if (encodedLength < 0) return null;
 
-			// decompress it (knowning original length)
+			// decompress it (knowing original length)
 			var decoded = new byte[original.Length];
 			var decodedLength1 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, true);
 			if (decodedLength1 != original.Length) return null;

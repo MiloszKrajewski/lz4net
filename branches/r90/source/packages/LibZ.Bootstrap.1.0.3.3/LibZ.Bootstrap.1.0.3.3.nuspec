@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>LibZ.Bootstrap</id>
+    <version>1.0.3.3</version>
+    <title>LibZ.Bootstrap</title>
+    <authors>Milosz Krajewski</authors>
+    <owners>Milosz Krajewski</owners>
+    <licenseUrl>https://libz.codeplex.com/license</licenseUrl>
+    <projectUrl>https://libz.codeplex.com/</projectUrl>
+    <iconUrl>https://www.codeplex.com/Download?ProjectName=libz&amp;DownloadId=658860</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>LibZ is an alternative to ILMerge. It allows to distribute your applications or libraries embedded into main assembly or distributed alongside it in single container.
+Package contains a tool to create LibZ files and Bootstrapper DLL (optional).</description>
+    <summary>LibZ is an alternative to ILMerge. It allows to distribute your applications or libraries embedded into main assembly or distributed alongside it in single container.</summary>
+    <releaseNotes>Beta, works fine for quite some time now (8 months) but I did some changes recently which were not tested in production code.</releaseNotes>
+    <copyright>Milosz Krajewski</copyright>
+    <language>en-GB</language>
+    <tags>ILMerge distribute compression jar xap</tags>
+    <references>
+      <reference file="LibZ.Bootstrap.dll" />
+    </references>
+  </metadata>
+</package>
