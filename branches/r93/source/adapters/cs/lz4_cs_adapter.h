@@ -165,6 +165,7 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
 #define osize dst_len
 #define cpy dst_cpy
 #define isize src_len
+#define inputSize src_len
 #define maxOutputSize dst_maxlen
 #define oend dst_end
 #define iend src_end

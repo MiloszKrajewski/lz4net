@@ -19,6 +19,9 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyCopyrightAttribute("Copyright (c) 2013, Milosz Krajewski")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
+#if !_DEBUG
+[assembly:AssemblyKeyFileAttribute("..\\LZ4.snk")]
+#endif
 
 //
 // Version information for an assembly consists of the following four values:
@@ -32,9 +35,6 @@ using namespace System::Security::Permissions;
 // by using the '*' as shown below:
 
 [assembly:AssemblyVersionAttribute("1.0.0.90")];
-
 [assembly:ComVisible(false)];
-
 [assembly:CLSCompliantAttribute(true)];
-
 [assembly:SecurityPermission(SecurityAction::RequestMinimum, UnmanagedCode = true)];

@@ -48,14 +48,14 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
 # 98 "lz4_cs_adapter.h"
     // #define COPY4(x,s,d) { byte[] xxx; xxx[d] = xxx[s]; xxx[d + 1] = xxx[s + 1]; xxx[d + 2] = xxx[s + 2]; xxx[d + 3] = xxx[s + 3]; }
     // #define COPY8(x,s,d) { byte[] xxx; xxx[d] = xxx[s]; xxx[d + 1] = xxx[s + 1]; xxx[d + 2] = xxx[s + 2]; xxx[d + 3] = xxx[s + 3]; xxx[d + 4] = xxx[s + 4]; xxx[d + 5] = xxx[s + 5]; xxx[d + 6] = xxx[s + 6]; xxx[d + 7] = xxx[s + 7]; }
-# 195 "lz4_cs_adapter.h"
+# 196 "lz4_cs_adapter.h"
 // GOGOGO
 # 1 "..\\..\\..\\original\\lz4.c" 1
 /*
 
    LZ4 - Fast LZ compression algorithm
 
-   Copyright (C) 2011-2012, Yann Collet.
+   Copyright (C) 2011-2013, Yann Collet.
 
    BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
 
@@ -106,11 +106,11 @@ private static readonly int[] DEBRUIJN_TABLE_64 = new int[] {
    - LZ4 source repository : http://code.google.com/p/lz4/
 
 */
-# 260 "..\\..\\..\\original\\lz4.c"
+# 255 "..\\..\\..\\original\\lz4.c"
 //****************************
 // Private functions
 //****************************
-# 340 "..\\..\\..\\original\\lz4.c"
+# 335 "..\\..\\..\\original\\lz4.c"
 //******************************
 // Compression functions
 //******************************
@@ -152,8 +152,8 @@ static inline int LZ4_compressCtx(void** ctx,
     uint h_fwd;
 
     // Init
-    if (src_len < MINLENGTH) goto _last_literals;
-# 407 "..\\..\\..\\original\\lz4.c"
+    if (src_len<MINLENGTH) goto _last_literals;
+# 402 "..\\..\\..\\original\\lz4.c"
     // First Byte
     hash_table[(((Peek4(src, src_p)) * 2654435761u) >> HASH_ADJUST)] = (int)(src_p - src_base);
     src_p++; h_fwd = (((Peek4(src, src_p)) * 2654435761u) >> HASH_ADJUST);
@@ -205,8 +205,8 @@ static inline int LZ4_compressCtx(void** ctx,
             else
             dst[dst_p++] = (byte)len;
         }
-        else *xxx_token = (length<<ML_BITS);
-# 474 "..\\..\\..\\original\\lz4.c"
+        else *xxx_token = (byte)(length<<ML_BITS);
+# 469 "..\\..\\..\\original\\lz4.c"
         // Copy Literals
         if (length > 0) /*?*/{ _i = dst_p + length; src_anchor += WildCopy(_, src_anchor, _, dst_p, _i); dst_p = _i; };
 
@@ -245,7 +245,7 @@ _endCount:
             if (length > 254) { length-=255; dst[dst_p++] = 255; }
             dst[dst_p++] = (byte)length;
         }
-        else *xxx_token += length;
+        else *xxx_token += (byte)length;
 
         // Test end of chunk
         if (src_p > src_mflimit) { src_anchor = src_p; break; }
@@ -274,7 +274,7 @@ _last_literals:
         if ((int)dst_p + lastRun + 1 + ((lastRun+255-RUN_MASK)/255) > dst_end) return 0;
 
         if (lastRun>=(int)RUN_MASK) { dst[dst_p++]=(RUN_MASK<<ML_BITS); lastRun-=RUN_MASK; for(; lastRun > 254 ; lastRun-=255) dst[dst_p++] = 255; dst[dst_p++] = (byte) lastRun; }
-        else dst[dst_p++] = (lastRun<<ML_BITS);
+        else dst[dst_p++] = (byte)(lastRun<<ML_BITS);
         BlockCopy(_, src_anchor, _, dst_p, src_end - src_anchor);
         dst_p += src_end-src_anchor;
     }
@@ -284,7 +284,7 @@ _last_literals:
 }
 
 // Note : this function is valid only if isize < LZ4_64KLIMIT
-# 578 "..\\..\\..\\original\\lz4.c"
+# 573 "..\\..\\..\\original\\lz4.c"
 static inline int LZ4_compress64kCtx(void** ctx,
                  int src,
                  int dst,
@@ -317,7 +317,7 @@ static inline int LZ4_compress64kCtx(void** ctx,
 
     // Init
     if (src_len < MINLENGTH) goto _last_literals;
-# 635 "..\\..\\..\\original\\lz4.c"
+# 630 "..\\..\\..\\original\\lz4.c"
     // First Byte
     src_p++; h_fwd = (((Peek4(src, src_p)) * 2654435761u) >> HASH64K_ADJUST);
 
@@ -368,7 +368,7 @@ static inline int LZ4_compress64kCtx(void** ctx,
             else
             dst[dst_p++] = (byte)len;
         }
-        else *xxx_token = (length<<ML_BITS);
+        else *xxx_token = (byte)(length<<ML_BITS);
 
         // Copy Literals
         if (length > 0) /*?*/{ _i = dst_p + length; src_anchor += WildCopy(_, src_anchor, _, dst_p, _i); dst_p = _i; };
@@ -401,7 +401,7 @@ _endCount:
         if (dst_p + (len>>8) > dst_LASTLITERALS_1) return 0; // Check output limit
 
         if (len>=(int)ML_MASK) { *xxx_token+=ML_MASK; len-=ML_MASK; for(; len > 509 ; len-=510) { dst[dst_p++] = 255; dst[dst_p++] = 255; } if (len > 254) { len-=255; dst[dst_p++] = 255; } dst[dst_p++] = (byte)len; }
-        else *xxx_token += len;
+        else *xxx_token += (byte)len;
 
         // Test end of chunk
         if (src_p > src_mflimit) { src_anchor = src_p; break; }
@@ -428,7 +428,7 @@ _last_literals:
         int lastRun = (int)(src_end - src_anchor);
         if (dst_p + lastRun + 1 + (lastRun-RUN_MASK+255)/255 > dst_end) return 0;
         if (lastRun>=(int)RUN_MASK) { dst[dst_p++]=(RUN_MASK<<ML_BITS); lastRun-=RUN_MASK; for(; lastRun > 254 ; lastRun-=255) dst[dst_p++] = 255; dst[dst_p++] = (byte) lastRun; }
-        else dst[dst_p++] = (lastRun<<ML_BITS);
+        else dst[dst_p++] = (byte)(lastRun<<ML_BITS);
         BlockCopy(_, src_anchor, _, dst_p, src_end - src_anchor);
         dst_p += src_end-src_anchor;
     }
@@ -445,6 +445,7 @@ int LZ4_compress_limitedOutput(int src,
 
     void* ctx = malloc(sizeof(struct refTables));
     int result;
+    if (ctx == NULL) return 0; // Failed allocation => compression not done
     if (src_len < LZ4_64KLIMIT)
         result = LZ4_compress64kCtx(&ctx, src, dst, src_len, dst_maxlen);
     else result = LZ4_compressCtx(&ctx, src, dst, src_len, dst_maxlen);
@@ -468,6 +469,7 @@ int LZ4_compress(int src,
 //      are safe against "buffer overflow" attack type.
 //      They will never write nor read outside of the provided output buffers.
 //      LZ4_uncompress_unknownOutputSize() also insures that it will never read outside of the input buffer.
+//      LZ4_uncompress() guarantees that it will never read before source, nor beyond source + LZ4_compressBound(osize)
 //      A corrupted input will produce an error result, a negative int, indicating the position of the error within input stream.
 
 int LZ4_uncompress(int src,
@@ -671,4 +673,4 @@ int LZ4_uncompress_unknownOutputSize(
 _output_error:
     return (int) (-(((int)src_p)-src));
 }
-# 196 "lz4_cs_adapter.h" 2
+# 197 "lz4_cs_adapter.h" 2

@@ -19,7 +19,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyCopyrightAttribute("Copyright (c) 2013, Milosz Krajewski")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
-#if !DEBUG
+#if !_DEBUG
 [assembly:AssemblyKeyFileAttribute("..\\LZ4.snk")]
 #endif
 
@@ -36,7 +36,5 @@ using namespace System::Security::Permissions;
 
 [assembly:AssemblyVersionAttribute("1.0.0.90")];
 [assembly:ComVisible(false)];
-
 [assembly:CLSCompliantAttribute(true)];
-
 [assembly:SecurityPermission(SecurityAction::RequestMinimum, UnmanagedCode = true)];
