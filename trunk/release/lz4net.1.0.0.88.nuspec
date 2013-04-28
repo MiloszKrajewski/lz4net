@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>lz4net</id>
+        <version>1.0.0.88</version>
+        <title>lz4net</title>
+        <authors>Milosz Krajewski</authors>
+        <owners>Milosz Krajewski</owners>
+        <licenseUrl>https://lz4net.codeplex.com/license</licenseUrl>
+        <projectUrl>https://lz4net.codeplex.com/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Six implementations (safe, unsafe, C++/CLI x86/x64, MixedMode x86/x64) of LZ4 - ultra fast compression algorithm.
+
+It is actually 6 DLLs packed inside facade DLL which will select the fastest one depending on platform. 
+Multiple implementations give you ability to use it in any environment (trust level).</description>
+        <summary>Six implementations (safe, unsafe, C++/CLI x86/x64, MixedMode x86/x64) of LZ4 - ultra fast compression algorithm.</summary>
+        <releaseNotes />
+        <copyright>Milosz Krajewski</copyright>
+        <tags>lz4 fast compression decompression zlib lzf lzo snappy quicklz</tags>
+    </metadata>
+    <files>
+        <file src="libz\LZ4.dll" target="lib\net40-client\LZ4.dll" />
+    </files>
+</package>
