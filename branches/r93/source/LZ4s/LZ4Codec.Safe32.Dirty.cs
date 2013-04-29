@@ -9,9 +9,9 @@
    modification, are permitted provided that the following conditions are
    met:
 
-       * Redistributions of source code must retain the above copyright
+	   * Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
-       * Redistributions in binary form must reproduce the above
+	   * Redistributions in binary form must reproduce the above
    copyright notice, this list of conditions and the following disclaimer
    in the documentation and/or other materials provided with the
    distribution.
@@ -87,7 +87,7 @@ namespace LZ4s
 			int _i;
 
 			// ---- preprocessed source start here ----
-			// r90
+			// r93
 			var src_p = src_0;
 			var src_base = src_0;
 			var src_anchor = src_p;
@@ -99,6 +99,7 @@ namespace LZ4s
 
 			var src_LASTLITERALS = src_end - LASTLITERALS;
 			var src_LASTLITERALS_1 = src_LASTLITERALS - 1;
+
 			var src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - (STEPSIZE_32 - 1);
 			var dst_LASTLITERALS_1 = dst_end - (1 + LASTLITERALS);
 			var dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
@@ -168,9 +169,7 @@ namespace LZ4s
 						goto _next_match;
 					}
 					else
-					{
 						dst[dst_p++] = (byte)len;
-					}
 				}
 				else
 				{
@@ -272,23 +271,22 @@ namespace LZ4s
 
 		_last_literals:
 			// Encode Last Literals
-			var lastRun = (src_end - src_anchor);
-
-			if (dst_p + lastRun + 1 + ((lastRun + 255 - RUN_MASK) / 255) > dst_end) return 0;
-
-			if (lastRun >= RUN_MASK)
 			{
-				dst[dst_p++] = (RUN_MASK << ML_BITS);
-				lastRun -= RUN_MASK;
-				for (; lastRun > 254; lastRun -= 255) dst[dst_p++] = 255;
-				dst[dst_p++] = (byte)lastRun;
+				var lastRun = (src_end - src_anchor);
+
+				if (dst_p + lastRun + 1 + ((lastRun + 255 - RUN_MASK) / 255) > dst_end) return 0;
+
+				if (lastRun >= RUN_MASK)
+				{
+					dst[dst_p++] = (RUN_MASK << ML_BITS);
+					lastRun -= RUN_MASK;
+					for (; lastRun > 254; lastRun -= 255) dst[dst_p++] = 255;
+					dst[dst_p++] = (byte)lastRun;
+				}
+				else dst[dst_p++] = (byte)(lastRun << ML_BITS);
+				BlockCopy(src, src_anchor, dst, dst_p, src_end - src_anchor);
+				dst_p += src_end - src_anchor;
 			}
-			else
-			{
-				dst[dst_p++] = (byte)(lastRun << ML_BITS);
-			}
-			BlockCopy(src, src_anchor, dst, dst_p, src_end - src_anchor);
-			dst_p += src_end - src_anchor;
 
 			// End
 			return ((dst_p) - dst_0);
@@ -311,7 +309,7 @@ namespace LZ4s
 			int _i;
 
 			// ---- preprocessed source start here ----
-			// r90
+			// r93
 			var src_p = src_0;
 			var src_anchor = src_p;
 			var src_base = src_p;
@@ -323,11 +321,13 @@ namespace LZ4s
 
 			var src_LASTLITERALS = src_end - LASTLITERALS;
 			var src_LASTLITERALS_1 = src_LASTLITERALS - 1;
+
 			var src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - (STEPSIZE_32 - 1);
 			var dst_LASTLITERALS_1 = dst_end - (1 + LASTLITERALS);
 			var dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
 
 			int len, length;
+
 			uint h, h_fwd;
 
 			// Init
@@ -438,6 +438,7 @@ namespace LZ4s
 				if ((src_p < src_LASTLITERALS) && (src[src_ref] == src[src_p])) src_p++;
 
 			_endCount:
+
 				// Encode MatchLength
 				len = (src_p - src_anchor);
 
@@ -511,7 +512,7 @@ namespace LZ4s
 			dst_p += src_end - src_anchor;
 
 			// End
-			return dst_p - dst_0;
+			return ((dst_p) - dst_0);
 		}
 
 		#endregion
@@ -529,7 +530,7 @@ namespace LZ4s
 			int _i;
 
 			// ---- preprocessed source start here ----
-			// r90
+			// r93
 			var src_p = src_0;
 			int dst_ref;
 
@@ -572,9 +573,11 @@ namespace LZ4s
 				}
 				if (dst_p < dst_cpy)
 				{
-					WildCopy(src, src_p, dst, dst_p, dst_cpy);
+					_i = WildCopy(src, src_p, dst, dst_p, dst_cpy);
+					src_p += _i;
+					dst_p += _i;
 				}
-				src_p += dst_cpy - dst_p;
+				src_p -= (dst_p - dst_cpy);
 				dst_p = dst_cpy;
 
 				// get offset
@@ -658,7 +661,7 @@ namespace LZ4s
 			int _i;
 
 			// ---- preprocessed source start here ----
-			// r90
+			// r93
 			var src_p = src_0;
 			var src_end = src_p + src_len;
 			int dst_ref;
@@ -675,8 +678,7 @@ namespace LZ4s
 			var dst_MFLIMIT = (dst_end - MFLIMIT);
 
 			// Special case
-			if (src_p == src_end)
-				goto _output_error; // A correctly formed null-compressed LZ4 must have at least one byte (token=0)
+			if (src_p == src_end) goto _output_error; // A correctly formed null-compressed LZ4 must have at least one byte (token=0)
 
 			// Main Loop
 			while (true)
@@ -698,18 +700,18 @@ namespace LZ4s
 				if ((dst_cpy > dst_MFLIMIT) || (src_p + length > src_LASTLITERALS_3))
 				{
 					if (dst_cpy > dst_end) goto _output_error; // Error : writes beyond output buffer
-					if (src_p + length != src_end)
-						goto _output_error;
-					// Error : LZ4 format requires to consume all input at this stage (no match within the last 11 bytes, and at least 8 remaining input bytes for another match+literals)
+					if (src_p + length != src_end) goto _output_error; // Error : LZ4 format requires to consume all input at this stage (no match within the last 11 bytes, and at least 8 remaining input bytes for another match+literals)
 					BlockCopy(src, src_p, dst, dst_p, length);
 					dst_p += length;
 					break; // Necessarily EOF, due to parsing restrictions
 				}
 				if (dst_p < dst_cpy)
 				{
-					WildCopy(src, src_p, dst, dst_p, dst_cpy);
+					_i = WildCopy(src, src_p, dst, dst_p, dst_cpy);
+					src_p += _i;
+					dst_p += _i;
 				}
-				src_p += dst_cpy - dst_p;
+				src_p -= (dst_p - dst_cpy);
 				dst_p = dst_cpy;
 
 				// get offset
@@ -724,7 +726,8 @@ namespace LZ4s
 					{
 						int s = src[src_p++];
 						length += s;
-						if (s != 255) break;
+						if (s == 255) continue;
+						break;
 					}
 				}
 
