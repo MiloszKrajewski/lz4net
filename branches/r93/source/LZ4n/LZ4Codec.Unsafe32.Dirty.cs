@@ -79,9 +79,11 @@ namespace LZ4n
 			int src_len,
 			int dst_maxlen)
 		{
+			byte* _p;
+
 			fixed (int* debruijn32 = &DEBRUIJN_TABLE_32[0])
 			{
-				// r90
+				// r93
 				var src_p = src;
 				const int src_base = 0;
 				var src_anchor = src_p;
@@ -99,8 +101,8 @@ namespace LZ4n
 				var dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
 
 				int length;
+
 				uint h, h_fwd;
-				byte* _p;
 
 				// Init
 				if (src_len < MINLENGTH) goto _last_literals;
@@ -115,8 +117,8 @@ namespace LZ4n
 				{
 					var findMatchAttempts = (1 << SKIPSTRENGTH) + 3;
 					var src_p_fwd = src_p;
-					byte* src_ref;
-					byte* dst_token;
+					byte* xxx_ref;
+					byte* xxx_token;
 
 					// Find a match
 					do
@@ -129,27 +131,27 @@ namespace LZ4n
 						if (src_p_fwd > src_mflimit) goto _last_literals;
 
 						h_fwd = ((((*(uint*)(src_p_fwd))) * 2654435761u) >> HASH_ADJUST);
-						src_ref = src_base + hash_table[h];
+						xxx_ref = src_base + hash_table[h];
 						hash_table[h] = (src_p - src_base);
-					} while ((src_ref < src_p - MAX_DISTANCE) || ((*(uint*)(src_ref)) != (*(uint*)(src_p))));
+					} while ((xxx_ref < src_p - MAX_DISTANCE) || ((*(uint*)(xxx_ref)) != (*(uint*)(src_p))));
 
 					// Catch up
-					while ((src_p > src_anchor) && (src_ref > src) && (src_p[-1] == src_ref[-1]))
+					while ((src_p > src_anchor) && (xxx_ref > src) && (src_p[-1] == xxx_ref[-1]))
 					{
 						src_p--;
-						src_ref--;
+						xxx_ref--;
 					}
 
 					// Encode Literal length
 					length = (int)(src_p - src_anchor);
-					dst_token = dst_p++;
+					xxx_token = dst_p++;
 
 					if (dst_p + length + (length >> 8) > dst_LASTLITERALS_3) return 0; // Check output limit
 
 					if (length >= RUN_MASK)
 					{
 						var len = length - RUN_MASK;
-						*dst_token = (RUN_MASK << ML_BITS);
+						*xxx_token = (RUN_MASK << ML_BITS);
 						if (len > 254)
 						{
 							do
@@ -166,7 +168,7 @@ namespace LZ4n
 					}
 					else
 					{
-						*dst_token = (byte)(length << ML_BITS);
+						*xxx_token = (byte)(length << ML_BITS);
 					}
 
 					// Copy Literals
@@ -184,33 +186,33 @@ namespace LZ4n
 
 				_next_match:
 					// Encode Offset
-					*(ushort*)dst_p = (ushort)(src_p - src_ref);
+					*(ushort*)dst_p = (ushort)(src_p - xxx_ref);
 					dst_p += 2;
 
 					// Start Counting
 					src_p += MINMATCH;
-					src_ref += MINMATCH; // MinMatch already verified
+					xxx_ref += MINMATCH; // MinMatch already verified
 					src_anchor = src_p;
 
 					while (src_p < src_LASTLITERALS_STEPSIZE_1)
 					{
-						var diff = (*(int*)(src_ref)) ^ (*(int*)(src_p));
+						var diff = (*(int*)(xxx_ref)) ^ (*(int*)(src_p));
 						if (diff == 0)
 						{
 							src_p += STEPSIZE_32;
-							src_ref += STEPSIZE_32;
+							xxx_ref += STEPSIZE_32;
 							continue;
 						}
 						src_p += debruijn32[(((uint)((diff) & -(diff)) * 0x077CB531u)) >> 27];
 						goto _endCount;
 					}
 
-					if ((src_p < src_LASTLITERALS_1) && ((*(ushort*)(src_ref)) == (*(ushort*)(src_p))))
+					if ((src_p < src_LASTLITERALS_1) && ((*(ushort*)(xxx_ref)) == (*(ushort*)(src_p))))
 					{
 						src_p += 2;
-						src_ref += 2;
+						xxx_ref += 2;
 					}
-					if ((src_p < src_LASTLITERALS) && (*src_ref == *src_p)) src_p++;
+					if ((src_p < src_LASTLITERALS) && (*xxx_ref == *src_p)) src_p++;
 
 				_endCount:
 					// Encode MatchLength
@@ -220,7 +222,7 @@ namespace LZ4n
 
 					if (length >= ML_MASK)
 					{
-						*dst_token += ML_MASK;
+						*xxx_token += ML_MASK;
 						length -= ML_MASK;
 						for (; length > 509; length -= 510)
 						{
@@ -236,7 +238,7 @@ namespace LZ4n
 					}
 					else
 					{
-						*dst_token += (byte)length;
+						*xxx_token += (byte)length;
 					}
 
 					// Test end of chunk
@@ -252,13 +254,13 @@ namespace LZ4n
 					// Test next position
 
 					h = ((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST);
-					src_ref = src_base + hash_table[h];
+					xxx_ref = src_base + hash_table[h];
 					hash_table[h] = (src_p - src_base);
 
-					if ((src_ref > src_p - (MAX_DISTANCE + 1)) && ((*(uint*)(src_ref)) == (*(uint*)(src_p))))
+					if ((xxx_ref > src_p - (MAX_DISTANCE + 1)) && ((*(uint*)(xxx_ref)) == (*(uint*)(src_p))))
 					{
-						dst_token = dst_p++;
-						*dst_token = 0;
+						xxx_token = dst_p++;
+						*xxx_token = 0;
 						goto _next_match;
 					}
 
@@ -269,23 +271,22 @@ namespace LZ4n
 
 			_last_literals:
 				// Encode Last Literals
-				var lastRun = (int)(src_end - src_anchor);
-
-				if (dst_p + lastRun + 1 + ((lastRun + 255 - RUN_MASK) / 255) > dst_end) return 0;
-
-				if (lastRun >= RUN_MASK)
 				{
-					*dst_p++ = (RUN_MASK << ML_BITS);
-					lastRun -= RUN_MASK;
-					for (; lastRun > 254; lastRun -= 255) *dst_p++ = 255;
-					*dst_p++ = (byte)lastRun;
+					var lastRun = (int)(src_end - src_anchor);
+
+					if (dst_p + lastRun + 1 + ((lastRun + 255 - RUN_MASK) / 255) > dst_end) return 0;
+
+					if (lastRun >= RUN_MASK)
+					{
+						*dst_p++ = (RUN_MASK << ML_BITS);
+						lastRun -= RUN_MASK;
+						for (; lastRun > 254; lastRun -= 255) *dst_p++ = 255;
+						*dst_p++ = (byte)lastRun;
+					}
+					else *dst_p++ = (byte)(lastRun << ML_BITS);
+					BlockCopy(src_anchor, dst_p, (int)(src_end - src_anchor));
+					dst_p += src_end - src_anchor;
 				}
-				else
-				{
-					*dst_p++ = (byte)(lastRun << ML_BITS);
-				}
-				BlockCopy(src_anchor, dst_p, (int)(src_end - src_anchor));
-				dst_p += src_end - src_anchor;
 
 				// End
 				return (int)((dst_p) - dst);
@@ -303,9 +304,11 @@ namespace LZ4n
 			int src_len,
 			int dst_maxlen)
 		{
+			byte* _p;
+
 			fixed (int* debruijn32 = &DEBRUIJN_TABLE_32[0])
 			{
-				// r90
+				// r93
 				var src_p = src;
 				var src_anchor = src_p;
 				var src_base = src_p;
@@ -323,8 +326,8 @@ namespace LZ4n
 				var dst_LASTLITERALS_3 = dst_end - (2 + 1 + LASTLITERALS);
 
 				int len, length;
+
 				uint h, h_fwd;
-				byte* _p;
 
 				// Init
 				if (src_len < MINLENGTH) goto _last_literals;
@@ -338,8 +341,8 @@ namespace LZ4n
 				{
 					var findMatchAttempts = (1 << SKIPSTRENGTH) + 3;
 					var src_p_fwd = src_p;
-					byte* src_ref;
-					byte* dst_token;
+					byte* xxx_ref;
+					byte* xxx_token;
 
 					// Find a match
 					do
@@ -352,27 +355,27 @@ namespace LZ4n
 						if (src_p_fwd > src_mflimit) goto _last_literals;
 
 						h_fwd = ((((*(uint*)(src_p_fwd))) * 2654435761u) >> HASH64K_ADJUST);
-						src_ref = src_base + hash_table[h];
+						xxx_ref = src_base + hash_table[h];
 						hash_table[h] = (ushort)(src_p - src_base);
-					} while ((*(uint*)(src_ref)) != (*(uint*)(src_p)));
+					} while ((*(uint*)(xxx_ref)) != (*(uint*)(src_p)));
 
 					// Catch up
-					while ((src_p > src_anchor) && (src_ref > src) && (src_p[-1] == src_ref[-1]))
+					while ((src_p > src_anchor) && (xxx_ref > src) && (src_p[-1] == xxx_ref[-1]))
 					{
 						src_p--;
-						src_ref--;
+						xxx_ref--;
 					}
 
 					// Encode Literal length
 					length = (int)(src_p - src_anchor);
-					dst_token = dst_p++;
+					xxx_token = dst_p++;
 
 					if (dst_p + length + (length >> 8) > dst_LASTLITERALS_3) return 0; // Check output limit
 
 					if (length >= RUN_MASK)
 					{
 						len = length - RUN_MASK;
-						*dst_token = (RUN_MASK << ML_BITS);
+						*xxx_token = (RUN_MASK << ML_BITS);
 						if (len > 254)
 						{
 							do
@@ -389,53 +392,51 @@ namespace LZ4n
 					}
 					else
 					{
-						*dst_token = (byte)(length << ML_BITS);
+						*xxx_token = (byte)(length << ML_BITS);
 					}
 
 					// Copy Literals
 					_p = dst_p + (length);
+					do
 					{
-						do
-						{
-							*(uint*)dst_p = *(uint*)src_anchor;
-							dst_p += 4;
-							src_anchor += 4;
-							*(uint*)dst_p = *(uint*)src_anchor;
-							dst_p += 4;
-							src_anchor += 4;
-						} while (dst_p < _p);
-					}
+						*(uint*)dst_p = *(uint*)src_anchor;
+						dst_p += 4;
+						src_anchor += 4;
+						*(uint*)dst_p = *(uint*)src_anchor;
+						dst_p += 4;
+						src_anchor += 4;
+					} while (dst_p < _p);
 					dst_p = _p;
 
 				_next_match:
 					// Encode Offset
-					*(ushort*)dst_p = (ushort)(src_p - src_ref);
+					*(ushort*)dst_p = (ushort)(src_p - xxx_ref);
 					dst_p += 2;
 
 					// Start Counting
 					src_p += MINMATCH;
-					src_ref += MINMATCH; // MinMatch verified
+					xxx_ref += MINMATCH; // MinMatch verified
 					src_anchor = src_p;
 
 					while (src_p < src_LASTLITERALS_STEPSIZE_1)
 					{
-						var diff = (*(int*)(src_ref)) ^ (*(int*)(src_p));
+						var diff = (*(int*)(xxx_ref)) ^ (*(int*)(src_p));
 						if (diff == 0)
 						{
 							src_p += STEPSIZE_32;
-							src_ref += STEPSIZE_32;
+							xxx_ref += STEPSIZE_32;
 							continue;
 						}
 						src_p += debruijn32[(((uint)((diff) & -(diff)) * 0x077CB531u)) >> 27];
 						goto _endCount;
 					}
 
-					if ((src_p < src_LASTLITERALS_1) && ((*(ushort*)(src_ref)) == (*(ushort*)(src_p))))
+					if ((src_p < src_LASTLITERALS_1) && ((*(ushort*)(xxx_ref)) == (*(ushort*)(src_p))))
 					{
 						src_p += 2;
-						src_ref += 2;
+						xxx_ref += 2;
 					}
-					if ((src_p < src_LASTLITERALS) && (*src_ref == *src_p)) src_p++;
+					if ((src_p < src_LASTLITERALS) && (*xxx_ref == *src_p)) src_p++;
 
 				_endCount:
 					// Encode MatchLength
@@ -445,7 +446,7 @@ namespace LZ4n
 
 					if (len >= ML_MASK)
 					{
-						*dst_token += ML_MASK;
+						*xxx_token += ML_MASK;
 						len -= ML_MASK;
 						for (; len > 509; len -= 510)
 						{
@@ -459,10 +460,7 @@ namespace LZ4n
 						}
 						*dst_p++ = (byte)len;
 					}
-					else
-					{
-						*dst_token += (byte)len;
-					}
+					else *xxx_token += (byte)len;
 
 					// Test end of chunk
 					if (src_p > src_mflimit)
@@ -477,13 +475,13 @@ namespace LZ4n
 					// Test next position
 
 					h = ((((*(uint*)(src_p))) * 2654435761u) >> HASH64K_ADJUST);
-					src_ref = src_base + hash_table[h];
+					xxx_ref = src_base + hash_table[h];
 					hash_table[h] = (ushort)(src_p - src_base);
 
-					if ((*(uint*)(src_ref)) == (*(uint*)(src_p)))
+					if ((*(uint*)(xxx_ref)) == (*(uint*)(src_p)))
 					{
-						dst_token = dst_p++;
-						*dst_token = 0;
+						xxx_token = dst_p++;
+						*xxx_token = 0;
 						goto _next_match;
 					}
 
@@ -494,21 +492,20 @@ namespace LZ4n
 
 			_last_literals:
 				// Encode Last Literals
-				var lastRun = (int)(src_end - src_anchor);
-				if (dst_p + lastRun + 1 + (lastRun - RUN_MASK + 255) / 255 > dst_end) return 0;
-				if (lastRun >= RUN_MASK)
 				{
-					*dst_p++ = (RUN_MASK << ML_BITS);
-					lastRun -= RUN_MASK;
-					for (; lastRun > 254; lastRun -= 255) *dst_p++ = 255;
-					*dst_p++ = (byte)lastRun;
+					var lastRun = (int)(src_end - src_anchor);
+					if (dst_p + lastRun + 1 + (lastRun - RUN_MASK + 255) / 255 > dst_end) return 0;
+					if (lastRun >= RUN_MASK)
+					{
+						*dst_p++ = (RUN_MASK << ML_BITS);
+						lastRun -= RUN_MASK;
+						for (; lastRun > 254; lastRun -= 255) *dst_p++ = 255;
+						*dst_p++ = (byte)lastRun;
+					}
+					else *dst_p++ = (byte)(lastRun << ML_BITS);
+					BlockCopy(src_anchor, dst_p, (int)(src_end - src_anchor));
+					dst_p += src_end - src_anchor;
 				}
-				else
-				{
-					*dst_p++ = (byte)(lastRun << ML_BITS);
-				}
-				BlockCopy(src_anchor, dst_p, (int)(src_end - src_anchor));
-				dst_p += src_end - src_anchor;
 
 				// End
 				return (int)((dst_p) - dst);
@@ -526,9 +523,9 @@ namespace LZ4n
 		{
 			fixed (int* dec32table = &DECODER_TABLE_32[0])
 			{
-				// r90
+				// r93
 				var src_p = src;
-				byte* dst_ref;
+				byte* xxx_ref;
 
 				var dst_p = dst;
 				var dst_end = dst_p + dst_len;
@@ -538,7 +535,7 @@ namespace LZ4n
 				var dst_COPYLENGTH = dst_end - COPYLENGTH;
 				var dst_COPYLENGTH_STEPSIZE_4 = dst_end - COPYLENGTH - (STEPSIZE_32 - 4);
 
-				byte token;
+				uint xxx_token;
 
 				// Main Loop
 				while (true)
@@ -546,8 +543,8 @@ namespace LZ4n
 					int length;
 
 					// get runlength
-					token = *src_p++;
-					if ((length = (token >> ML_BITS)) == RUN_MASK)
+					xxx_token = *src_p++;
+					if ((length = (int)(xxx_token >> ML_BITS)) == RUN_MASK)
 					{
 						int len;
 						for (; (len = *src_p++) == 255; length += 255)
@@ -580,39 +577,38 @@ namespace LZ4n
 					dst_p = dst_cpy;
 
 					// get offset
-					{
-						dst_ref = (dst_cpy) - (*(ushort*)(src_p));
-					}
+					xxx_ref = (dst_cpy) - (*(ushort*)(src_p));
 					src_p += 2;
-					if (dst_ref < dst) goto _output_error; // Error : offset outside destination buffer
+					if (xxx_ref < dst) goto _output_error; // Error : offset outside destination buffer
 
 					// get matchlength
-					if ((length = (token & ML_MASK)) == ML_MASK)
+					if ((length = (int)(xxx_token & ML_MASK)) == ML_MASK)
 					{
 						for (; *src_p == 255; length += 255) src_p++;
 						length += *src_p++;
 					}
 
 					// copy repeated sequence
-					if ((dst_p - dst_ref) < STEPSIZE_32)
+					if ((dst_p - xxx_ref) < STEPSIZE_32)
 					{
 						const int dec64 = 0;
-						dst_p[0] = dst_ref[0];
-						dst_p[1] = dst_ref[1];
-						dst_p[2] = dst_ref[2];
-						dst_p[3] = dst_ref[3];
+
+						dst_p[0] = xxx_ref[0];
+						dst_p[1] = xxx_ref[1];
+						dst_p[2] = xxx_ref[2];
+						dst_p[3] = xxx_ref[3];
 						dst_p += 4;
-						dst_ref += 4;
-						dst_ref -= dec32table[dst_p - dst_ref];
-						(*(uint*)(dst_p)) = (*(uint*)(dst_ref));
+						xxx_ref += 4;
+						xxx_ref -= dec32table[dst_p - xxx_ref];
+						(*(uint*)(dst_p)) = (*(uint*)(xxx_ref));
 						dst_p += STEPSIZE_32 - 4;
-						dst_ref -= dec64;
+						xxx_ref -= dec64;
 					}
 					else
 					{
-						*(uint*)dst_p = *(uint*)dst_ref;
+						*(uint*)dst_p = *(uint*)xxx_ref;
 						dst_p += 4;
-						dst_ref += 4;
+						xxx_ref += 4;
 					}
 					dst_cpy = dst_p + length - (STEPSIZE_32 - 4);
 
@@ -622,28 +618,28 @@ namespace LZ4n
 						{
 							do
 							{
-								*(uint*)dst_p = *(uint*)dst_ref;
+								*(uint*)dst_p = *(uint*)xxx_ref;
 								dst_p += 4;
-								dst_ref += 4;
-								*(uint*)dst_p = *(uint*)dst_ref;
+								xxx_ref += 4;
+								*(uint*)dst_p = *(uint*)xxx_ref;
 								dst_p += 4;
-								dst_ref += 4;
+								xxx_ref += 4;
 							} while (dst_p < dst_COPYLENGTH);
 						}
 
-						while (dst_p < dst_cpy) *dst_p++ = *dst_ref++;
+						while (dst_p < dst_cpy) *dst_p++ = *xxx_ref++;
 						dst_p = dst_cpy;
 						continue;
 					}
 
 					do
 					{
-						*(uint*)dst_p = *(uint*)dst_ref;
+						*(uint*)dst_p = *(uint*)xxx_ref;
 						dst_p += 4;
-						dst_ref += 4;
-						*(uint*)dst_p = *(uint*)dst_ref;
+						xxx_ref += 4;
+						*(uint*)dst_p = *(uint*)xxx_ref;
 						dst_p += 4;
-						dst_ref += 4;
+						xxx_ref += 4;
 					} while (dst_p < dst_cpy);
 					dst_p = dst_cpy; // correction
 				}
@@ -669,10 +665,10 @@ namespace LZ4n
 		{
 			fixed (int* dec32table = &DECODER_TABLE_32[0])
 			{
-				// r90
+				// r93
 				var src_p = src;
 				var src_end = src_p + src_len;
-				byte* dst_ref;
+				byte* xxx_ref;
 
 				var dst_p = dst;
 				var dst_end = dst_p + dst_maxlen;
@@ -686,18 +682,17 @@ namespace LZ4n
 				var dst_MFLIMIT = (dst_end - MFLIMIT);
 
 				// Special case
-				if (src_p == src_end)
-					goto _output_error; // A correctly formed null-compressed LZ4 must have at least one byte (token=0)
+				if (src_p == src_end) goto _output_error; // A correctly formed null-compressed LZ4 must have at least one byte (token=0)
 
 				// Main Loop
 				while (true)
 				{
-					byte token;
+					uint xxx_token;
 					int length;
 
 					// get runlength
-					token = *src_p++;
-					if ((length = (token >> ML_BITS)) == RUN_MASK)
+					xxx_token = *src_p++;
+					if ((length = (int)(xxx_token >> ML_BITS)) == RUN_MASK)
 					{
 						var s = 255;
 						while ((src_p < src_end) && (s == 255))
@@ -713,9 +708,7 @@ namespace LZ4n
 					if ((dst_cpy > dst_MFLIMIT) || (src_p + length > src_LASTLITERALS_3))
 					{
 						if (dst_cpy > dst_end) goto _output_error; // Error : writes beyond output buffer
-						if (src_p + length != src_end)
-							goto _output_error;
-						// Error : LZ4 format requires to consume all input at this stage (no match within the last 11 bytes, and at least 8 remaining input bytes for another match+literals)
+						if (src_p + length != src_end) goto _output_error; // Error : LZ4 format requires to consume all input at this stage (no match within the last 11 bytes, and at least 8 remaining input bytes for another match+literals)
 						BlockCopy(src_p, dst_p, (length));
 						dst_p += length;
 						break; // Necessarily EOF, due to parsing restrictions
@@ -733,12 +726,12 @@ namespace LZ4n
 					dst_p = dst_cpy;
 
 					// get offset
-					dst_ref = (dst_cpy) - (*(ushort*)(src_p));
+					xxx_ref = (dst_cpy) - (*(ushort*)(src_p));
 					src_p += 2;
-					if (dst_ref < dst) goto _output_error; // Error : offset outside of destination buffer
+					if (xxx_ref < dst) goto _output_error; // Error : offset outside of destination buffer
 
 					// get matchlength
-					if ((length = (token & ML_MASK)) == ML_MASK)
+					if ((length = (int)(xxx_token & ML_MASK)) == ML_MASK)
 					{
 						while (src_p < src_LASTLITERALS_1) // Error : a minimum input bytes must remain for LASTLITERALS + token
 						{
@@ -750,25 +743,26 @@ namespace LZ4n
 					}
 
 					// copy repeated sequence
-					if (dst_p - dst_ref < STEPSIZE_32)
+					if (dst_p - xxx_ref < STEPSIZE_32)
 					{
 						const int dec64 = 0;
-						dst_p[0] = dst_ref[0];
-						dst_p[1] = dst_ref[1];
-						dst_p[2] = dst_ref[2];
-						dst_p[3] = dst_ref[3];
+
+						dst_p[0] = xxx_ref[0];
+						dst_p[1] = xxx_ref[1];
+						dst_p[2] = xxx_ref[2];
+						dst_p[3] = xxx_ref[3];
 						dst_p += 4;
-						dst_ref += 4;
-						dst_ref -= dec32table[dst_p - dst_ref];
-						(*(uint*)(dst_p)) = (*(uint*)(dst_ref));
+						xxx_ref += 4;
+						xxx_ref -= dec32table[dst_p - xxx_ref];
+						(*(uint*)(dst_p)) = (*(uint*)(xxx_ref));
 						dst_p += STEPSIZE_32 - 4;
-						dst_ref -= dec64;
+						xxx_ref -= dec64;
 					}
 					else
 					{
-						*(uint*)dst_p = *(uint*)dst_ref;
+						*(uint*)dst_p = *(uint*)xxx_ref;
 						dst_p += 4;
-						dst_ref += 4;
+						xxx_ref += 4;
 					}
 					dst_cpy = dst_p + length - (STEPSIZE_32 - 4);
 
@@ -778,28 +772,28 @@ namespace LZ4n
 						{
 							do
 							{
-								*(uint*)dst_p = *(uint*)dst_ref;
+								*(uint*)dst_p = *(uint*)xxx_ref;
 								dst_p += 4;
-								dst_ref += 4;
-								*(uint*)dst_p = *(uint*)dst_ref;
+								xxx_ref += 4;
+								*(uint*)dst_p = *(uint*)xxx_ref;
 								dst_p += 4;
-								dst_ref += 4;
+								xxx_ref += 4;
 							} while (dst_p < dst_COPYLENGTH);
 						}
 
-						while (dst_p < dst_cpy) *dst_p++ = *dst_ref++;
+						while (dst_p < dst_cpy) *dst_p++ = *xxx_ref++;
 						dst_p = dst_cpy;
 						continue;
 					}
 
 					do
 					{
-						*(uint*)dst_p = *(uint*)dst_ref;
+						*(uint*)dst_p = *(uint*)xxx_ref;
 						dst_p += 4;
-						dst_ref += 4;
-						*(uint*)dst_p = *(uint*)dst_ref;
+						xxx_ref += 4;
+						*(uint*)dst_p = *(uint*)xxx_ref;
 						dst_p += 4;
-						dst_ref += 4;
+						xxx_ref += 4;
 					} while (dst_p < dst_cpy);
 					dst_p = dst_cpy; // correction
 				}
