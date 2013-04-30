@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LZ4Codec.Unsafe32HC.Dirty.cs" />
     <Compile Include="LZ4Codec.cs" />
     <Compile Include="LZ4Codec.Unsafe.cs" />
     <Compile Include="LZ4Codec.Unsafe32.Dirty.cs" />

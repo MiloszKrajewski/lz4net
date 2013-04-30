@@ -11,8 +11,8 @@ namespace LZ4.Tests
 	public class ConformanceTests
 	{
 		private const int MAXIMUM_LENGTH = 1 * 10 * 1024 * 1024; // 10MB
-		//private const string TEST_DATA_FOLDER = @"T:\Temp\Corpus";
-		private const string TEST_DATA_FOLDER = @"D:\Archive\Corpus";
+		private const string TEST_DATA_FOLDER = @"T:\Temp\Corpus";
+		//private const string TEST_DATA_FOLDER = @"D:\Archive\Corpus";
 
 		[Test]
 		public void TestCompressionConformance()
@@ -98,7 +98,7 @@ namespace LZ4.Tests
 				new TimedMethod("C++/CLI 64", (b, l) => LZ4cc.LZ4Codec.Encode64hc(b, 0, l)),
 				//new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Encode32(b, 0, l)),
 				new TimedMethod("Unsafe 64", (b, l) => LZ4n.LZ4Codec.Encode64HC(b, 0, l)),
-				//new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Encode32(b, 0, l)),
+				new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Encode32HC(b, 0, l)),
 				//new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Encode64(b, 0, l)),
 				//new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Encode32(b, 0, l)),
 			};
@@ -109,7 +109,7 @@ namespace LZ4.Tests
 				new TimedMethod("C++/CLI 64", (b, l) => LZ4cc.LZ4Codec.Decode64(b, 0, b.Length, l)),
 				//new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Decode32(b, 0, b.Length, l)),
 				new TimedMethod("Unsafe 64", (b, l) => LZ4n.LZ4Codec.Decode64(b, 0, b.Length, l)),
-				//new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Decode32(b, 0, b.Length, l)),
+				new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Decode32(b, 0, b.Length, l)),
 				//new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l)),
 				//new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Decode32(b, 0, b.Length, l)),
 			};
