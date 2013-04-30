@@ -4,22 +4,22 @@
 Copyright (c) 2013, Milosz Krajewski
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are permitted provided 
+Redistribution and use in source and binary forms, with or without modification, are permitted provided
 that the following conditions are met:
 
-* Redistributions of source code must retain the above copyright notice, this list of conditions 
+* Redistributions of source code must retain the above copyright notice, this list of conditions
   and the following disclaimer.
 
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions 
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions
   and the following disclaimer in the documentation and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED 
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -419,9 +419,9 @@ namespace LZ4n
 		private unsafe class LZ4HC_Data_Structure
 		{
 			public byte* src_base;
+			public byte* nextToUpdate;
 			public uint[] hashTable;
 			public ushort[] chainTable;
-			public byte* nextToUpdate;
 		};
 
 		private static unsafe LZ4HC_Data_Structure LZ4HC_Create(byte* src)
@@ -437,25 +437,26 @@ namespace LZ4n
 				BlockFill((byte*)ct, MAXD*sizeof(ushort), 0xFF);
 			}
 
-			hc4.nextToUpdate = src + 1;
 			hc4.src_base = src;
+			hc4.nextToUpdate = src + 1;
+
 			return hc4;
 		}
 
-		private static unsafe int LZ4_compressHC(byte* src, byte* dst, int src_len)
+		private static unsafe int LZ4_compressHC_64(byte* src, byte* dst, int src_len, int dst_len)
 		{
-			return LZ4_compressHCCtx(LZ4HC_Create(src), src, dst, src_len);
+			return LZ4_compressHCCtx_64(LZ4HC_Create(src), src, dst, src_len, dst_len);
 		}
 
-		/// <summary>Encodes the specified input.</summary>
+		/// <summary>Encodes the specified input using HC codec.</summary>
 		/// <param name="input">The input.</param>
 		/// <param name="inputOffset">The input offset.</param>
 		/// <param name="inputLength">Length of the input.</param>
 		/// <param name="output">The output.</param>
 		/// <param name="outputOffset">The output offset.</param>
 		/// <param name="outputLength">Length of the output.</param>
-		/// <returns>Number of bytes written.</returns>
-		public unsafe static int Encode64hc(
+		/// <returns>Number of bytes written. NOTE: when output buffer is too small it returns negative value.</returns>
+		public unsafe static int Encode64HC(
 			byte[] input,
 			int inputOffset,
 			int inputLength,
@@ -463,31 +464,41 @@ namespace LZ4n
 			int outputOffset,
 			int outputLength)
 		{
+			if (inputLength == 0) return 0;
+
 			CheckArguments(
 				input, inputOffset, ref inputLength,
 				output, outputOffset, ref outputLength);
-			if (outputLength < MaximumOutputLength(inputLength))
-				throw new ArgumentException("outputLength is too small");
 
 			fixed (byte* inputPtr = &input[inputOffset])
 			fixed (byte* outputPtr = &output[outputOffset])
 			{
-				return LZ4_compressHC(inputPtr, outputPtr, inputLength);
+				var length = LZ4_compressHC_64(inputPtr, outputPtr, inputLength, outputLength);
+				return length <= 0 ? -1 : length;
 			}
 		}
 
-		public static byte[] Encode64hc(
+		/// <summary>Encodes the specified input using HC codec.</summary>
+		/// <param name="input">The input.</param>
+		/// <param name="inputOffset">The input offset.</param>
+		/// <param name="inputLength">Length of the input.</param>
+		/// <returns>Buffer with compressed data (NOTE: it can be bigger than input).</returns>
+		public static byte[] Encode64HC(
 			byte[] input, int inputOffset, int inputLength)
 		{
+			if (inputLength == 0) return new byte[0];
 			var outputLength = MaximumOutputLength(inputLength);
 			var result = new byte[outputLength];
-			var length = Encode64hc(input, inputOffset, inputLength, result, 0, outputLength);
+			var length = Encode64HC(input, inputOffset, inputLength, result, 0, outputLength);
+
+			if (length < 0)
+				throw new ArgumentException("Provided data seems to be corrupted.");
 
 			if (length != outputLength)
 			{
 				var buffer = new byte[length];
 				Buffer.BlockCopy(result, 0, buffer, 0, length);
-				return buffer;
+				result = buffer;
 			}
 
 			return result;

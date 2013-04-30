@@ -415,6 +415,7 @@ namespace LZ4n
 					}
 
 				_next_match:
+
 					// Encode Offset
 					*(ushort*)dst_p = (ushort)(src_p - src_ref);
 					dst_p += 2;
@@ -450,6 +451,7 @@ namespace LZ4n
 					if ((src_p < src_LASTLITERALS) && (*src_ref == *src_p)) src_p++;
 
 				_endCount:
+
 					// Encode MatchLength
 					len = (int)(src_p - src_anchor);
 
@@ -505,6 +507,7 @@ namespace LZ4n
 				}
 
 			_last_literals:
+
 				// Encode Last Literals
 				var lastRun = (int)(src_end - src_anchor);
 				if (dst_p + lastRun + 1 + (lastRun - RUN_MASK + 255) / 255 > dst_end) return 0;
@@ -796,6 +799,7 @@ namespace LZ4n
 				return (int)(dst_p - dst);
 
 			_output_error:
+
 				// write overflow error detected
 				return (int)-(src_p - src);
 			}
