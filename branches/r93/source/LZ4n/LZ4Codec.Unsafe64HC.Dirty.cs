@@ -10,14 +10,14 @@ namespace LZ4n
 			fixed (ushort* chainTable = &hc4.chainTable[0])
 			fixed (uint* hashTable = &hc4.hashTable[0])
 			{
-				var src_base = hc4.src_base;
+				byte* src_base = hc4.src_base;
 				while (hc4.nextToUpdate < src_p)
 				{
-					var p = hc4.nextToUpdate;
-					var delta = (int)((p) - (hashTable[((((*(uint*)(p))) * 2654435761u) >> HASH_ADJUST)] + src_base));
+					byte* p = hc4.nextToUpdate;
+					int delta = (int)((p) - (hashTable[((((*(uint*)(p))) * 2654435761u) >> HASH_ADJUST)] + src_base));
 					if (delta > MAX_DISTANCE) delta = MAX_DISTANCE;
 					chainTable[((int)p) & MAXD_MASK] = (ushort)delta;
-					hashTable[((((*(uint*)(p))) * 2654435761u) >> HASH_ADJUST)] = (ushort)((p) - src_base);
+					hashTable[((((*(uint*)(p))) * 2654435761u) >> HASH_ADJUST)] = (uint)((p) - src_base);
 					hc4.nextToUpdate++;
 				}
 			}
@@ -25,9 +25,9 @@ namespace LZ4n
 
 		private static unsafe int LZ4HC_CommonLength_64(byte* p1, byte* p2, byte* src_LASTLITERALS)
 		{
-			fixed (int* debruijn64 = &DEBRUIJN_TABLE_64[0])
+			fixed (int* debruijn64 = DEBRUIJN_TABLE_64)
 			{
-				var p1t = p1;
+				byte* p1t = p1;
 
 				while (p1t < src_LASTLITERALS - (STEPSIZE_64 - 1))
 				{
@@ -38,7 +38,7 @@ namespace LZ4n
 						p2 += STEPSIZE_64;
 						continue;
 					}
-					p1t += debruijn64[(((ulong)((diff) & -(diff)) * 0x0218A392CDABBD3FL)) >> 58];
+					p1t += debruijn64[((ulong)((ulong)((diff) & -(diff)) * 0x0218A392CDABBD3FL)) >> 58];
 					return (int)(p1t - p1);
 				}
 				if ((p1t < (src_LASTLITERALS - 3)) && ((*(uint*)(p2)) == (*(uint*)(p1t))))
@@ -59,61 +59,71 @@ namespace LZ4n
 		private static unsafe int LZ4HC_InsertAndFindBestMatch_64(
 			LZ4HC_Data_Structure hc4, byte* src_p, byte* src_LASTLITERALS, ref byte* matchpos)
 		{
-			fixed (ushort* chainTable = &hc4.chainTable[0])
-			fixed (uint* hashTable = &hc4.hashTable[0])
+			fixed (ushort* chainTable = hc4.chainTable)
+			fixed (uint* hashTable = hc4.hashTable)
 			{
-				var src_base = hc4.src_base;
-				var nbAttempts = MAX_NB_ATTEMPTS;
-				var ml = 0;
+				byte* xxx_ref;
+				byte* src_base = hc4.src_base;
+				int nbAttempts = MAX_NB_ATTEMPTS;
+				int repl = 0, ml = 0;
+				ushort delta = 0;
 
 				// HC4 match finder
 				LZ4HC_Insert_64(hc4, src_p);
-				var src_ref = (hashTable[((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST)] + src_base);
+				xxx_ref = (hashTable[((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST)] + src_base);
 
-				if (src_ref >= src_p - 4) // potential repetition
+				// Detect repetitive sequences of length <= 4
+				if (xxx_ref >= src_p - 4) // potential repetition
 				{
-					if ((*(uint*)(src_ref)) == (*(uint*)(src_p))) // confirmed
+					if ((*(uint*)(xxx_ref)) == (*(uint*)(src_p))) // confirmed
 					{
-						var delta = (ushort)(src_p - src_ref);
-						var ptr = src_p;
-						ml = LZ4HC_CommonLength_64(src_p + MINMATCH, src_ref + MINMATCH, src_LASTLITERALS) + MINMATCH;
-						var end = src_p + ml - (MINMATCH - 1);
-						while (ptr < end - delta)
-						{
-							chainTable[((int)ptr) & MAXD_MASK] = delta; // Pre-Load
-							ptr++;
-						}
-						do
-						{
-							chainTable[((int)ptr) & MAXD_MASK] = delta;
-							hashTable[((((*(uint*)(ptr))) * 2654435761u) >> HASH_ADJUST)] = (ushort)((ptr) - src_base); // Head of chain
-							ptr++;
-						} while (ptr < end);
-						hc4.nextToUpdate = end;
-						matchpos = src_ref;
+						delta = (ushort)(src_p - xxx_ref);
+						repl = ml = LZ4HC_CommonLength_64(src_p + MINMATCH, xxx_ref + MINMATCH, src_LASTLITERALS) + MINMATCH;
+						matchpos = xxx_ref;
 					}
-					src_ref = ((src_ref) - chainTable[((int)src_ref) & MAXD_MASK]);
+					xxx_ref = ((xxx_ref) - (int)chainTable[((int)xxx_ref) & MAXD_MASK]);
 				}
 
-				while ((src_ref >= (src_p - MAX_DISTANCE)) && (nbAttempts != 0))
+				while ((xxx_ref >= src_p - MAX_DISTANCE) && (nbAttempts != 0))
 				{
 					nbAttempts--;
-					if (*(src_ref + ml) == *(src_p + ml))
+					if (*(xxx_ref + ml) == *(src_p + ml))
 					{
-						if ((*(uint*)(src_ref)) == (*(uint*)(src_p)))
+						if ((*(uint*)(xxx_ref)) == (*(uint*)(src_p)))
 						{
-							var mlt = LZ4HC_CommonLength_64(src_p + MINMATCH, src_ref + MINMATCH, src_LASTLITERALS) + MINMATCH;
+							int mlt = LZ4HC_CommonLength_64(src_p + MINMATCH, xxx_ref + MINMATCH, src_LASTLITERALS) + MINMATCH;
 							if (mlt > ml)
 							{
 								ml = mlt;
-								matchpos = src_ref;
+								matchpos = xxx_ref;
 							}
 						}
 					}
-					src_ref = ((src_ref) - chainTable[((int)src_ref) & MAXD_MASK]);
+					xxx_ref = ((xxx_ref) - (int)chainTable[((int)xxx_ref) & MAXD_MASK]);
 				}
 
-				return ml;
+				// Complete table
+				if (repl != 0)
+				{
+					byte* ptr = src_p;
+					byte* end;
+
+					end = src_p + repl - (MINMATCH - 1);
+					while (ptr < end - delta)
+					{
+						chainTable[((int)ptr) & MAXD_MASK] = delta; // Pre-Load
+						ptr++;
+					}
+					do
+					{
+						chainTable[((int)ptr) & MAXD_MASK] = delta;
+						hashTable[((((*(uint*)(ptr))) * 2654435761u) >> HASH_ADJUST)] = (uint)((ptr) - src_base); // Head of chain
+						ptr++;
+					} while (ptr < end);
+					hc4.nextToUpdate = end;
+				}
+
+				return (int)ml;
 			}
 		}
 
@@ -121,60 +131,44 @@ namespace LZ4n
 			LZ4HC_Data_Structure hc4, byte* src_p, byte* startLimit, byte* src_LASTLITERALS, int longest, byte** matchpos,
 			byte** startpos)
 		{
-			fixed (ushort* chainTable = &hc4.chainTable[0])
-			fixed (uint* hashTable = &hc4.hashTable[0])
-			fixed (int* debruijn64 = &DEBRUIJN_TABLE_64[0])
+			fixed (ushort* chainTable = hc4.chainTable)
+			fixed (uint* hashTable = hc4.hashTable)
+			fixed (int* debruijn64 = DEBRUIJN_TABLE_64)
 			{
-				var src_base = hc4.src_base;
-				var nbAttempts = MAX_NB_ATTEMPTS;
-				var delta = (int)(src_p - startLimit);
+				byte* src_base = hc4.src_base;
+				byte* xxx_ref;
+				int nbAttempts = MAX_NB_ATTEMPTS;
+				int delta = (int)(src_p - startLimit);
 
 				// First Match
 				LZ4HC_Insert_64(hc4, src_p);
-				var src_ref = (hashTable[((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST)] + src_base);
+				xxx_ref = (hashTable[((((*(uint*)(src_p))) * 2654435761u) >> HASH_ADJUST)] + src_base);
 
-				while ((src_ref >= src_p - MAX_DISTANCE) && (src_ref >= hc4.src_base) && (nbAttempts != 0))
+				while ((xxx_ref >= src_p - MAX_DISTANCE) && (nbAttempts != 0))
 				{
 					nbAttempts--;
-					if (*(startLimit + longest) == *(src_ref - delta + longest))
-					{
-						if ((*(uint*)(src_ref)) == (*(uint*)(src_p)))
+					if (*(startLimit + longest) == *(xxx_ref - delta + longest))
+						if ((*(uint*)(xxx_ref)) == (*(uint*)(src_p)))
 						{
-							var reft = src_ref + MINMATCH;
-							var ipt = src_p + MINMATCH;
-							var startt = src_p;
+
+							byte* reft = xxx_ref + MINMATCH;
+							byte* ipt = src_p + MINMATCH;
+							byte* startt = src_p;
 
 							while (ipt < src_LASTLITERALS - (STEPSIZE_64 - 1))
 							{
 								var diff = (*(long*)(reft)) ^ (*(long*)(ipt));
-								if (diff == 0)
-								{
-									ipt += STEPSIZE_64;
-									reft += STEPSIZE_64;
-									continue;
-								}
-								ipt += debruijn64[(((ulong)((diff) & -(diff)) * 0x0218A392CDABBD3FL)) >> 58];
+								if (diff != 0) { ipt += STEPSIZE_64; reft += STEPSIZE_64; continue; }
+								ipt += debruijn64[((ulong)((ulong)((diff) & -(diff)) * 0x0218A392CDABBD3FL)) >> 58];
 								goto _endCount;
 							}
-							if ((ipt < (src_LASTLITERALS - 3)) && ((*(uint*)(reft)) == (*(uint*)(ipt))))
-							{
-								ipt += 4;
-								reft += 4;
-							}
-							if ((ipt < (src_LASTLITERALS - 1)) && ((*(ushort*)(reft)) == (*(ushort*)(ipt))))
-							{
-								ipt += 2;
-								reft += 2;
-							}
+							if ((ipt < (src_LASTLITERALS - 3)) && ((*(uint*)(reft)) == (*(uint*)(ipt)))) { ipt += 4; reft += 4; }
+							if ((ipt < (src_LASTLITERALS - 1)) && ((*(ushort*)(reft)) == (*(ushort*)(ipt)))) { ipt += 2; reft += 2; }
 							if ((ipt < src_LASTLITERALS) && (*reft == *ipt)) ipt++;
 						_endCount:
-							reft = src_ref;
+							reft = xxx_ref;
 
-							while ((startt > startLimit) && (reft > hc4.src_base) && (startt[-1] == reft[-1]))
-							{
-								startt--;
-								reft--;
-							}
+							while ((startt > startLimit) && (reft > hc4.src_base) && (startt[-1] == reft[-1])) { startt--; reft--; }
 
 							if ((ipt - startt) > longest)
 							{
@@ -183,8 +177,7 @@ namespace LZ4n
 								*startpos = startt;
 							}
 						}
-					}
-					src_ref = ((src_ref) - chainTable[((int)src_ref) & MAXD_MASK]);
+					xxx_ref = ((xxx_ref) - (int)chainTable[((int)xxx_ref) & MAXD_MASK]);
 				}
 
 				return longest;
@@ -192,69 +185,10 @@ namespace LZ4n
 		}
 
 		private static unsafe void LZ4_encodeSequence_64(
-			ref byte* src_p, ref byte* dst_p, ref byte* src_anchor, int ml, byte* src_ref)
+			ref byte* src_p, ref byte* dst_p, ref byte* src_anchor, int matchLength, byte* xxx_ref, byte* dst_end)
 		{
-			int len;
-
-			// Encode Literal length
-			var length = (*src_p - *src_anchor);
-			var dst_token = dst_p++;
-			if (length >= RUN_MASK)
-			{
-				*dst_token = (RUN_MASK << ML_BITS);
-				len = length - RUN_MASK;
-				for (; len > 254; len -= 255) *dst_p++ = 255;
-				*dst_p++ = (byte)len;
-			}
-			else
-			{
-				*dst_token = (byte)(length << ML_BITS);
-			}
-
-			// Copy Literals
-			{
-				var e = dst_p + (length);
-				do
-				{
-					(*(ulong*)dst_p) = (*(ulong*)src_anchor);
-					dst_p += 8;
-					src_anchor += 8;
-				} while (dst_p < e);
-				dst_p = e;
-			}
-
-			// Encode Offset
-			{
-				(*(ushort*)dst_p) = (ushort)(src_p - src_ref);
-				dst_p += 2;
-			}
-
-			// Encode MatchLength
-			len = (ml - MINMATCH);
-			if (len >= ML_MASK)
-			{
-				*dst_token += ML_MASK;
-				len -= ML_MASK;
-				for (; len > 509; len -= 510)
-				{
-					*dst_p++ = 255;
-					*dst_p++ = 255;
-				}
-				if (len > 254)
-				{
-					len -= 255;
-					*dst_p++ = 255;
-				}
-				*dst_p++ = (byte)len;
-			}
-			else
-			{
-				*dst_token += (byte)len;
-			}
-
-			// Prepare next loop
-			src_p += ml;
-			src_anchor = src_p;
+			byte* _p;
+			!!!
 		}
 
 		private static unsafe int LZ4_compressHCCtx(
