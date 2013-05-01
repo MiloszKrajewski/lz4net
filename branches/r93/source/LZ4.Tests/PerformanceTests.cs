@@ -39,6 +39,41 @@ namespace LZ4.Tests
 				new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l)),
 			};
 
+			TestPerformance(compressors, decompressors);
+		}
+
+		[Test]
+		public void TestCompressionPerformanceHC()
+		{
+			var compressors = new[] {
+				//new TimedMethod("Copy", Copy),
+				new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Encode64HC(b, 0, l)),
+				new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Encode32HC(b, 0, l)),
+				new TimedMethod("C++/CLI 64", (b, l) => LZ4cc.LZ4Codec.Encode64HC(b, 0, l)),
+				new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Encode32HC(b, 0, l)),
+				new TimedMethod("Unsafe 64", (b, l) => LZ4n.LZ4Codec.Encode64HC(b, 0, l)),
+				new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Encode32HC(b, 0, l)),
+				new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Encode64HC(b, 0, l)),
+				new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Encode32HC(b, 0, l)),
+			};
+
+			var decompressors = new[] {
+				//new TimedMethod("Copy", Copy),
+				new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Decode64(b, 0, b.Length, l)),
+				new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Decode32(b, 0, b.Length, l)),
+				new TimedMethod("C++/CLI 64", (b, l) => LZ4cc.LZ4Codec.Decode64(b, 0, b.Length, l)),
+				new TimedMethod("C++/CLI 32", (b, l) => LZ4cc.LZ4Codec.Decode32(b, 0, b.Length, l)),
+				new TimedMethod("Unsafe 64", (b, l) => LZ4n.LZ4Codec.Decode64(b, 0, b.Length, l)),
+				new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Decode32(b, 0, b.Length, l)),
+				new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l)),
+				new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l)),
+			};
+
+			TestPerformance(compressors, decompressors);
+		}
+
+		private static void TestPerformance(TimedMethod[] compressors, TimedMethod[] decompressors)
+		{
 			var names = compressors.Select(c => c.Name).ToArray();
 
 			foreach (var name in names)
@@ -52,7 +87,7 @@ namespace LZ4.Tests
 
 				var provider = new FileDataProvider(TEST_DATA_FOLDER);
 				long total = 0;
-				const long limit = 1L * 1024 * 1024 * 1024;
+				const long limit = 1L*1024*1024*1024;
 				var last_pct = 0;
 
 				while (total < limit)
@@ -60,7 +95,7 @@ namespace LZ4.Tests
 					var block = provider.GetBytes();
 					TestSpeed(block, compressor, decompressor);
 					total += block.Length;
-					var pct = (int)((double)total * 100 / limit);
+					var pct = (int)((double)total*100/limit);
 					if (pct > last_pct)
 					{
 						Console.WriteLine("{0}%...", pct);
@@ -74,7 +109,7 @@ namespace LZ4.Tests
 
 			Console.WriteLine("---- Results ----");
 
-			Console.WriteLine("Architecture: {0}bit", IntPtr.Size * 8);
+			Console.WriteLine("Architecture: {0}bit", IntPtr.Size*8);
 			Console.WriteLine("Compression:");
 			foreach (var compressor in compressors)
 			{
