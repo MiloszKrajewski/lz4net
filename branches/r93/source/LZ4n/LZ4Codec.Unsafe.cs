@@ -36,19 +36,40 @@ namespace LZ4n
 		/// <param name="src">The source.</param>
 		/// <param name="dst">The destination.</param>
 		/// <param name="len">The length (in bytes).</param>
-		private unsafe static void BlockCopy(byte* src, byte* dst, int len)
+		private static unsafe void BlockCopy(byte* src, byte* dst, int len)
 		{
-			while (len >= 8) { *(ulong*)dst = *(ulong*)src; dst += 8; src += 8; len -= 8; }
-			if (len >= 4) { *(uint*)dst = *(uint*)src; dst += 4; src += 4; len -= 4; }
-			if (len >= 2) { *(ushort*)dst = *(ushort*)src; dst += 2; src += 2; len -= 2; }
-			if (len >= 1) { *dst = *src; /* d++; s++; l--; */ }
+			while (len >= 8)
+			{
+				*(ulong*)dst = *(ulong*)src;
+				dst += 8;
+				src += 8;
+				len -= 8;
+			}
+			if (len >= 4)
+			{
+				*(uint*)dst = *(uint*)src;
+				dst += 4;
+				src += 4;
+				len -= 4;
+			}
+			if (len >= 2)
+			{
+				*(ushort*)dst = *(ushort*)src;
+				dst += 2;
+				src += 2;
+				len -= 2;
+			}
+			if (len >= 1)
+			{
+				*dst = *src; /* d++; s++; l--; */
+			}
 		}
 
 		/// <summary>Copies block of memory.</summary>
 		/// <param name="dst">The destination.</param>
 		/// <param name="len">The length (in bytes).</param>
 		/// <param name="val">The value.</param>
-		private unsafe static void BlockFill(byte* dst, int len, byte val)
+		private static unsafe void BlockFill(byte* dst, int len, byte val)
 		{
 			if (len >= 8)
 			{
@@ -56,7 +77,12 @@ namespace LZ4n
 				mask |= mask << 8;
 				mask |= mask << 16;
 				mask |= mask << 32;
-				do { *(ulong*)dst = mask; dst += 8; len -= 8; } while (len >= 8);
+				do
+				{
+					*(ulong*)dst = mask;
+					dst += 8;
+					len -= 8;
+				} while (len >= 8);
 			}
 
 			while (len-- > 0) *dst++ = val;
@@ -70,7 +96,7 @@ namespace LZ4n
 		/// <param name="inputLength">Length of the input.</param>
 		/// <param name="outputLength">Length of the output.</param>
 		/// <returns>Number of bytes written.</returns>
-		public unsafe static int Encode32(
+		public static unsafe int Encode32(
 			byte* input,
 			byte* output,
 			int inputLength,
@@ -102,7 +128,7 @@ namespace LZ4n
 		/// <param name="outputOffset">The output offset.</param>
 		/// <param name="outputLength">Length of the output.</param>
 		/// <returns>Number of bytes written.</returns>
-		public unsafe static int Encode32(
+		public static unsafe int Encode32(
 			byte[] input,
 			int inputOffset,
 			int inputLength,
@@ -161,7 +187,7 @@ namespace LZ4n
 		/// <param name="outputLength">Length of the output.</param>
 		/// <param name="knownOutputLength">Set it to <c>true</c> if output length is known.</param>
 		/// <returns>Number of bytes written.</returns>
-		public unsafe static int Decode32(
+		public static unsafe int Decode32(
 			byte* input,
 			int inputLength,
 			byte* output,
@@ -193,7 +219,7 @@ namespace LZ4n
 		/// <param name="outputLength">Length of the output.</param>
 		/// <param name="knownOutputLength">Set it to <c>true</c> if output length is known.</param>
 		/// <returns>Number of bytes written.</returns>
-		public unsafe static int Decode32(
+		public static unsafe int Decode32(
 			byte[] input,
 			int inputOffset,
 			int inputLength,
@@ -246,7 +272,7 @@ namespace LZ4n
 		/// <param name="inputLength">Length of the input.</param>
 		/// <param name="outputLength">Length of the output.</param>
 		/// <returns>Number of bytes written.</returns>
-		public unsafe static int Encode64(
+		public static unsafe int Encode64(
 			byte* input,
 			byte* output,
 			int inputLength,
@@ -278,7 +304,7 @@ namespace LZ4n
 		/// <param name="outputOffset">The output offset.</param>
 		/// <param name="outputLength">Length of the output.</param>
 		/// <returns>Number of bytes written.</returns>
-		public unsafe static int Encode64(
+		public static unsafe int Encode64(
 			byte[] input,
 			int inputOffset,
 			int inputLength,
@@ -337,7 +363,7 @@ namespace LZ4n
 		/// <param name="outputLength">Length of the output.</param>
 		/// <param name="knownOutputLength">Set it to <c>true</c> if output length is known.</param>
 		/// <returns>Number of bytes written.</returns>
-		public unsafe static int Decode64(
+		public static unsafe int Decode64(
 			byte* input,
 			int inputLength,
 			byte* output,
@@ -369,7 +395,7 @@ namespace LZ4n
 		/// <param name="outputLength">Length of the output.</param>
 		/// <param name="knownOutputLength">Set it to <c>true</c> if output length is known.</param>
 		/// <returns>Number of bytes written.</returns>
-		public unsafe static int Decode64(
+		public static unsafe int Decode64(
 			byte[] input,
 			int inputOffset,
 			int inputLength,
@@ -422,7 +448,7 @@ namespace LZ4n
 		{
 			public byte* src_base;
 			public byte* nextToUpdate;
-			public uint[] hashTable;
+			public int[] hashTable;
 			public ushort[] chainTable;
 		};
 
@@ -431,15 +457,14 @@ namespace LZ4n
 
 		private static unsafe LZ4HC_Data_Structure LZ4HC_Create(byte* src)
 		{
-			var hc4 = new LZ4HC_Data_Structure
-			{
-				hashTable = new uint[HASHHC_TABLESIZE],
+			var hc4 = new LZ4HC_Data_Structure {
+				hashTable = new int[HASHHC_TABLESIZE],
 				chainTable = new ushort[MAXD]
 			};
 
 			fixed (ushort* ct = &hc4.chainTable[0])
 			{
-				BlockFill((byte*)ct, MAXD*sizeof(ushort), 0xFF);
+				BlockFill((byte*)ct, MAXD * sizeof(ushort), 0xFF);
 			}
 
 			hc4.src_base = src;
@@ -454,7 +479,7 @@ namespace LZ4n
 
 		private static unsafe int LZ4_compressHC_32(byte* input, byte* output, int inputLength, int outputLength)
 		{
-			return LZ4_compressHCCtx_64(LZ4HC_Create(input), input, output, inputLength, outputLength);
+			return LZ4_compressHCCtx_32(LZ4HC_Create(input), input, output, inputLength, outputLength);
 		}
 
 		/// <summary>Encodes the specified input using HC codec.</summary>
@@ -465,7 +490,7 @@ namespace LZ4n
 		/// <param name="outputOffset">The output offset.</param>
 		/// <param name="outputLength">Length of the output.</param>
 		/// <returns>Number of bytes written. NOTE: when output buffer is too small it returns negative value.</returns>
-		public unsafe static int Encode32HC(
+		public static unsafe int Encode32HC(
 			byte[] input,
 			int inputOffset,
 			int inputLength,
@@ -530,7 +555,7 @@ namespace LZ4n
 		/// <param name="outputOffset">The output offset.</param>
 		/// <param name="outputLength">Length of the output.</param>
 		/// <returns>Number of bytes written. NOTE: when output buffer is too small it returns negative value.</returns>
-		public unsafe static int Encode64HC(
+		public static unsafe int Encode64HC(
 			byte[] input,
 			int inputOffset,
 			int inputLength,

@@ -8,7 +8,7 @@ namespace LZ4n
 		private static unsafe void LZ4HC_Insert_64(LZ4HC_Data_Structure hc4, byte* src_p)
 		{
 			fixed (ushort* chainTable = hc4.chainTable)
-			fixed (uint* hashTable = hc4.hashTable)
+			fixed (int* hashTable = hc4.hashTable)
 			{
 				var src_base = hc4.src_base;
 				while (hc4.nextToUpdate < src_p)
@@ -17,7 +17,7 @@ namespace LZ4n
 					var delta = (int)((p) - (hashTable[((((*(uint*)(p))) * 2654435761u) >> HASHHC_ADJUST)] + src_base));
 					if (delta > MAX_DISTANCE) delta = MAX_DISTANCE;
 					chainTable[((int)p) & MAXD_MASK] = (ushort)delta;
-					hashTable[((((*(uint*)(p))) * 2654435761u) >> HASHHC_ADJUST)] = (uint)((p) - src_base);
+					hashTable[((((*(uint*)(p))) * 2654435761u) >> HASHHC_ADJUST)] = (int)(p - src_base);
 					hc4.nextToUpdate++;
 				}
 			}
@@ -60,7 +60,7 @@ namespace LZ4n
 			LZ4HC_Data_Structure hc4, byte* src_p, byte* src_LASTLITERALS, ref byte* matchpos)
 		{
 			fixed (ushort* chainTable = hc4.chainTable)
-			fixed (uint* hashTable = hc4.hashTable)
+			fixed (int* hashTable = hc4.hashTable)
 			{
 				var src_base = hc4.src_base;
 				var nbAttempts = MAX_NB_ATTEMPTS;
@@ -113,7 +113,7 @@ namespace LZ4n
 					do
 					{
 						chainTable[((int)ptr) & MAXD_MASK] = delta;
-						hashTable[((((*(uint*)(ptr))) * 2654435761u) >> HASHHC_ADJUST)] = (uint)((ptr) - src_base); // Head of chain
+						hashTable[((((*(uint*)(ptr))) * 2654435761u) >> HASHHC_ADJUST)] = (int)(ptr - src_base); // Head of chain
 						ptr++;
 					} while (ptr < end);
 					hc4.nextToUpdate = end;
@@ -128,7 +128,7 @@ namespace LZ4n
 			ref byte* matchpos, ref byte* startpos)
 		{
 			fixed (ushort* chainTable = hc4.chainTable)
-			fixed (uint* hashTable = hc4.hashTable)
+			fixed (int* hashTable = hc4.hashTable)
 			fixed (int* debruijn64 = DEBRUIJN_TABLE_64)
 			{
 				var src_base = hc4.src_base;
@@ -220,7 +220,7 @@ namespace LZ4n
 			}
 
 			// Copy Literals
-			byte* _p = dst_p + (length);
+			var _p = dst_p + (length);
 			do
 			{
 				*(ulong*)dst_p = *(ulong*)src_anchor;

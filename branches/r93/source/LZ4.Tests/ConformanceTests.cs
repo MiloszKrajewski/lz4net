@@ -100,7 +100,7 @@ namespace LZ4.Tests
 				new TimedMethod("Unsafe 64", (b, l) => LZ4n.LZ4Codec.Encode64HC(b, 0, l)),
 				new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Encode32HC(b, 0, l)),
 				//new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Encode64(b, 0, l)),
-				//new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Encode32(b, 0, l)),
+				new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Encode32HC(b, 0, l)),
 			};
 
 			var decompressors = new[] {
@@ -111,7 +111,7 @@ namespace LZ4.Tests
 				new TimedMethod("Unsafe 64", (b, l) => LZ4n.LZ4Codec.Decode64(b, 0, b.Length, l)),
 				new TimedMethod("Unsafe 32", (b, l) => LZ4n.LZ4Codec.Decode32(b, 0, b.Length, l)),
 				//new TimedMethod("Safe 64", (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l)),
-				//new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Decode32(b, 0, b.Length, l)),
+				new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Decode32(b, 0, b.Length, l)),
 			};
 
 			var total = 0;

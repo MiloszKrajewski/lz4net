@@ -563,6 +563,175 @@ namespace LZ4s
 		}
 
 		#endregion
+
+		#region HC utilities
+
+		// ReSharper disable InconsistentNaming
+
+		private class LZ4HC_Data_Structure
+		{
+			public byte[] src;
+			public int src_base;
+			public int nextToUpdate;
+			public int[] hashTable;
+			public ushort[] chainTable;
+		};
+
+		// ReSharper restore InconsistentNaming
+
+
+		private static LZ4HC_Data_Structure LZ4HC_Create(byte[] src, int src_0)
+		{
+			var hc4 = new LZ4HC_Data_Structure {
+				src = src,
+				src_base = src_0,
+				nextToUpdate = src_0 + 1,
+				hashTable = new int[HASHHC_TABLESIZE],
+				chainTable = new ushort[MAXD],
+			};
+
+			var ct = hc4.chainTable;
+			for (var i = ct.Length - 1; i >= 0; i--) ct[i] = unchecked((ushort)-1);
+
+			return hc4;
+		}
+
+		#endregion
+
+		#region Encode32HC
+
+		private static int LZ4_compressHC_32(
+			byte[] input, int inputOffset, int inputLength,
+			byte[] output, int outputOffset, int outputLength)
+		{
+			return LZ4_compressHCCtx_32(
+				LZ4HC_Create(input, inputOffset),
+				input, inputOffset,
+				output, outputOffset,
+				inputLength, outputLength);
+		}
+
+		/// <summary>Encodes the specified input using HC codec.</summary>
+		/// <param name="input">The input.</param>
+		/// <param name="inputOffset">The input offset.</param>
+		/// <param name="inputLength">Length of the input.</param>
+		/// <param name="output">The output.</param>
+		/// <param name="outputOffset">The output offset.</param>
+		/// <param name="outputLength">Length of the output.</param>
+		/// <returns>Number of bytes written. NOTE: when output buffer is too small it returns negative value.</returns>
+		public static int Encode32HC(
+			byte[] input,
+			int inputOffset,
+			int inputLength,
+			byte[] output,
+			int outputOffset,
+			int outputLength)
+		{
+			if (inputLength == 0) return 0;
+
+			CheckArguments(
+				input, inputOffset, ref inputLength,
+				output, outputOffset, ref outputLength);
+
+			var length = LZ4_compressHC_32(input, inputOffset, inputLength, output, outputOffset, outputLength);
+			return length <= 0 ? -1 : length;
+		}
+
+		/// <summary>Encodes the specified input using HC codec.</summary>
+		/// <param name="input">The input.</param>
+		/// <param name="inputOffset">The input offset.</param>
+		/// <param name="inputLength">Length of the input.</param>
+		/// <returns>Buffer with compressed data (NOTE: it can be bigger than input).</returns>
+		public static byte[] Encode32HC(
+			byte[] input, int inputOffset, int inputLength)
+		{
+			if (inputLength == 0) return new byte[0];
+			var outputLength = MaximumOutputLength(inputLength);
+			var result = new byte[outputLength];
+			var length = Encode32HC(input, inputOffset, inputLength, result, 0, outputLength);
+
+			if (length < 0)
+				throw new ArgumentException("Provided data seems to be corrupted.");
+
+			if (length != outputLength)
+			{
+				var buffer = new byte[length];
+				Buffer.BlockCopy(result, 0, buffer, 0, length);
+				result = buffer;
+			}
+
+			return result;
+		}
+
+		#endregion
+
+		#region Encode64HC
+
+		private static int LZ4_compressHC_64(
+			byte[] input, int inputOffset, int inputLength,
+			byte[] output, int outputOffset, int outputLength)
+		{
+			return LZ4_compressHCCtx_32(
+				LZ4HC_Create(input, inputOffset),
+				input, inputOffset,
+				output, outputOffset,
+				inputLength, outputLength);
+		}
+
+		/// <summary>Encodes the specified input using HC codec.</summary>
+		/// <param name="input">The input.</param>
+		/// <param name="inputOffset">The input offset.</param>
+		/// <param name="inputLength">Length of the input.</param>
+		/// <param name="output">The output.</param>
+		/// <param name="outputOffset">The output offset.</param>
+		/// <param name="outputLength">Length of the output.</param>
+		/// <returns>Number of bytes written. NOTE: when output buffer is too small it returns negative value.</returns>
+		public static int Encode64HC(
+			byte[] input,
+			int inputOffset,
+			int inputLength,
+			byte[] output,
+			int outputOffset,
+			int outputLength)
+		{
+			if (inputLength == 0) return 0;
+
+			CheckArguments(
+				input, inputOffset, ref inputLength,
+				output, outputOffset, ref outputLength);
+
+			var length = LZ4_compressHC_64(input, inputOffset, inputLength, output, outputOffset, outputLength);
+			return length <= 0 ? -1 : length;
+		}
+
+		/// <summary>Encodes the specified input using HC codec.</summary>
+		/// <param name="input">The input.</param>
+		/// <param name="inputOffset">The input offset.</param>
+		/// <param name="inputLength">Length of the input.</param>
+		/// <returns>Buffer with compressed data (NOTE: it can be bigger than input).</returns>
+		public static byte[] Encode64HC(
+			byte[] input, int inputOffset, int inputLength)
+		{
+			if (inputLength == 0) return new byte[0];
+			var outputLength = MaximumOutputLength(inputLength);
+			var result = new byte[outputLength];
+			var length = Encode64HC(input, inputOffset, inputLength, result, 0, outputLength);
+
+			if (length < 0)
+				throw new ArgumentException("Provided data seems to be corrupted.");
+
+			if (length != outputLength)
+			{
+				var buffer = new byte[length];
+				Buffer.BlockCopy(result, 0, buffer, 0, length);
+				result = buffer;
+			}
+
+			return result;
+		}
+
+		#endregion
+
 	}
 }
 
