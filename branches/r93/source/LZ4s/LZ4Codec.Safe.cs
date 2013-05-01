@@ -49,7 +49,6 @@ namespace LZ4s
 
 		// ReSharper restore UnusedParameter.Local
 
-
 		#endregion
 
 		#region Byte manipulation
@@ -73,9 +72,9 @@ namespace LZ4s
 			// NOTE: It's faster than BitConverter.ToUInt32 (suprised? me too)
 			return
 				((uint)buffer[offset]) |
-				((uint)buffer[offset + 1] << 8) |
-				((uint)buffer[offset + 2] << 16) |
-				((uint)buffer[offset + 3] << 24);
+					((uint)buffer[offset + 1] << 8) |
+					((uint)buffer[offset + 2] << 16) |
+					((uint)buffer[offset + 3] << 24);
 		}
 
 		private static uint Xor4(byte[] buffer, int offset1, int offset2)
@@ -83,14 +82,14 @@ namespace LZ4s
 			// return Peek4(buffer, offset1) ^ Peek4(buffer, offset2);
 			var value1 =
 				((uint)buffer[offset1]) |
-				((uint)buffer[offset1 + 1] << 8) |
-				((uint)buffer[offset1 + 2] << 16) |
-				((uint)buffer[offset1 + 3] << 24);
+					((uint)buffer[offset1 + 1] << 8) |
+					((uint)buffer[offset1 + 2] << 16) |
+					((uint)buffer[offset1 + 3] << 24);
 			var value2 =
 				((uint)buffer[offset2]) |
-				((uint)buffer[offset2 + 1] << 8) |
-				((uint)buffer[offset2 + 2] << 16) |
-				((uint)buffer[offset2 + 3] << 24);
+					((uint)buffer[offset2 + 1] << 8) |
+					((uint)buffer[offset2 + 2] << 16) |
+					((uint)buffer[offset2 + 3] << 24);
 			return value1 ^ value2;
 		}
 
@@ -99,22 +98,22 @@ namespace LZ4s
 			// return Peek8(buffer, offset1) ^ Peek8(buffer, offset2);
 			var value1 =
 				((ulong)buffer[offset1]) |
-				((ulong)buffer[offset1 + 1] << 8) |
-				((ulong)buffer[offset1 + 2] << 16) |
-				((ulong)buffer[offset1 + 3] << 24) |
-				((ulong)buffer[offset1 + 4] << 32) |
-				((ulong)buffer[offset1 + 5] << 40) |
-				((ulong)buffer[offset1 + 6] << 48) |
-				((ulong)buffer[offset1 + 7] << 56);
+					((ulong)buffer[offset1 + 1] << 8) |
+					((ulong)buffer[offset1 + 2] << 16) |
+					((ulong)buffer[offset1 + 3] << 24) |
+					((ulong)buffer[offset1 + 4] << 32) |
+					((ulong)buffer[offset1 + 5] << 40) |
+					((ulong)buffer[offset1 + 6] << 48) |
+					((ulong)buffer[offset1 + 7] << 56);
 			var value2 =
 				((ulong)buffer[offset2]) |
-				((ulong)buffer[offset2 + 1] << 8) |
-				((ulong)buffer[offset2 + 2] << 16) |
-				((ulong)buffer[offset2 + 3] << 24) |
-				((ulong)buffer[offset2 + 4] << 32) |
-				((ulong)buffer[offset2 + 5] << 40) |
-				((ulong)buffer[offset2 + 6] << 48) |
-				((ulong)buffer[offset2 + 7] << 56);
+					((ulong)buffer[offset2 + 1] << 8) |
+					((ulong)buffer[offset2 + 2] << 16) |
+					((ulong)buffer[offset2 + 3] << 24) |
+					((ulong)buffer[offset2 + 4] << 32) |
+					((ulong)buffer[offset2 + 5] << 40) |
+					((ulong)buffer[offset2 + 6] << 48) |
+					((ulong)buffer[offset2 + 7] << 56);
 			return value1 ^ value2;
 		}
 
@@ -182,7 +181,9 @@ namespace LZ4s
 					dst[dst_0 + 5] = src[src_0 + 5];
 					dst[dst_0 + 6] = src[src_0 + 6];
 					dst[dst_0 + 7] = src[src_0 + 7];
-					len -= 8; src_0 += 8; dst_0 += 8;
+					len -= 8;
+					src_0 += 8;
+					dst_0 += 8;
 				}
 
 				while (len >= 4)
@@ -191,7 +192,9 @@ namespace LZ4s
 					dst[dst_0 + 1] = src[src_0 + 1];
 					dst[dst_0 + 2] = src[src_0 + 2];
 					dst[dst_0 + 3] = src[src_0 + 3];
-					len -= 4; src_0 += 4; dst_0 += 4;
+					len -= 4;
+					src_0 += 4;
+					dst_0 += 4;
 				}
 
 				while (len-- > 0)
@@ -235,7 +238,9 @@ namespace LZ4s
 					dst[dst_0 + 1] = src[src_0 + 1];
 					dst[dst_0 + 2] = src[src_0 + 2];
 					dst[dst_0 + 3] = src[src_0 + 3];
-					len -= 4; src_0 += 4; dst_0 += 4;
+					len -= 4;
+					src_0 += 4;
+					dst_0 += 4;
 				}
 
 				while (len-- > 0)
@@ -268,7 +273,9 @@ namespace LZ4s
 				do
 				{
 					Buffer.BlockCopy(buffer, src, buffer, dst, diff);
-					src += diff; dst += diff; len -= diff;
+					src += diff;
+					dst += diff;
+					len -= diff;
 				} while (len >= diff);
 			}
 
@@ -293,7 +300,9 @@ namespace LZ4s
 				buffer[dst + 1] = buffer[src + 1];
 				buffer[dst + 2] = buffer[src + 2];
 				buffer[dst + 3] = buffer[src + 3];
-				dst += 4; src += 4; len -= 4;
+				dst += 4;
+				src += 4;
+				len -= 4;
 			}
 
 			while (len-- > 0)
@@ -572,22 +581,34 @@ namespace LZ4s
 		{
 			public byte[] src;
 			public int src_base;
-			public int nextToUpdate;
+			public int src_end;
+			public int src_LASTLITERALS;
+			public byte[] dst;
+			public int dst_base;
+			public int dst_len;
+			public int dst_end;
 			public int[] hashTable;
 			public ushort[] chainTable;
+			public int nextToUpdate;
 		};
 
 		// ReSharper restore InconsistentNaming
 
 
-		private static LZ4HC_Data_Structure LZ4HC_Create(byte[] src, int src_0)
+		private static LZ4HC_Data_Structure LZ4HC_Create(byte[] src, int src_0, int src_len, byte[] dst, int dst_0, int dst_len)
 		{
 			var hc4 = new LZ4HC_Data_Structure {
 				src = src,
 				src_base = src_0,
-				nextToUpdate = src_0 + 1,
+				src_end = src_0 + src_len,
+				src_LASTLITERALS = (src_0 + src_len - LASTLITERALS),
+				dst = dst,
+				dst_base = dst_0,
+				dst_len = dst_len,
+				dst_end = dst_0 + dst_len,
 				hashTable = new int[HASHHC_TABLESIZE],
 				chainTable = new ushort[MAXD],
+				nextToUpdate = src_0 + 1,
 			};
 
 			var ct = hc4.chainTable;
@@ -605,10 +626,8 @@ namespace LZ4s
 			byte[] output, int outputOffset, int outputLength)
 		{
 			return LZ4_compressHCCtx_32(
-				LZ4HC_Create(input, inputOffset),
-				input, inputOffset,
-				output, outputOffset,
-				inputLength, outputLength);
+				LZ4HC_Create(
+					input, inputOffset, inputLength, output, outputOffset, outputLength));
 		}
 
 		/// <summary>Encodes the specified input using HC codec.</summary>
@@ -671,11 +690,9 @@ namespace LZ4s
 			byte[] input, int inputOffset, int inputLength,
 			byte[] output, int outputOffset, int outputLength)
 		{
-			return LZ4_compressHCCtx_32(
-				LZ4HC_Create(input, inputOffset),
-				input, inputOffset,
-				output, outputOffset,
-				inputLength, outputLength);
+			return LZ4_compressHCCtx_64(
+				LZ4HC_Create(
+					input, inputOffset, inputLength, output, outputOffset, outputLength));
 		}
 
 		/// <summary>Encodes the specified input using HC codec.</summary>
@@ -731,7 +748,6 @@ namespace LZ4s
 		}
 
 		#endregion
-
 	}
 }
 

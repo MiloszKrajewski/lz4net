@@ -136,13 +136,13 @@ array<Byte>^ LZ4Codec::Decode64(
 	return result;
 }
 
-int LZ4Codec::Encode64hc(
+int LZ4Codec::Encode64HC(
 	byte* input, int inputLength, byte* output)
 {
 	return LZ4_FUNC(LZ4_compressHC)((char*)input, (char*)output, inputLength);
 }
 
-array<Byte>^ LZ4Codec::Encode64hc(
+array<Byte>^ LZ4Codec::Encode64HC(
 	array<Byte>^ input, int inputOffset, int inputLength)
 {
 	CheckArguments(
@@ -158,7 +158,7 @@ array<Byte>^ LZ4Codec::Encode64hc(
 	byte* i = (byte*)inputPtr;
 	byte* o = (byte*)outputPtr;
 
-	int length = Encode64hc(i, inputLength, o);
+	int length = Encode64HC(i, inputLength, o);
 
 	if (length != outputLength)
 	{

@@ -29,10 +29,10 @@ namespace NAMESPACE {
 
 	public ref class LZ4Codec
 	{
-    private:
-        typedef unsigned char byte;
+	private:
+		typedef unsigned char byte;
 
-    private:
+	private:
 		static void CheckArguments(
 			array<Byte>^ input, int inputOffset, int% inputLength);
 
@@ -40,15 +40,15 @@ namespace NAMESPACE {
 			array<Byte>^ input, int inputOffset, int% inputLength,
 			array<Byte>^ output, int outputOffset, int% outputLength);
 
-    public:
-        static inline int MaximumOutputLength(int inputLength)
-        {
-            return (inputLength + (inputLength/255) + 16);
-        }
+	public:
+		static inline int MaximumOutputLength(int inputLength)
+		{
+			return (inputLength + (inputLength/255) + 16);
+		}
 
-        // region: 32-bit
+		// region: 32-bit
 
-        static int Encode32(
+		static int Encode32(
 			byte* input, int inputLength, 
 			byte* output, int outputLength);
 
@@ -73,15 +73,15 @@ namespace NAMESPACE {
 			array<Byte>^ input, int inputOffset, int inputLength, 
 			int outputLength);
 
-		static int Encode32hc(
+		static int Encode32HC(
 			byte* input, int inputLength, byte* output);
 
-		static array<Byte>^ Encode32hc(
+		static array<Byte>^ Encode32HC(
 			array<Byte>^ input, int inputOffset, int inputLength);
 
-        // region: 64-bit
+		// region: 64-bit
 
-        static int Encode64(
+		static int Encode64(
 			byte* input, int inputLength, 
 			byte* output, int outputLength);
 
@@ -106,10 +106,10 @@ namespace NAMESPACE {
 			array<Byte>^ input, int inputOffset, int inputLength, 
 			int outputLength);
 
-		static int Encode64hc(
+		static int Encode64HC(
 			byte* input, int inputLength, byte* output);
 
-		static array<Byte>^ Encode64hc(
+		static array<Byte>^ Encode64HC(
 			array<Byte>^ input, int inputOffset, int inputLength);
 	};
 
