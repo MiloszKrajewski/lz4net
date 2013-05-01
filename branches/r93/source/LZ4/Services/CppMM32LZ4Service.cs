@@ -45,5 +45,10 @@ namespace LZ4.Services
 		{
 			return LZ4mm.LZ4Codec.Decode32(input, inputOffset, inputLength, output, outputOffset, outputLength, knownOutputLength);
 		}
+
+		public int EncodeHC(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength)
+		{
+			return LZ4mm.LZ4Codec.Encode32HC(input, inputOffset, inputLength, output, outputOffset, outputLength);
+		}
 	}
 }

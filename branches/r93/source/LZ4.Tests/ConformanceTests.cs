@@ -11,18 +11,58 @@ namespace LZ4.Tests
 	public class ConformanceTests
 	{
 		private const int MAXIMUM_LENGTH = 1 * 10 * 1024 * 1024; // 10MB
-		private const string TEST_DATA_FOLDER = @"T:\Temp\Corpus";
-		//private const string TEST_DATA_FOLDER = @"D:\Archive\Corpus";
+		//private const string TEST_DATA_FOLDER = @"T:\Temp\Corpus";
+		private const string TEST_DATA_FOLDER = @"D:\Archive\Corpus";
 
-		[Test]
-		public void TestCompressionConformance()
+		private void TestConformance(TimedMethod[] compressors, TimedMethod[] decompressors)
 		{
 			var provider = new BlockDataProvider(TEST_DATA_FOLDER);
-			
+
 			var r = new Random(0);
 
 			Console.WriteLine("Architecture: {0}bit", IntPtr.Size * 8);
 
+			var total = 0;
+			const long limit = 1L * 1024 * 1024 * 1024;
+			var last_pct = 0;
+
+			while (total < limit)
+			{
+				var length = RandomLength(r, MAXIMUM_LENGTH);
+				var block = provider.GetBytes(length);
+				TestData(block, compressors, decompressors);
+				total += block.Length;
+				var pct = (int)((double)total * 100 / limit);
+				if (pct > last_pct)
+				{
+					Console.WriteLine("{0}%...", pct);
+					last_pct = pct;
+				}
+			}
+
+			/*
+
+			The performance results from this test are completely unreliable
+			Too much garbage collection and caching.
+			So, no need to mislead anyone.
+
+			Console.WriteLine("Compression:");
+			foreach (var compressor in compressors)
+			{
+				Console.WriteLine("  {0}: {1:0.00}MB/s", compressor.Name, compressor.Speed);
+			}
+
+			Console.WriteLine("Decompression:");
+			foreach (var decompressor in decompressors)
+			{
+				Console.WriteLine("  {0}: {1:0.00}MB/s", decompressor.Name, decompressor.Speed);
+			}
+			*/
+		}
+
+		[Test]
+		public void TestCompressionConformance()
+		{
 			var compressors = new[] {
 				new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Encode64(b, 0, l)),
 				new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Encode32(b, 0, l)),
@@ -45,53 +85,12 @@ namespace LZ4.Tests
 				new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Decode32(b, 0, b.Length, l)),
 			};
 
-			var total = 0;
-			const long limit = 1L * 1024 * 1024 * 1024;
-			var last_pct = 0;
-
-			while (total < limit)
-			{
-				var length = RandomLength(r, MAXIMUM_LENGTH);
-				var block = provider.GetBytes(length);
-				TestData(block, compressors, decompressors);
-				total += block.Length;
-				var pct = (int)((double)total * 100 / limit);
-				if (pct > last_pct)
-				{
-					Console.WriteLine("{0}%...", pct);
-					last_pct = pct;
-				}
-			}
-
-			/*
-			
-			The performance results from this test are completely unreliable 
-			Too much garbage collection and caching.
-			So, no need to mislead anyone.
-			
-			Console.WriteLine("Compression:");
-			foreach (var compressor in compressors)
-			{
-				Console.WriteLine("  {0}: {1:0.00}MB/s", compressor.Name, compressor.Speed);
-			}
-
-			Console.WriteLine("Decompression:");
-			foreach (var decompressor in decompressors)
-			{
-				Console.WriteLine("  {0}: {1:0.00}MB/s", decompressor.Name, decompressor.Speed);
-			}
-			*/
+			TestConformance(compressors, decompressors);
 		}
 
 		[Test]
 		public void TestCompressionConformanceHC()
 		{
-			var provider = new BlockDataProvider(TEST_DATA_FOLDER);
-
-			var r = new Random(0);
-
-			Console.WriteLine("Architecture: {0}bit", IntPtr.Size * 8);
-
 			var compressors = new[] {
 				new TimedMethod("MixedMode 64", (b, l) => LZ4mm.LZ4Codec.Encode64HC(b, 0, l)),
 				new TimedMethod("MixedMode 32", (b, l) => LZ4mm.LZ4Codec.Encode32HC(b, 0, l)),
@@ -114,23 +113,7 @@ namespace LZ4.Tests
 				new TimedMethod("Safe 32", (b, l) => LZ4s.LZ4Codec.Decode32(b, 0, b.Length, l)),
 			};
 
-			var total = 0;
-			const long limit = 1L * 1024 * 1024 * 1024;
-			var last_pct = 0;
-
-			while (total < limit)
-			{
-				var length = RandomLength(r, MAXIMUM_LENGTH);
-				var block = provider.GetBytes(length);
-				TestData(block, compressors, decompressors);
-				total += block.Length;
-				var pct = (int)((double)total * 100 / limit);
-				if (pct > last_pct)
-				{
-					Console.WriteLine("{0}%...", pct);
-					last_pct = pct;
-				}
-			}
+			TestConformance(compressors, decompressors);
 		}
 
 

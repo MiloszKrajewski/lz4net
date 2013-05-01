@@ -183,23 +183,47 @@ namespace LZ4
 			const string inputText = loremIpsum + loremIpsum + loremIpsum + loremIpsum + loremIpsum;
 			var original = Encoding.UTF8.GetBytes(inputText);
 
-			// compress it
-			var encoded = new byte[MaximumOutputLength(original.Length)];
-			var encodedLength = service.Encode(original, 0, original.Length, encoded, 0, encoded.Length);
-			if (encodedLength < 0) return null;
+			// LZ4 test
+			{
+				// compress it
+				var encoded = new byte[MaximumOutputLength(original.Length)];
+				var encodedLength = service.Encode(original, 0, original.Length, encoded, 0, encoded.Length);
+				if (encodedLength < 0) return null;
 
-			// decompress it (knowing original length)
-			var decoded = new byte[original.Length];
-			var decodedLength1 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, true);
-			if (decodedLength1 != original.Length) return null;
-			var outputText1 = Encoding.UTF8.GetString(decoded);
-			if (outputText1 != inputText) return null;
+				// decompress it (knowing original length)
+				var decoded = new byte[original.Length];
+				var decodedLength1 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, true);
+				if (decodedLength1 != original.Length) return null;
+				var outputText1 = Encoding.UTF8.GetString(decoded);
+				if (outputText1 != inputText) return null;
 
-			// decompress it (not knowing original length)
-			var decodedLength2 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, false);
-			if (decodedLength2 != original.Length) return null;
-			var outputText2 = Encoding.UTF8.GetString(decoded);
-			if (outputText2 != inputText) return null;
+				// decompress it (not knowing original length)
+				var decodedLength2 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, false);
+				if (decodedLength2 != original.Length) return null;
+				var outputText2 = Encoding.UTF8.GetString(decoded);
+				if (outputText2 != inputText) return null;
+			}
+
+			// LZ4HC
+			{
+				// compress it
+				var encoded = new byte[MaximumOutputLength(original.Length)];
+				var encodedLength = service.EncodeHC(original, 0, original.Length, encoded, 0, encoded.Length);
+				if (encodedLength < 0) return null;
+
+				// decompress it (knowing original length)
+				var decoded = new byte[original.Length];
+				var decodedLength1 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, true);
+				if (decodedLength1 != original.Length) return null;
+				var outputText1 = Encoding.UTF8.GetString(decoded);
+				if (outputText1 != inputText) return null;
+
+				// decompress it (not knowing original length)
+				var decodedLength2 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, false);
+				if (decodedLength2 != original.Length) return null;
+				var outputText2 = Encoding.UTF8.GetString(decoded);
+				if (outputText2 != inputText) return null;
+			}
 
 			return service;
 		}
@@ -295,6 +319,52 @@ namespace LZ4
 
 			var result = new byte[MaximumOutputLength(inputLength)];
 			var length = Encode(input, inputOffset, inputLength, result, 0, result.Length);
+
+			if (length != result.Length)
+			{
+				if (length < 0)
+					throw new InvalidOperationException("Compression has been corrupted");
+				var buffer = new byte[length];
+				Buffer.BlockCopy(result, 0, buffer, 0, length);
+				return buffer;
+			}
+			return result;
+		}
+
+		/// <summary>Encodes the specified input.</summary>
+		/// <param name="input">The input.</param>
+		/// <param name="inputOffset">The input offset.</param>
+		/// <param name="inputLength">Length of the input.</param>
+		/// <param name="output">The output.</param>
+		/// <param name="outputOffset">The output offset.</param>
+		/// <param name="outputLength">Length of the output.</param>
+		/// <returns>Number of bytes written.</returns>
+		public static int EncodeHC(
+			byte[] input,
+			int inputOffset,
+			int inputLength,
+			byte[] output,
+			int outputOffset,
+			int outputLength)
+		{
+			return Encoder.EncodeHC(input, inputOffset, inputLength, output, outputOffset, outputLength);
+		}
+
+		/// <summary>Encodes the specified input.</summary>
+		/// <param name="input">The input.</param>
+		/// <param name="inputOffset">The input offset.</param>
+		/// <param name="inputLength">Length of the input.</param>
+		/// <returns>Compressed buffer.</returns>
+		public static byte[] EncodeHC(byte[] input, int inputOffset, int inputLength)
+		{
+			if (inputLength < 0) inputLength = input.Length - inputOffset;
+
+			if (input == null) throw new ArgumentNullException("input");
+			if (inputOffset < 0 || inputOffset + inputLength > input.Length)
+				throw new ArgumentException("inputOffset and inputLength are invalid for given input");
+
+			var result = new byte[MaximumOutputLength(inputLength)];
+			var length = EncodeHC(input, inputOffset, inputLength, result, 0, result.Length);
 
 			if (length != result.Length)
 			{

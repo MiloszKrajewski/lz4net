@@ -74,7 +74,12 @@ namespace NAMESPACE {
 			int outputLength);
 
 		static int Encode32HC(
-			byte* input, int inputLength, byte* output);
+			byte* input, int inputLength, 
+			byte* output, int outputLength);
+
+		static int Encode32HC(
+			array<Byte>^ input, int inputOffset, int inputLength,
+			array<Byte>^ output, int outputOffset, int outputLength);
 
 		static array<Byte>^ Encode32HC(
 			array<Byte>^ input, int inputOffset, int inputLength);
@@ -107,7 +112,12 @@ namespace NAMESPACE {
 			int outputLength);
 
 		static int Encode64HC(
-			byte* input, int inputLength, byte* output);
+			byte* input, int inputLength, 
+			byte* output, int outputLength);
+
+		static int Encode64HC(
+			array<Byte>^ input, int inputOffset, int inputLength,
+			array<Byte>^ output, int outputOffset, int outputLength);
 
 		static array<Byte>^ Encode64HC(
 			array<Byte>^ input, int inputOffset, int inputLength);
