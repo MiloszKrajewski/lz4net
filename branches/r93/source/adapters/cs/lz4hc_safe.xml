@@ -76,7 +76,7 @@
 		<text>{src_p++;}</text>
 		<with>src_p++;</with>
 	</replace>
-
+	
 	<replace rx="true">
 		<text><![CDATA[Peek4\(_,\s*(?<i1>(?<prefix>xxx|src|dst)_$(ident).*?)\)]]></text>
 		<with><![CDATA[Peek4($(prefix), $(i1))]]></with>
@@ -90,5 +90,15 @@
 	<replace rx="true">
 		<text><![CDATA[dst_p\[(?<i1>\d+)\]\s*=\s*xxx_ref\[(?<i2>\d+)\];]]></text>
 		<with><![CDATA[dst[dst_p + $(i1)] = dst[dst_ref + $(i2)];]]></with>
+	</replace>
+	
+	<replace>
+		<text>xxx_ref</text>
+		<with>src_ref</with>
+	</replace>
+	
+	<replace>
+		<text>xxx_token</text>
+		<with>xxx_token</with>
 	</replace>
 </rx>

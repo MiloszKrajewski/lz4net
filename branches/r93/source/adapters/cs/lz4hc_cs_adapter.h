@@ -152,8 +152,8 @@ private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
         #define LZ4_COPYSTEP(s, d)      *(uint*)d = *(uint*)s; d += 4; s += 4;
         #define LZ4_COPYPACKET(s, d)    *(uint*)d = *(uint*)s; d += 4; s += 4; *(uint*)d = *(uint*)s; d += 4; s += 4;
         #define LZ4_SECURECOPY          LZ4_WILDCOPY
-        #define HTYPE                   byte*
-		#define INITBASE(b,s)		    const int b = 0
+        #define HTYPE                   uint
+		#define INITBASE(b,s)		    byte* b = s
         #define LZ4_NbCommonBytes(val)  debruijn32[((U32)((U32)((val) & -(val)) * 0x077CB531u)) >> 27]
     #endif
     #define LZ4_WILDCOPY(s,d,e)     		{ do { LZ4_COPYPACKET(s, d) } while (d < e); }
@@ -164,10 +164,8 @@ private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 
 #define LZ4_READ_LITTLEENDIAN_16(d,s,p) { d = (s) - A16(p); }
 
-#define LZ4_HASH_FUNCTION(i)    (((i) * 2654435761u) >> HASH_ADJUST)
+#define LZ4_HASH_FUNCTION(i)    (((i) * 2654435761u) >> HASHHC_ADJUST)
 #define LZ4_HASH_VALUE(p)       LZ4_HASH_FUNCTION(A32(p))
-#define LZ4_HASH64K_FUNCTION(i) (((i) * 2654435761u) >> HASH64K_ADJUST)
-#define LZ4_HASH64K_VALUE(p)    LZ4_HASH64K_FUNCTION(A32(p))
 
 #define HASH_VALUE              LZ4_HASH_VALUE
 #define HASH_POINTER(p)         (HashTable[LZ4_HASH_VALUE(p)] + base)
