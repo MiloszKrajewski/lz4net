@@ -1,4 +1,5 @@
 Properties {
+	$release = "1.0.1.93"
 	$src = "..\source"
 	$sln = "$src\LZ4.sln"
 	$snk = "$src\LZ4.snk"
@@ -7,16 +8,16 @@ Properties {
 
 Include ".\common.ps1"
 
+FormatTaskName (("-"*79) + "`n`n    {0}`n`n" + ("-"*79))
+
 Task default -depends LibZ
 
-Task LibZ {
+Task LibZ -depends Release {
 	Create-Folder libz
 	
 	copy-item any\*.dll libz\
 	
 	exec { cmd /c $libz inject-dll -a libz\LZ4.dll -i libz\*.dll -e LZ4.dll "--move" -k $snk }
-	
-	UpdateVersion-AssemblyInfo $src 1.2.3.4
 }
 
 Task Release -depends Rebuild {
@@ -38,22 +39,23 @@ Task Release -depends Rebuild {
 	copy-item x64\LZ4cc.dll any\LZ4cc.x64.dll
 }
 
-Task Rebuild -depends VsVars,Clean,KeyGen {
+Task Version {
+	Update-AssemblyVersion $src $release 'Tests', 'MixedModeAutoLoad'
+}
+
+Task Rebuild -depends VsVars,Clean,KeyGen,Version {
 	Build-Solution $sln "Any CPU"
 	Build-Solution $sln x86
 	Build-Solution $sln x64
 }
 
-Task KeyGen -depends VsVars {
-	if (!(test-path $snk)) { exec { cmd /c sn -k $snk } }
+Task KeyGen -depends VsVars -precondition { return !(test-path $snk) } {
+	exec { cmd /c sn -k $snk }
 }
 
 Task Clean {
 	Clean-BinObj $src
-	remove-item -recurse -force x86
-	remove-item -recurse -force x64
-	remove-item -recurse -force any
-	remove-item -recurse -force libz
+	remove-item * -recurse -force -include x86,x64,any,libz
 }
 
 Task VsVars {
