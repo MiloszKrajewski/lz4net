@@ -12,20 +12,18 @@ call :run MixedMode32
 call :run CppCLI64
 call :run CppCLI32
 call :run Unsafe64
-call :run LZ4Sharp64
 call :run Unsafe32
-call :run LZ4Sharp32
 call :run Safe64
 call :run Safe32
 
-call :run MixedMode64HC
-call :run MixedMode32HC
-call :run CppCLI64HC
-call :run CppCLI32HC
-call :run Unsafe64HC
-call :run Unsafe32HC
-call :run Safe64HC
-call :run Safe32HC
+rem call :run MixedMode64HC
+rem call :run MixedMode32HC
+rem call :run CppCLI64HC
+rem call :run CppCLI32HC
+rem call :run Unsafe64HC
+rem call :run Unsafe32HC
+rem call :run Safe64HC
+rem call :run Safe32HC
 
 goto :cycle
 
