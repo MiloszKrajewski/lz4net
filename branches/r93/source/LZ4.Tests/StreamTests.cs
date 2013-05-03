@@ -9,7 +9,8 @@ namespace LZ4.Tests
 	[TestFixture]
 	public class StreamTests
 	{
-		const long TOTAL_SIZE = 1L * 1024 * 1024 * 1024;
+		//const long TOTAL_SIZE = 1L * 1024 * 1024 * 1024;
+		const long TOTAL_SIZE = 256 * 1024 * 1024;
 		const int CHUNK_SIZE = 2 * 1024 * 1024;
 
 		[Test]

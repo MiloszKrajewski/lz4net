@@ -4,9 +4,22 @@ using System.IO.Compression;
 
 namespace LZ4
 {
-	/// <summary>BlockCompressionStream.</summary>
+	/// <summary>Block compression stream. Allows to use LZ4 for stream compression.</summary>
 	public class LZ4Stream: Stream
 	{
+		#region ChunkFlags
+
+		[Flags]
+		public enum ChunkFlags
+		{
+			None = 0x00,
+			Compressed = 0x01,
+			HighCompression = 0x02,
+			Reserved = 0x04 | 0x08 | 0x10,
+		}
+
+		#endregion
+
 		#region fields
 
 		/// <summary>The inner stream.</summary>
@@ -72,8 +85,61 @@ namespace LZ4
 			return new EndOfStreamException("Unexpected end of stream");
 		}
 
-		/// <summary>Flushes the this chunk.</summary>
-		private void FlushThisChunk()
+		/// <summary>Tries to read variable length int.</summary>
+		/// <param name="result">The result.</param>
+		/// <returns><c>true</c> if integer has been read, <c>false</c> if end of stream has been
+		/// encountered. If end of stream has been encoutered in the middle of value 
+		/// <see cref="EndOfStreamException"/> is thrown.</returns>
+		private bool TryReadVarInt(out ulong result)
+		{
+			var buffer = new byte[1];
+			var count = 0;
+			result = 0;
+
+			while (true)
+			{
+				if (_innerStream.Read(buffer, 0, 1) == 0)
+				{
+					if (count == 0) return false;
+					throw EndOfStream();
+				}
+				var b = buffer[0];
+				result = result + ((ulong)(b & 0x7F) << count);
+				count += 7;
+				if ((b & 0x80) == 0 || count >= 64) break;
+			}
+
+			return true;
+		}
+
+		/// <summary>Reads the variable length int. Work with assumption that value is in the stream
+		/// and throws exception if it isn't. If you want to check if value is in the stream
+		/// use <see cref="TryReadVarInt"/> instead.</summary>
+		/// <returns></returns>
+		private ulong ReadVarInt()
+		{
+			ulong result;
+			if (!TryReadVarInt(out result)) throw EndOfStream();
+			return result;
+		}
+
+		/// <summary>Writes the variable length integer.</summary>
+		/// <param name="value">The value.</param>
+		private void WriteVarInt(ulong value)
+		{
+			var buffer = new byte[1];
+			while (true)
+			{
+				var b = (byte)(value & 0x7F);
+				value >>= 7;
+				buffer[0] = (byte)(b | (value == 0 ? 0 : 0x80));
+				_innerStream.Write(buffer, 0, 1);
+				if (value == 0) break;
+			}
+		}
+
+		/// <summary>Flushes current chunk.</summary>
+		private void FlushCurrentChunk()
 		{
 			if (_bufferLength <= 0) return;
 
@@ -89,35 +155,43 @@ namespace LZ4
 				compressedLength = _bufferLength;
 			}
 
-			_innerStream.Write(BitConverter.GetBytes(_bufferLength), 0, sizeof(int));
-			_innerStream.Write(BitConverter.GetBytes(compressedLength), 0, sizeof(int));
+			var isCompressed = compressedLength < _bufferLength;
+
+			var flags = ChunkFlags.None;
+
+			if (isCompressed) flags |= ChunkFlags.Compressed;
+			if (_highCompression) flags |= ChunkFlags.HighCompression;
+
+			WriteVarInt((ulong)flags);
+			WriteVarInt((ulong)_bufferLength);
+			if (isCompressed) WriteVarInt((ulong)compressedLength);
+
 			_innerStream.Write(compressed, 0, compressedLength);
 
 			_bufferOffset = 0;
 		}
 
-		/// <summary>Reads the next chunk.</summary>
+		/// <summary>Reads the next chunk from stream.</summary>
 		/// <returns><c>true</c> if next has been read, or <c>false</c> if it is legitimate end of file.
 		/// Throws <see cref="EndOfStreamException"/> if end of stream was unexpected.</returns>
-		private bool ReadNextChunk()
+		private bool AcquireNextChunk()
 		{
-			const int headerSize = sizeof(int) * 2;
-			var header = new byte[headerSize];
-
 			do
 			{
-				var chunk = _innerStream.Read(header, 0, headerSize);
-				if (chunk == 0) return false; // no more chunks
-				if (chunk != headerSize) throw EndOfStream(); // corrupted
-				var originalLength = BitConverter.ToInt32(header, 0);
-				var compressedLength = BitConverter.ToInt32(header, sizeof(int));
+				ulong varint;
+				if (!TryReadVarInt(out varint)) return false;
+				var flags = (ChunkFlags)varint;
+				var isCompressed = (flags & ChunkFlags.Compressed) != 0;
+
+				var originalLength = (int)ReadVarInt();
+				var compressedLength = isCompressed ? (int)ReadVarInt() : originalLength;
 				var compressed = new byte[compressedLength];
-				chunk = _innerStream.Read(compressed, 0, compressedLength);
+				var chunk = _innerStream.Read(compressed, 0, compressedLength);
 
 				if (chunk != compressedLength) throw EndOfStream(); // currupted
 				if (compressedLength > originalLength) throw EndOfStream(); // corrupted
 
-				if (compressedLength == originalLength)
+				if (!isCompressed)
 				{
 					_buffer = compressed; // no compression on this chunk
 					_bufferLength = compressedLength;
@@ -164,7 +238,7 @@ namespace LZ4
 		/// <summary>When overridden in a derived class, clears all buffers for this stream and causes any buffered data to be written to the underlying device.</summary>
 		public override void Flush()
 		{
-			if (_bufferOffset > 0 && CanWrite) FlushThisChunk();
+			if (_bufferOffset > 0 && CanWrite) FlushCurrentChunk();
 		}
 
 		/// <summary>When overridden in a derived class, gets the length in bytes of the stream.</summary>
@@ -188,7 +262,7 @@ namespace LZ4
 		{
 			if (!CanRead) throw NotSupported("Read");
 
-			if (_bufferOffset >= _bufferLength && !ReadNextChunk())
+			if (_bufferOffset >= _bufferLength && !AcquireNextChunk())
 				return -1; // that's just end of stream
 			return _buffer[_bufferOffset++];
 		}
@@ -217,7 +291,7 @@ namespace LZ4
 				}
 				else
 				{
-					if (!ReadNextChunk()) break;
+					if (!AcquireNextChunk()) break;
 				}
 			}
 
@@ -255,7 +329,7 @@ namespace LZ4
 
 			if (_bufferOffset >= _bufferLength)
 			{
-				FlushThisChunk();
+				FlushCurrentChunk();
 			}
 
 			_buffer[_bufferOffset++] = value;
@@ -288,7 +362,7 @@ namespace LZ4
 				}
 				else
 				{
-					FlushThisChunk();
+					FlushCurrentChunk();
 				}
 			}
 		}
