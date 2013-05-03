@@ -4,4 +4,9 @@ compare_lz4_implementations.xml
 compare_lz4_implementations.xml
 8cpy.compare_lz4_implementations.xml
 8cpy.compare_lz4_implementations.xml.csv
+</Value></Property><Property><Name>svn:ignore</Name><Value>compare_lz4_implementations.xml.csv
+compare_lz4_implementations.xml
+8cpy.compare_lz4_implementations.xml
+8cpy.compare_lz4_implementations.xml.csv
+*.nupkg
 </Value></Property></Properties></ItemProperties>
