@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LZ4Stream.cs" />
     <Compile Include="Services\CppCC64LZ4Service.cs" />
     <Compile Include="Services\CppMM64LZ4Service.cs" />
     <Compile Include="Services\CppCC32LZ4Service.cs" />

@@ -11,12 +11,10 @@ namespace LZ4.Tests
 	public class ConformanceTests
 	{
 		private const int MAXIMUM_LENGTH = 1 * 10 * 1024 * 1024; // 10MB
-		//private const string TEST_DATA_FOLDER = @"T:\Temp\Corpus";
-		private const string TEST_DATA_FOLDER = @"D:\Archive\Corpus";
 
 		private void TestConformance(TimedMethod[] compressors, TimedMethod[] decompressors)
 		{
-			var provider = new BlockDataProvider(TEST_DATA_FOLDER);
+			var provider = new BlockDataProvider(Utilities.TEST_DATA_FOLDER);
 
 			var r = new Random(0);
 
@@ -28,7 +26,7 @@ namespace LZ4.Tests
 
 			while (total < limit)
 			{
-				var length = RandomLength(r, MAXIMUM_LENGTH);
+				var length = Utilities.RandomLength(r, MAXIMUM_LENGTH);
 				var block = provider.GetBytes(length);
 				TestData(block, compressors, decompressors);
 				total += block.Length;
@@ -116,24 +114,6 @@ namespace LZ4.Tests
 			TestConformance(compressors, decompressors);
 		}
 
-
-		private static void AssertEqual(byte[] expected, byte[] actual, string name)
-		{
-			var length = Math.Min(expected.Length, actual.Length);
-
-			for (int i = 0; i < length; i++)
-			{
-				if (expected[i] != actual[i]) Assert.Fail("Buffer differ @ {0} ({1})", i, name);
-			}
-
-			Assert.AreEqual(expected.Length, actual.Length, string.Format("Buffers are different length ({0})", name));
-		}
-
-		private int RandomLength(Random generator, int maximum)
-		{
-			return (int)Math.Exp(generator.NextDouble() * Math.Log(maximum));
-		}
-
 		private static void TestData(
 			byte[] original, 
 			IEnumerable<TimedMethod> compressors, 
@@ -153,7 +133,7 @@ namespace LZ4.Tests
 				}
 				else if (compressor.Identical)
 				{
-					AssertEqual(compressed0, buffer, compressor.Name);
+					Utilities.AssertEqual(compressed0, buffer, compressor.Name);
 				}
 			}
 
@@ -162,7 +142,7 @@ namespace LZ4.Tests
 				try
 				{
 					var temp = decompressor.Run(compressed[decompressor.Name], length);
-					AssertEqual(original, temp, decompressor.Name);
+					Utilities.AssertEqual(original, temp, decompressor.Name);
 				}
 				catch
 				{

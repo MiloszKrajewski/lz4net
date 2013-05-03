@@ -9,9 +9,6 @@ namespace LZ4.Tests
 	[TestFixture]
 	public class PerformanceTests
 	{
-		//private const string TEST_DATA_FOLDER = @"T:\Temp\Corpus";
-		private const string TEST_DATA_FOLDER = @"D:\Archive\Corpus";
-
 		[Test]
 		public void TestCompressionPerformance()
 		{
@@ -85,7 +82,7 @@ namespace LZ4.Tests
 
 				Warmup(compressor, decompressor);
 
-				var provider = new FileDataProvider(TEST_DATA_FOLDER);
+				var provider = new FileDataProvider(Utilities.TEST_DATA_FOLDER);
 				long total = 0;
 				const long limit = 1L*1024*1024*1024;
 				var last_pct = 0;

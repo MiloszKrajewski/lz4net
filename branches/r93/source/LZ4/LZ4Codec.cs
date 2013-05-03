@@ -40,10 +40,13 @@ namespace LZ4
 		#region fields
 
 		/// <summary>Encoding service.</summary>
-		private readonly static ILZ4Service Encoder;
+		private static readonly ILZ4Service Encoder;
+
+		/// <summary>Encoding service for HC algorithm.</summary>
+		private static readonly ILZ4Service EncoderHC;
 
 		/// <summary>Decoding service.</summary>
-		private readonly static ILZ4Service Decoder;
+		private static readonly ILZ4Service Decoder;
 
 		// ReSharper disable InconsistentNaming
 
@@ -106,6 +109,15 @@ namespace LZ4
 					_service_N32 ??
 					_service_S64 ??
 					_service_S32;
+				EncoderHC =
+					_service_MM32 ??
+					_service_MM64 ??
+					_service_N32 ??
+					_service_CC32 ??
+					_service_N64 ??
+					_service_CC64 ??
+					_service_S32 ??
+					_service_S64;
 			}
 			else
 			{
@@ -127,6 +139,15 @@ namespace LZ4
 					_service_CC32 ??
 					_service_S64 ??
 					_service_S32;
+				EncoderHC =
+					_service_MM64 ??
+					_service_MM32 ??
+					_service_CC32 ??
+					_service_CC64 ??
+					_service_N32 ??
+					_service_N64 ??
+					_service_S32 ??
+					_service_S64;
 			}
 
 			if (Encoder == null || Decoder == null)
@@ -143,7 +164,7 @@ namespace LZ4
 			{
 				method();
 			}
-			// ReSharper disable EmptyGeneralCatchClause
+				// ReSharper disable EmptyGeneralCatchClause
 			catch
 			{
 				// ignore exception
@@ -272,7 +293,14 @@ namespace LZ4
 		/// <value>The name of the codec.</value>
 		public static string CodecName
 		{
-			get { return string.Format("{0}/{1}", Encoder.CodecName, Decoder.CodecName); }
+			get
+			{
+				return string.Format(
+					"{0}/{1}/{2}HC",
+					Encoder == null ? "<none>" : Encoder.CodecName,
+					Decoder == null ? "<none>" : Decoder.CodecName,
+					EncoderHC == null ? "<none>" : EncoderHC.CodecName);
+			}
 		}
 
 		/// <summary>Get maximum output length.</summary>
@@ -280,7 +308,7 @@ namespace LZ4
 		/// <returns>Output length.</returns>
 		public static int MaximumOutputLength(int inputLength)
 		{
-			return inputLength + (inputLength / 255) + 16;
+			return inputLength + (inputLength/255) + 16;
 		}
 
 		#region Encode
@@ -347,7 +375,8 @@ namespace LZ4
 			int outputOffset,
 			int outputLength)
 		{
-			return Encoder.EncodeHC(input, inputOffset, inputLength, output, outputOffset, outputLength);
+			return (EncoderHC ?? Encoder)
+				.EncodeHC(input, inputOffset, inputLength, output, outputOffset, outputLength);
 		}
 
 		/// <summary>Encodes the specified input.</summary>
@@ -396,8 +425,8 @@ namespace LZ4
 			int inputLength,
 			byte[] output,
 			int outputOffset,
-			int outputLength,
-			bool knownOutputLength)
+			int outputLength = 0,
+			bool knownOutputLength = false)
 		{
 			return Decoder.Decode(input, inputOffset, inputLength, output, outputOffset, outputLength, knownOutputLength);
 		}
