@@ -1,8 +1,8 @@
 @echo off
 
 setlocal ENABLEDELAYEDEXPANSION
-set FILES=D:\Archive\Corpus
-rem set FILES=T:\Temp\Corpus
+rem set FILES=D:\Archive\Corpus
+set FILES=T:\Temp\Corpus
 set PROJECT=LZ4.Tests.Continuous
 
 :cycle
