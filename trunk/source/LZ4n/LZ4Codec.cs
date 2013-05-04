@@ -4,22 +4,22 @@
 Copyright (c) 2013, Milosz Krajewski
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are permitted provided 
+Redistribution and use in source and binary forms, with or without modification, are permitted provided
 that the following conditions are met:
 
-* Redistributions of source code must retain the above copyright notice, this list of conditions 
+* Redistributions of source code must retain the above copyright notice, this list of conditions
   and the following disclaimer.
 
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions 
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions
   and the following disclaimer in the documentation and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED 
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -28,7 +28,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using System;
 
 /*
-NOTE: 
+NOTE:
 	This file is shared between LZ4n and LZ4s.
 	If you would like to modify this file please keep in mind that your changes will
 	affect both projects.
@@ -64,20 +64,21 @@ namespace LZ4n
 		/// </summary>
 		private const int NOTCOMPRESSIBLE_DETECTIONLEVEL = 6;
 
-		#if LZ4s
+#if LZ4s
+
 		/// <summary>Buffer length when Buffer.BlockCopy becomes faster than straight loop.
 		/// Please note that safe implementation REQUIRES it to be greater (not even equal) than 8.</summary>
 		private const int BLOCK_COPY_LIMIT = 16;
-		#endif
+#endif
 
 		#endregion
 
 		#region consts
 
 		private const int MINMATCH = 4;
-		#pragma warning disable 162
+#pragma warning disable 162
 		private const int SKIPSTRENGTH = NOTCOMPRESSIBLE_DETECTIONLEVEL > 2 ? NOTCOMPRESSIBLE_DETECTIONLEVEL : 2;
-		#pragma warning restore 162
+#pragma warning restore 162
 		private const int COPYLENGTH = 8;
 		private const int LASTLITERALS = 5;
 		private const int MFLIMIT = COPYLENGTH + MINMATCH;
@@ -105,7 +106,8 @@ namespace LZ4n
 
 		private const int HASHHC_LOG = MAXD_LOG - 1;
 		private const int HASHHC_TABLESIZE = 1 << HASHHC_LOG;
-		private const int HASHHC_MASK = HASHHC_TABLESIZE - 1;
+		private const int HASHHC_ADJUST = (MINMATCH * 8) - HASHHC_LOG;
+		//private const int HASHHC_MASK = HASHHC_TABLESIZE - 1;
 
 		private static readonly int[] DECODER_TABLE_32 = new[] { 0, 3, 2, 3, 0, 0, 0, 0 };
 		private static readonly int[] DECODER_TABLE_64 = new[] { 0, 0, 0, -1, 0, 1, 2, 3 };

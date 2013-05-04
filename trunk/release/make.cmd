@@ -1,0 +1,1 @@
+@call ..\source\packages\psake.4.2.0.1\tools\psake.cmd .\default.ps1 %*

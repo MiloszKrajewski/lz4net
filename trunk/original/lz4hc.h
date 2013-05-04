@@ -1,16 +1,16 @@
 /*
    LZ4 HC - High Compression Mode of LZ4
    Header File
-   Copyright (C) 2011-2012, Yann Collet.
+   Copyright (C) 2011-2013, Yann Collet.
    BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
 
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions are
    met:
 
-       * Redistributions of source code must retain the above copyright
+	   * Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
-       * Redistributions in binary form must reproduce the above
+	   * Redistributions in binary form must reproduce the above
    copyright notice, this list of conditions and the following disclaimer
    in the documentation and/or other materials provided with the
    distribution.
@@ -33,13 +33,18 @@
 */
 #pragma once
 
+#ifdef LZ4_FUNC
+	#define LZ4_compressHC LZ4_FUNC(LZ4_compressHC)
+	#define LZ4_compressHC_limitedOutput LZ4_FUNC(LZ4_compressHC_limitedOutput)
+	#define LZ4HC_Data_Structure LZ4_FUNC(LZ4HC_Data_Structure)
+#endif
 
 #if defined (__cplusplus)
 extern "C" {
 #endif
 
 
-int LZ4_compressHC (const char* source, char* dest, int isize);
+int LZ4_compressHC (const char* source, char* dest, int inputSize);
 
 /*
 LZ4_compressHC :
@@ -47,6 +52,20 @@ LZ4_compressHC :
 	note : destination buffer must be already allocated. 
 		To avoid any problem, size it to handle worst cases situations (input data not compressible)
 		Worst case size evaluation is provided by function LZ4_compressBound() (see "lz4.h")
+*/
+
+int LZ4_compressHC_limitedOutput (const char* source, char* dest, int inputSize, int maxOutputSize);
+
+/*
+LZ4_compress_limitedOutput() :
+	Compress 'inputSize' bytes from 'source' into an output buffer 'dest' of maximum size 'maxOutputSize'.
+	If it cannot achieve it, compression will stop, and result of the function will be zero.
+	This function never writes outside of provided output buffer.
+
+	inputSize  : Max supported value is ~1.9GB
+	maxOutputSize : is maximum allowed size into the destination buffer (which must be already allocated)
+	return : the number of output bytes written in buffer 'dest'
+			 or 0 if the compression fails
 */
 
 

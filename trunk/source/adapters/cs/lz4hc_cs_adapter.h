@@ -69,7 +69,7 @@ private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 
 #define ALLOCATOR(s) (new byte[s])
 #define FREEMEM /* gc */
-#define MEM_INIT(b,v,l) BlockSet(b, l, v)
+#define MEM_INIT(b,v,l) BlockFill(b, l, v)
 
 // end of LZ4HC
 
@@ -113,58 +113,63 @@ private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 #endif
 
 #ifdef GEN_SAFE
-    #if LZ4_ARCH64	// 64-bit
-        #define LZ4_COPYSTEP(s,d)      	{ Copy8(_, s, d); d += 8; s += 8; }
-        #define LZ4_COPYPACKET(s,d)    	{ Copy8(_, s, d); d += 8; s += 8; }
-        #define LZ4_SECURECOPY(s,d,e) 	if (d < e) { _i = SecureCopy64(_, s, _, d, e); s += _i; d += _i; }
+    // #define COPY4(x,s,d) { byte[] xxx; xxx[d] = xxx[s]; xxx[d + 1] = xxx[s + 1]; xxx[d + 2] = xxx[s + 2]; xxx[d + 3] = xxx[s + 3]; }
+    // #define COPY8(x,s,d) { byte[] xxx; xxx[d] = xxx[s]; xxx[d + 1] = xxx[s + 1]; xxx[d + 2] = xxx[s + 2]; xxx[d + 3] = xxx[s + 3]; xxx[d + 4] = xxx[s + 4]; xxx[d + 5] = xxx[s + 5]; xxx[d + 6] = xxx[s + 6]; xxx[d + 7] = xxx[s + 7]; }
+	
+    #define COPY4(x,s,d) Copy4(_, s, d)
+    #define COPY8(x,s,d) Copy8(_, s, d)
+
+    #if LZ4_ARCH64 // 64-bit
+        #define LZ4_COPYSTEP(s,d)      	{ COPY8(_, s, d); d += 8; s += 8; }
+        #define LZ4_COPYPACKET(s,d)    	{ COPY8(_, s, d); d += 8; s += 8; }
+        #define LZ4_SECURECOPY(s,d,e) 	if (d < e) { _i = WildCopy(_, s, _, d, e); s += _i; d += _i; }
         #define HTYPE                   int
-		#define INITBASE(b,s)           int b = s
-        #define LZ4_WILDCOPY(s,d,e)     { _i = WildCopy64(_, s, _, d, e); s += _i; d += _i; }
-        #define LZ4_BLINDCOPY(s,d,l)    { _i = d + l; s += BlindCopy64(_, s, _, d, _i); d = _i; }
-        #define LZ4_NbCommonBytes(val)  debruijn64[((U64)((U64)((val) & -(val)) * 0x0218A392CDABBD3FL)) >> 58]
+		#define INITBASE(b,s)           int b = src_0
+        #define LZ4_WILDCOPY(s,d,e)     if (d < e) /*?*/{ _i = WildCopy(_, s, _, d, e); s += _i; d += _i; }
+        #define LZ4_BLINDCOPY(s,d,l)    if (l > 0) /*?*/{ _i = d + l; s += WildCopy(_, s, _, d, _i); d = _i; }
+        #define LZ4_NbCommonBytes(val)  debruijn64[((U64)((val) & -(val)) * 0x0218A392CDABBD3FL) >> 58]
     #else // 32-bit
-        #define LZ4_COPYSTEP(s,d)       { Copy4(_, s, d); d += 4; s += 4; }
-        #define LZ4_COPYPACKET(s,d)     { Copy2x4(_, s, d); d += 8; s += 8; }
-        #define LZ4_SECURECOPY(s,d,e)   { _i = SecureCopy32(_, s, _, d, e); s += _i; d += _i; }
+        #define LZ4_COPYSTEP(s,d)       { COPY4(_, s, d); d += 4; s += 4; }
+        #define LZ4_COPYPACKET(s,d)     { COPY8(_, s, d); d += 8; s += 8; }
+        #define LZ4_SECURECOPY(s,d,e)   if (d < e) { _i = WildCopy(_, s, _, d, e); s += _i; d += _i; }
         #define HTYPE                   int
-		#define INITBASE(b,s)           int b = 0
-        #define LZ4_WILDCOPY(s,d,e)     { _i = WildCopy32(_, s, _, d, e); s += _i; d += _i; }
-        #define LZ4_BLINDCOPY(s,d,l)    { _i = d + l; s += BlindCopy32(_, s, _, d, _i); d = _i; }
-        #define LZ4_NbCommonBytes(val)  debruijn32[((U32)((U32)((val) & -(val)) * 0x077CB531u)) >> 27]
+		#define INITBASE(b,s)           int b = src_0
+        #define LZ4_WILDCOPY(s,d,e)     if (d < e) /*?*/{ _i = WildCopy(_, s, _, d, e); s += _i; d += _i; }
+        #define LZ4_BLINDCOPY(s,d,l)    if (l > 0) /*?*/{ _i = d + l; s += WildCopy(_, s, _, d, _i); d = _i; }
+        #define LZ4_NbCommonBytes(val)  debruijn32[((U32)((val) & -(val)) * 0x077CB531u) >> 27]
     #endif
     #define LZ4_WRITE_LITTLEENDIAN_16(p,v)  { Poke2(_, p, v); p += 2; }
     #define memcpy(d,s,l)                   BlockCopy(_, s, _, d, l)
 #else
-    #if LZ4_ARCH64	// 64-bit
-        #define LZ4_COPYSTEP(s, d)      A64(d) = A64(s); d += 8; s += 8;
-        #define LZ4_COPYPACKET(s, d)    LZ4_COPYSTEP(s, d)
+    #if LZ4_ARCH64 // 64-bit
+        #define LZ4_COPYSTEP(s, d)      *(ulong*)d = *(ulong*)s; d += 8; s += 8;
+        #define LZ4_COPYPACKET    		LZ4_COPYSTEP
         #define LZ4_SECURECOPY(s, d, e) if (d < e) LZ4_WILDCOPY(s, d, e)
         #define HTYPE                   uint
 		#define INITBASE(b,s)           byte* b = s
         #define LZ4_NbCommonBytes(val)  debruijn64[((U64)((U64)((val) & -(val)) * 0x0218A392CDABBD3FL)) >> 58]
     #else // 32-bit
-        #define LZ4_COPYSTEP(s, d)      A32(d) = A32(s); d += 4; s += 4;
-        #define LZ4_COPYPACKET(s, d)    LZ4_COPYSTEP(s, d); LZ4_COPYSTEP(s, d);
+        #define LZ4_COPYSTEP(s, d)      *(uint*)d = *(uint*)s; d += 4; s += 4;
+        #define LZ4_COPYPACKET(s, d)    *(uint*)d = *(uint*)s; d += 4; s += 4; *(uint*)d = *(uint*)s; d += 4; s += 4;
         #define LZ4_SECURECOPY          LZ4_WILDCOPY
-        #define HTYPE                   byte*
-		#define INITBASE(b,s)		    int b = 0
+        #define HTYPE                   uint
+		#define INITBASE(b,s)		    byte* b = s
         #define LZ4_NbCommonBytes(val)  debruijn32[((U32)((U32)((val) & -(val)) * 0x077CB531u)) >> 27]
     #endif
     #define LZ4_WILDCOPY(s,d,e)     		{ do { LZ4_COPYPACKET(s, d) } while (d < e); }
-    #define LZ4_BLINDCOPY(s,d,l)    		{ byte* e = (d) + (l); LZ4_WILDCOPY(s, d, e); d = e; }
-    #define LZ4_WRITE_LITTLEENDIAN_16(p,v)  { A16(p) = v; p += 2; }
+    #define LZ4_BLINDCOPY(s,d,l)    		{ _p = d + (l); LZ4_WILDCOPY(s, d, _p); d = _p; }
+    #define LZ4_WRITE_LITTLEENDIAN_16(p,v)  { *(ushort*)p = v; p += 2; }
     #define memcpy(d,s,l)                   BlockCopy(s, d, (int)(l))
 #endif
 
 #define LZ4_READ_LITTLEENDIAN_16(d,s,p) { d = (s) - A16(p); }
 
-#define LZ4_HASH_FUNCTION(i)    (((i) * 2654435761u) >> HASH_ADJUST)
+#define LZ4_HASH_FUNCTION(i)    (((i) * 2654435761u) >> HASHHC_ADJUST)
 #define LZ4_HASH_VALUE(p)       LZ4_HASH_FUNCTION(A32(p))
-#define LZ4_HASH64K_FUNCTION(i) (((i) * 2654435761u) >> HASH64K_ADJUST)
-#define LZ4_HASH64K_VALUE(p)    LZ4_HASH64K_FUNCTION(A32(p))
 
+#define HASH_VALUE              LZ4_HASH_VALUE
 #define HASH_POINTER(p)         (HashTable[LZ4_HASH_VALUE(p)] + base)
-#define DELTANEXT(p)            chainTable[(size_t)(p) & MAXD_MASK] 
+#define DELTANEXT(p)            chainTable[((size_t)p) & MAXD_MASK] 
 #define GETNEXT(p)              ((p) - (size_t)DELTANEXT(p))
 
 #define __inline
@@ -182,6 +187,7 @@ private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 #define osize dst_len
 #define cpy dst_cpy
 #define isize src_len
+#define inputSize src_len
 #define maxOutputSize dst_maxlen
 #define oend dst_end
 #define iend src_end
@@ -192,7 +198,7 @@ private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 #define skipStrength SKIPSTRENGTH
 #define anchor src_anchor
 #define mflimit src_mflimit
-#define HashTable hash_table
+#define HashTable hashTable
 
 #define matchlimit src_LASTLITERALS
 #define iend_LASTLITERALS_1 src_LASTLITERALS_1
@@ -203,10 +209,10 @@ private const int OPTIMAL_ML = (ML_MASK - 1) + MINMATCH;
 
 private class LZ4HC_Data_Structure
 {
-	public byte[] base;
+	public byte* src_base;
 	public HTYPE hashTable[HASHTABLESIZE];
 	public U16 chainTable[MAXD];
-	public int nextToUpdate;
+	public byte* nextToUpdate;
 };
 
 

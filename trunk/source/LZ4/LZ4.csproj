@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -47,18 +48,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\LZ4n\LZ4Codec.cs">
-      <Link>LZ4s\LZ4Codec.cs</Link>
-    </Compile>
-    <Compile Include="LZ4s\LZ4Codec.Safe64.Dirty.cs" />
+    <Compile Include="LZ4Stream.cs" />
     <Compile Include="Services\CppCC64LZ4Service.cs" />
     <Compile Include="Services\CppMM64LZ4Service.cs" />
     <Compile Include="Services\CppCC32LZ4Service.cs" />
     <Compile Include="Services\CppMM32LZ4Service.cs" />
     <Compile Include="LZ4Codec.cs" />
     <Compile Include="ILZ4Service.cs" />
-    <Compile Include="LZ4s\LZ4Codec.Safe.cs" />
-    <Compile Include="LZ4s\LZ4Codec.Safe32.Dirty.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Safe32LZ4Service.cs" />
     <Compile Include="Services\Safe64LZ4Service.cs" />
@@ -78,11 +74,19 @@
       <Project>{CAC778E5-28BC-475E-8CAA-46A133184DDB}</Project>
       <Name>LZ4n</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LZ4s\LZ4s.csproj">
+      <Project>{e31fde4e-3fa9-47d5-908f-78be8957b5ac}</Project>
+      <Name>LZ4s</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

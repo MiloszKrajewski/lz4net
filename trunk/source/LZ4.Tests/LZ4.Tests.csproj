@@ -67,10 +67,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Utilities.cs" />
     <Compile Include="ConformanceTests.cs" />
     <Compile Include="PerformanceTests.cs" />
     <Compile Include="MicroSpeedTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StreamTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LZ4.Tests.Helpers\LZ4.Tests.Helpers.csproj">
@@ -88,6 +90,10 @@
     <ProjectReference Include="..\LZ4n\LZ4n.csproj">
       <Project>{CAC778E5-28BC-475E-8CAA-46A133184DDB}</Project>
       <Name>LZ4n</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LZ4s\LZ4s.csproj">
+      <Project>{e31fde4e-3fa9-47d5-908f-78be8957b5ac}</Project>
+      <Name>LZ4s</Name>
     </ProjectReference>
     <ProjectReference Include="..\LZ4\LZ4.csproj">
       <Project>{3DB8E05B-22F8-4B64-8B0C-9AC95293EAD5}</Project>
