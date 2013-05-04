@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3DB8E05B-22F8-4B64-8B0C-9AC95293EAD5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LZ4</RootNamespace>
+    <AssemblyName>LZ4</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;LZ4s</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\LZ4.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;LZ4s</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\LZ4.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <AssemblyOriginatorKeyFile>..\LZ4.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="LZ4Stream.cs" />
+    <Compile Include="Services\CppCC64LZ4Service.cs" />
+    <Compile Include="Services\CppMM64LZ4Service.cs" />
+    <Compile Include="Services\CppCC32LZ4Service.cs" />
+    <Compile Include="Services\CppMM32LZ4Service.cs" />
+    <Compile Include="LZ4Codec.cs" />
+    <Compile Include="ILZ4Service.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\Safe32LZ4Service.cs" />
+    <Compile Include="Services\Safe64LZ4Service.cs" />
+    <Compile Include="Services\Unsafe32LZ4Service.cs" />
+    <Compile Include="Services\Unsafe64LZ4Service.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LZ4cc\LZ4cc.vcxproj">
+      <Project>{5A7AED54-B6C2-44E2-830A-FE08FBCCEAA5}</Project>
+      <Name>LZ4cc</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LZ4mm\LZ4mm.vcxproj">
+      <Project>{A9D66273-483D-4359-A55A-F0A8D2E6271F}</Project>
+      <Name>LZ4mm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LZ4n\LZ4n.csproj">
+      <Project>{CAC778E5-28BC-475E-8CAA-46A133184DDB}</Project>
+      <Name>LZ4n</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LZ4s\LZ4s.csproj">
+      <Project>{e31fde4e-3fa9-47d5-908f-78be8957b5ac}</Project>
+      <Name>LZ4s</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
