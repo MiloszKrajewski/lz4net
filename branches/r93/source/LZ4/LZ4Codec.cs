@@ -103,8 +103,8 @@ namespace LZ4
 				Decoder =
 					_service_MM32 ??
 					_service_MM64 ??
-					_service_CC32 ??
 					_service_CC64 ??
+					_service_CC32 ??
 					_service_N64 ??
 					_service_N32 ??
 					_service_S64 ??
@@ -132,9 +132,9 @@ namespace LZ4
 					_service_S64;
 				Decoder =
 					_service_MM64 ??
-					_service_CC64 ??
-					_service_N32 ??
 					_service_N64 ??
+					_service_N32 ??
+					_service_CC64 ??
 					_service_MM32 ??
 					_service_CC32 ??
 					_service_S64 ??

@@ -47,7 +47,7 @@ namespace LZ4.Tests
 
 			using (var stream = new LZ4Stream(
 				read ? File.OpenRead(fileName) : File.Create(fileName),
-				read ? CompressionMode.Decompress : CompressionMode.Compress))
+				read ? CompressionMode.Decompress : CompressionMode.Compress, true))
 			{
 				var total = 0;
 				const long limit = TOTAL_SIZE;

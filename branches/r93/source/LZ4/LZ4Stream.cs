@@ -9,13 +9,24 @@ namespace LZ4
 	{
 		#region ChunkFlags
 
+		/// <summary>
+		/// Flags of a chunk. Please note, this 
+		/// </summary>
 		[Flags]
 		public enum ChunkFlags
 		{
+			/// <summary>None.</summary>
 			None = 0x00,
+			/// <summary>Set if chunk is compressed.</summary>
 			Compressed = 0x01,
+
+			/// <summary>Set if high compression has been selected (does not affect decoder, 
+			/// but might be useful when rewriting)</summary>
 			HighCompression = 0x02,
-			Reserved = 0x04 | 0x08 | 0x10,
+
+			/// <summary>3 bits for number of passes. Currently only 1 pass (value 0) 
+			/// is supported.</summary>
+			Passes = 0x04 | 0x08 | 0x10, // no used currently
 		}
 
 		#endregion
@@ -200,6 +211,9 @@ namespace LZ4
 				{
 					if (_buffer == null || _buffer.Length < originalLength)
 						_buffer = new byte[originalLength];
+					var passes = (int)flags >> 2;
+					if (passes != 0)
+						throw new NotSupportedException("Chunks with multiple passes are not supported.");
 					LZ4Codec.Decode(compressed, 0, compressedLength, _buffer, 0, originalLength, true);
 					_bufferLength = originalLength;
 				}
