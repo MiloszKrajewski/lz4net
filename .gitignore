@@ -1,0 +1,13 @@
+release/any/
+release/libz/
+release/x64/
+release/x86/
+bin/
+obj/
+ipch/
+*.nupkg
+*.opensdf
+*.user
+*.suo
+*.sdf
+*.snk
