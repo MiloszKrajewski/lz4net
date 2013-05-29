@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using LZ4.Tests.Helpers;
 using NUnit.Framework;
+using System.Text;
 
 namespace LZ4.Tests
 {
@@ -12,6 +13,31 @@ namespace LZ4.Tests
 		//const long TOTAL_SIZE = 1L * 1024 * 1024 * 1024;
 		const long TOTAL_SIZE = 256 * 1024 * 1024;
 		const int CHUNK_SIZE = 2 * 1024 * 1024;
+
+		[Test]
+		public void CopyTo()
+		{
+			string tempFileName = Path.GetTempFileName();
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < 1000; i++)
+			{
+				builder.AppendLine(Utilities.LoremIpsum);
+			}
+			var data = Encoding.UTF8.GetBytes(builder.ToString());
+
+			using (var ostream = File.Create(tempFileName))
+			using (var zstream = new LZ4Stream(ostream, CompressionMode.Compress))
+			{
+				zstream.Write(data, 0, data.Length);
+			}
+
+			using (var istream = File.OpenRead(tempFileName))
+			using (var zstream = new LZ4Stream(istream, CompressionMode.Decompress))
+			using (var ostream = File.Create(tempFileName + ".orig"))
+			{
+				zstream.CopyTo(ostream);
+			}
+		}
 
 		[Test]
 		public void ReadAndWrite()

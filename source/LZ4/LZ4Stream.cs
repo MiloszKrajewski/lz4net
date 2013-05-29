@@ -152,21 +152,21 @@ namespace LZ4
 		/// <summary>Flushes current chunk.</summary>
 		private void FlushCurrentChunk()
 		{
-			if (_bufferLength <= 0) return;
+			if (_bufferOffset <= 0) return;
 
-			var compressed = new byte[_bufferLength];
+			var compressed = new byte[_bufferOffset];
 			var compressedLength = _highCompression
-				? LZ4Codec.EncodeHC(_buffer, 0, _bufferLength, compressed, 0, _bufferLength)
-				: LZ4Codec.Encode(_buffer, 0, _bufferLength, compressed, 0, _bufferLength);
+				? LZ4Codec.EncodeHC(_buffer, 0, _bufferOffset, compressed, 0, _bufferOffset)
+				: LZ4Codec.Encode(_buffer, 0, _bufferOffset, compressed, 0, _bufferOffset);
 
-			if (compressedLength <= 0 || compressedLength >= _bufferLength)
+			if (compressedLength <= 0 || compressedLength >= _bufferOffset)
 			{
 				// uncompressible block
 				compressed = _buffer;
-				compressedLength = _bufferLength;
+				compressedLength = _bufferOffset;
 			}
 
-			var isCompressed = compressedLength < _bufferLength;
+			var isCompressed = compressedLength < _bufferOffset;
 
 			var flags = ChunkFlags.None;
 
@@ -174,7 +174,7 @@ namespace LZ4
 			if (_highCompression) flags |= ChunkFlags.HighCompression;
 
 			WriteVarInt((ulong)flags);
-			WriteVarInt((ulong)_bufferLength);
+			WriteVarInt((ulong)_bufferOffset);
 			if (isCompressed) WriteVarInt((ulong)compressedLength);
 
 			_innerStream.Write(compressed, 0, compressedLength);
