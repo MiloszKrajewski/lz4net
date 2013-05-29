@@ -196,11 +196,12 @@ namespace LZ4
 
 				var originalLength = (int)ReadVarInt();
 				var compressedLength = isCompressed ? (int)ReadVarInt() : originalLength;
+				if (compressedLength > originalLength) throw EndOfStream(); // corrupted
+				
 				var compressed = new byte[compressedLength];
 				var chunk = _innerStream.Read(compressed, 0, compressedLength);
 
 				if (chunk != compressedLength) throw EndOfStream(); // currupted
-				if (compressedLength > originalLength) throw EndOfStream(); // corrupted
 
 				if (!isCompressed)
 				{

@@ -1,7 +1,9 @@
 function Clean-BinObj([string] $src)
 {
-	get-childitem -recurse -force $src -include bin,obj | % { 
-		remove-item -recurse $_ 
+	$folders = get-childitem -recurse -force $src -include bin,obj
+	$folders | % {
+		write-host "Removing: $_"
+		remove-item -recurse -force $_
 	}
 }
 
