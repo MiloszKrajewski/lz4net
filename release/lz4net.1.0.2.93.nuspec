@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>lz4net</id>
-        <version>1.0.1.93</version>
+        <version>1.0.2.93</version>
         <title>lz4net</title>
         <authors>Milosz Krajewski</authors>
         <owners>Milosz Krajewski</owners>
