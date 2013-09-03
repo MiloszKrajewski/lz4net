@@ -11,3 +11,4 @@ ipch/
 *.suo
 *.sdf
 *.snk
+*.DotSettings

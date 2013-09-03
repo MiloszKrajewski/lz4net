@@ -17,6 +17,7 @@ namespace LZ4
 		{
 			/// <summary>None.</summary>
 			None = 0x00,
+
 			/// <summary>Set if chunk is compressed.</summary>
 			Compressed = 0x01,
 
@@ -26,7 +27,7 @@ namespace LZ4
 
 			/// <summary>3 bits for number of passes. Currently only 1 pass (value 0) 
 			/// is supported.</summary>
-			Passes = 0x04 | 0x08 | 0x10, // no used currently
+			Passes = 0x04 | 0x08 | 0x10, // not used currently
 		}
 
 		#endregion
@@ -134,6 +135,29 @@ namespace LZ4
 			return result;
 		}
 
+		/// <summary>Reads the block of bytes. 
+		/// Contrary to <see cref="Stream.Read"/> does not read partial data if possible. 
+		/// If there is no data (yet) it waits.</summary>
+		/// <param name="buffer">The buffer.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="length">The length.</param>
+		/// <returns>Number of bytes read.</returns>
+		private int ReadBlock(byte[] buffer, int offset, int length)
+		{
+			var total = 0;
+
+			while (length > 0)
+			{
+				var read = _innerStream.Read(buffer, offset, length);
+				if (read == 0) break;
+				offset += read;
+				length -= read;
+				total += read;
+			}
+
+			return total;
+		}
+
 		/// <summary>Writes the variable length integer.</summary>
 		/// <param name="value">The value.</param>
 		private void WriteVarInt(ulong value)
@@ -199,7 +223,7 @@ namespace LZ4
 				if (compressedLength > originalLength) throw EndOfStream(); // corrupted
 				
 				var compressed = new byte[compressedLength];
-				var chunk = _innerStream.Read(compressed, 0, compressedLength);
+				var chunk = ReadBlock(compressed, 0, compressedLength);
 
 				if (chunk != compressedLength) throw EndOfStream(); // currupted
 

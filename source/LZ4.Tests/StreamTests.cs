@@ -1,6 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using LZ4.Tests.Helpers;
 using NUnit.Framework;
 using System.Text;
@@ -17,9 +21,9 @@ namespace LZ4.Tests
 		[Test]
 		public void CopyTo()
 		{
-			string tempFileName = Path.GetTempFileName();
-			StringBuilder builder = new StringBuilder();
-			for (int i = 0; i < 1000; i++)
+			var tempFileName = Path.GetTempFileName();
+			var builder = new StringBuilder();
+			for (var i = 0; i < 1000; i++)
 			{
 				builder.AppendLine(Utilities.LoremIpsum);
 			}
@@ -57,6 +61,74 @@ namespace LZ4.Tests
 					Utilities.AssertEqual(b, buffer, "Read");
 				},
 				true);
+		}
+
+		[Test]
+		public void TcpClientServer()
+		{
+			Parallel.Invoke(
+				TcpServer,
+				TcpClient);
+		}
+
+		public void TcpClient()
+		{
+			var client = new TcpClient();
+			client.Connect("127.0.0.1", 4444);
+
+			Console.WriteLine("Connected...");
+
+			using (var tcpStream = client.GetStream())
+			using (var lz4Stream = new LZ4Stream(tcpStream, CompressionMode.Decompress))
+			using (var reader = new BinaryReader(lz4Stream))
+			{
+				while (true)
+				{
+					var file = reader.ReadString();
+					if (file.Length == 0) break;
+					Console.WriteLine("client: {0}", file);
+					var length = reader.ReadInt32();
+					var bytes = reader.ReadBytes(length);
+					Assert.AreEqual(length, bytes.Length);
+				}
+			}
+		}
+
+		public void TcpServer()
+		{
+			var listener = new TcpListener(IPAddress.Any, 4444);
+			listener.Start();
+
+			try
+			{
+				Console.WriteLine("Waiting for client...");
+				var client = listener.AcceptTcpClient();
+				using (var tcpStream = client.GetStream())
+				using (var lz4Stream = new LZ4Stream(tcpStream, CompressionMode.Compress, blockSize: 128*1024))
+				using (var writer = new BinaryWriter(lz4Stream))
+				{
+					foreach (var file in Directory.GetFiles(".", "*", SearchOption.AllDirectories))
+					{
+						Console.WriteLine("server: {0}", file);
+
+						writer.Write(file);
+						var bytes = File.ReadAllBytes(file);
+						writer.Write(bytes.Length);
+						writer.Write(bytes);
+						Thread.Sleep(500); // pause to force client to wait
+					}
+
+					writer.Write(string.Empty);
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("{0}: {1}", e.GetType().Name, e.Message);
+			}
+			finally
+			{
+				listener.Stop();
+			}
 		}
 
 		// ReSharper disable InconsistentNaming
