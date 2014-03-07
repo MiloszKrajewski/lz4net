@@ -4,26 +4,22 @@ Properties {
 	$sln = "$src\LZ4.sln"
 	$snk = "$src\LZ4.snk"
 	$libz = "$src\packages\LibZ.Bootstrap.1.0.3.3\tools\libz.exe"
+	$git = "git.exe"
+	$zip = "7za.exe"
 }
 
 Include ".\common.ps1"
 
 FormatTaskName (("-"*79) + "`n`n    {0}`n`n" + ("-"*79))
 
-Task default -depends LibZ
-
-Task LibZ -depends Release {
-	Create-Folder libz
-	
-	copy-item any\*.dll libz\
-	
-	exec { cmd /c $libz inject-dll -a libz\LZ4.dll -i libz\*.dll -e LZ4.dll "--move" -k $snk }
-}
+Task default -depends Release
 
 Task Release -depends Rebuild {
 	Create-Folder x86
 	Create-Folder x64
 	Create-Folder any
+	Create-Folder libz
+	Create-Folder dist
 
 	copy-item "$src\LZ4\bin\Release\LZ4.dll" any\
 	copy-item "$src\LZ4n\bin\Release\LZ4n.dll" any\
@@ -37,6 +33,13 @@ Task Release -depends Rebuild {
 
 	copy-item x64\LZ4mm.dll any\LZ4mm.x64.dll
 	copy-item x64\LZ4cc.dll any\LZ4cc.x64.dll
+	
+	copy-item any\*.dll libz\
+	
+	exec { cmd /c $libz inject-dll -a libz\LZ4.dll -i libz\*.dll -e LZ4.dll "--move" -k $snk }
+	
+	exec { cmd /c $zip a -tzip "dist\lz4net-$release-binary.zip" "x86\" "x64\" "any\" "libz\" }
+	exec { cmd /c $zip a -tzip "dist\lz4net-$release-all-in-one.zip" "libz\lz4.dll" }
 }
 
 Task Version {
