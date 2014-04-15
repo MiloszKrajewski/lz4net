@@ -3,7 +3,7 @@ Properties {
 	$src = "..\source"
 	$sln = "$src\LZ4.sln"
 	$snk = "$src\LZ4.snk"
-	$libz = "$src\packages\LibZ.Bootstrap.1.0.3.3\tools\libz.exe"
+	$libz = "$src\packages\LibZ.Bootstrap.1.1.0.0\tools\libz.exe"
 	$git = "git.exe"
 	$zip = "7za.exe"
 }
