@@ -72,9 +72,9 @@ namespace LZ4s
 			// NOTE: It's faster than BitConverter.ToUInt32 (suprised? me too)
 			return
 				((uint)buffer[offset]) |
-					((uint)buffer[offset + 1] << 8) |
-					((uint)buffer[offset + 2] << 16) |
-					((uint)buffer[offset + 3] << 24);
+				((uint)buffer[offset + 1] << 8) |
+				((uint)buffer[offset + 2] << 16) |
+				((uint)buffer[offset + 3] << 24);
 		}
 
 		private static uint Xor4(byte[] buffer, int offset1, int offset2)
@@ -82,14 +82,14 @@ namespace LZ4s
 			// return Peek4(buffer, offset1) ^ Peek4(buffer, offset2);
 			var value1 =
 				((uint)buffer[offset1]) |
-					((uint)buffer[offset1 + 1] << 8) |
-					((uint)buffer[offset1 + 2] << 16) |
-					((uint)buffer[offset1 + 3] << 24);
+				((uint)buffer[offset1 + 1] << 8) |
+				((uint)buffer[offset1 + 2] << 16) |
+				((uint)buffer[offset1 + 3] << 24);
 			var value2 =
 				((uint)buffer[offset2]) |
-					((uint)buffer[offset2 + 1] << 8) |
-					((uint)buffer[offset2 + 2] << 16) |
-					((uint)buffer[offset2 + 3] << 24);
+				((uint)buffer[offset2 + 1] << 8) |
+				((uint)buffer[offset2 + 2] << 16) |
+				((uint)buffer[offset2 + 3] << 24);
 			return value1 ^ value2;
 		}
 
@@ -98,22 +98,22 @@ namespace LZ4s
 			// return Peek8(buffer, offset1) ^ Peek8(buffer, offset2);
 			var value1 =
 				((ulong)buffer[offset1]) |
-					((ulong)buffer[offset1 + 1] << 8) |
-					((ulong)buffer[offset1 + 2] << 16) |
-					((ulong)buffer[offset1 + 3] << 24) |
-					((ulong)buffer[offset1 + 4] << 32) |
-					((ulong)buffer[offset1 + 5] << 40) |
-					((ulong)buffer[offset1 + 6] << 48) |
-					((ulong)buffer[offset1 + 7] << 56);
+				((ulong)buffer[offset1 + 1] << 8) |
+				((ulong)buffer[offset1 + 2] << 16) |
+				((ulong)buffer[offset1 + 3] << 24) |
+				((ulong)buffer[offset1 + 4] << 32) |
+				((ulong)buffer[offset1 + 5] << 40) |
+				((ulong)buffer[offset1 + 6] << 48) |
+				((ulong)buffer[offset1 + 7] << 56);
 			var value2 =
 				((ulong)buffer[offset2]) |
-					((ulong)buffer[offset2 + 1] << 8) |
-					((ulong)buffer[offset2 + 2] << 16) |
-					((ulong)buffer[offset2 + 3] << 24) |
-					((ulong)buffer[offset2 + 4] << 32) |
-					((ulong)buffer[offset2 + 5] << 40) |
-					((ulong)buffer[offset2 + 6] << 48) |
-					((ulong)buffer[offset2 + 7] << 56);
+				((ulong)buffer[offset2 + 1] << 8) |
+				((ulong)buffer[offset2 + 2] << 16) |
+				((ulong)buffer[offset2 + 3] << 24) |
+				((ulong)buffer[offset2 + 4] << 32) |
+				((ulong)buffer[offset2 + 5] << 40) |
+				((ulong)buffer[offset2 + 6] << 48) |
+				((ulong)buffer[offset2 + 7] << 56);
 			return value1 ^ value2;
 		}
 

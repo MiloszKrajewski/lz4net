@@ -9,6 +9,12 @@ namespace LZ4.Tests
 	[TestFixture]
 	public class PerformanceTests
 	{
+		[TestFixtureSetUp]
+		public void Setup()
+		{
+			Utilities.Download();
+		}
+
 		[Test]
 		public void TestCompressionPerformance()
 		{
@@ -82,7 +88,7 @@ namespace LZ4.Tests
 
 				Warmup(compressor, decompressor);
 
-				var provider = new FileDataProvider(Utilities.TEST_DATA_FOLDER);
+				var provider = new FileDataProvider(Utilities.GetSilesiaCorpusFolder());
 				long total = 0;
 				const long limit = 1L*1024*1024*1024;
 				var last_pct = 0;

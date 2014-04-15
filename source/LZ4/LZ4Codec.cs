@@ -1,31 +1,5 @@
-﻿#region license
-
-/*
-Copyright (c) 2013, Milosz Krajewski
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided 
-that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this list of conditions 
-  and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions 
-  and the following disclaimer in the documentation and/or other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED 
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
-IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
-#endregion
-
-using System;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using LZ4.Services;
@@ -33,7 +7,7 @@ using LZ4.Services;
 namespace LZ4
 {
 	/// <summary>
-	/// LZ$ codec selecting best implementation depending on platform.
+	///     LZ$ codec selecting best implementation depending on platform.
 	/// </summary>
 	public static class LZ4Codec
 	{
@@ -72,7 +46,7 @@ namespace LZ4
 
 		#region initialization
 
-		/// <summary>Initializes the <see cref="LZ4Codec"/> class.</summary>
+		/// <summary>Initializes the <see cref="LZ4Codec" /> class.</summary>
 		static LZ4Codec()
 		{
 			// NOTE: this method exploits the fact that assemblies are loaded first time they
@@ -160,11 +134,11 @@ namespace LZ4
 		/// <param name="method">The method.</param>
 		private static void Try(Action method)
 		{
+			// ReSharper disable EmptyGeneralCatchClause
 			try
 			{
 				method();
 			}
-				// ReSharper disable EmptyGeneralCatchClause
 			catch
 			{
 				// ignore exception
@@ -172,8 +146,8 @@ namespace LZ4
 			// ReSharper restore EmptyGeneralCatchClause
 		}
 
-		/// <summary>Tries to create a specified <seealso cref="ILZ4Service"/> and tests it.</summary>
-		/// <typeparam name="T">Concrete <seealso cref="ILZ4Service"/> type.</typeparam>
+		/// <summary>Tries to create a specified <seealso cref="ILZ4Service" /> and tests it.</summary>
+		/// <typeparam name="T">Concrete <seealso cref="ILZ4Service" /> type.</typeparam>
 		/// <returns>A service if suceeded or <c>null</c> if it failed.</returns>
 		private static ILZ4Service Try<T>()
 			where T: ILZ4Service, new()
@@ -209,20 +183,25 @@ namespace LZ4
 				// compress it
 				var encoded = new byte[MaximumOutputLength(original.Length)];
 				var encodedLength = service.Encode(original, 0, original.Length, encoded, 0, encoded.Length);
-				if (encodedLength < 0) return null;
+				if (encodedLength < 0)
+					return null;
 
 				// decompress it (knowing original length)
 				var decoded = new byte[original.Length];
 				var decodedLength1 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, true);
-				if (decodedLength1 != original.Length) return null;
+				if (decodedLength1 != original.Length)
+					return null;
 				var outputText1 = Encoding.UTF8.GetString(decoded);
-				if (outputText1 != inputText) return null;
+				if (outputText1 != inputText)
+					return null;
 
 				// decompress it (not knowing original length)
 				var decodedLength2 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, false);
-				if (decodedLength2 != original.Length) return null;
+				if (decodedLength2 != original.Length)
+					return null;
 				var outputText2 = Encoding.UTF8.GetString(decoded);
-				if (outputText2 != inputText) return null;
+				if (outputText2 != inputText)
+					return null;
 			}
 
 			// LZ4HC
@@ -230,20 +209,25 @@ namespace LZ4
 				// compress it
 				var encoded = new byte[MaximumOutputLength(original.Length)];
 				var encodedLength = service.EncodeHC(original, 0, original.Length, encoded, 0, encoded.Length);
-				if (encodedLength < 0) return null;
+				if (encodedLength < 0)
+					return null;
 
 				// decompress it (knowing original length)
 				var decoded = new byte[original.Length];
 				var decodedLength1 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, true);
-				if (decodedLength1 != original.Length) return null;
+				if (decodedLength1 != original.Length)
+					return null;
 				var outputText1 = Encoding.UTF8.GetString(decoded);
-				if (outputText1 != inputText) return null;
+				if (outputText1 != inputText)
+					return null;
 
 				// decompress it (not knowing original length)
 				var decodedLength2 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, false);
-				if (decodedLength2 != original.Length) return null;
+				if (decodedLength2 != original.Length)
+					return null;
 				var outputText2 = Encoding.UTF8.GetString(decoded);
-				if (outputText2 != inputText) return null;
+				if (outputText2 != inputText)
+					return null;
 			}
 
 			return service;
@@ -308,7 +292,7 @@ namespace LZ4
 		/// <returns>Output length.</returns>
 		public static int MaximumOutputLength(int inputLength)
 		{
-			return inputLength + (inputLength/255) + 16;
+			return inputLength + (inputLength / 255) + 16;
 		}
 
 		#region Encode
@@ -339,9 +323,11 @@ namespace LZ4
 		/// <returns>Compressed buffer.</returns>
 		public static byte[] Encode(byte[] input, int inputOffset, int inputLength)
 		{
-			if (inputLength < 0) inputLength = input.Length - inputOffset;
+			if (inputLength < 0)
+				inputLength = input.Length - inputOffset;
 
-			if (input == null) throw new ArgumentNullException("input");
+			if (input == null)
+				throw new ArgumentNullException("input");
 			if (inputOffset < 0 || inputOffset + inputLength > input.Length)
 				throw new ArgumentException("inputOffset and inputLength are invalid for given input");
 
@@ -386,9 +372,11 @@ namespace LZ4
 		/// <returns>Compressed buffer.</returns>
 		public static byte[] EncodeHC(byte[] input, int inputOffset, int inputLength)
 		{
-			if (inputLength < 0) inputLength = input.Length - inputOffset;
+			if (inputLength < 0)
+				inputLength = input.Length - inputOffset;
 
-			if (input == null) throw new ArgumentNullException("input");
+			if (input == null)
+				throw new ArgumentNullException("input");
 			if (inputOffset < 0 || inputOffset + inputLength > input.Length)
 				throw new ArgumentException("inputOffset and inputLength are invalid for given input");
 
@@ -439,9 +427,11 @@ namespace LZ4
 		/// <returns>Decompressed buffer.</returns>
 		public static byte[] Decode(byte[] input, int inputOffset, int inputLength, int outputLength)
 		{
-			if (inputLength < 0) inputLength = input.Length - inputOffset;
+			if (inputLength < 0)
+				inputLength = input.Length - inputOffset;
 
-			if (input == null) throw new ArgumentNullException("input");
+			if (input == null)
+				throw new ArgumentNullException("input");
 			if (inputOffset < 0 || inputOffset + inputLength > input.Length)
 				throw new ArgumentException("inputOffset and inputLength are invalid for given input");
 
@@ -453,6 +443,93 @@ namespace LZ4
 		}
 
 		#endregion
+
+		#endregion
+
+		#region Envelope
+
+		private const int WRAP_OFFSET_0 = 0;
+		private const int WRAP_OFFSET_4 = sizeof(int);
+		private const int WRAP_OFFSET_8 = 2 * sizeof(int);
+		private const int WRAP_LENGTH = WRAP_OFFSET_8;
+
+		private static void Poke4(byte[] buffer, int offset, uint value)
+		{
+			buffer[offset + 0] = (byte)value;
+			buffer[offset + 1] = (byte)(value >> 8);
+			buffer[offset + 2] = (byte)(value >> 16);
+			buffer[offset + 3] = (byte)(value >> 24);
+		}
+
+		private static uint Peek4(byte[] buffer, int offset)
+		{
+			// NOTE: It's faster than BitConverter.ToUInt32 (suprised? me too)
+			return
+				// ReSharper disable once RedundantCast
+				((uint)buffer[offset]) |
+				((uint)buffer[offset + 1] << 8) |
+				((uint)buffer[offset + 2] << 16) |
+				((uint)buffer[offset + 3] << 24);
+		}
+
+		public static byte[] Wrap(byte[] inputBuffer, int inputOffset = 0, int inputLength = int.MaxValue)
+		{
+			inputLength = Math.Min(inputBuffer.Length - inputOffset, inputLength);
+			if (inputLength < 0)
+				throw new ArgumentException("inputBuffer size of inputLength is invalid");
+			if (inputLength == 0)
+				return new byte[WRAP_LENGTH];
+
+			var outputLength = inputLength; // MaximumOutputLength(inputLength);
+			var outputBuffer = new byte[outputLength];
+			outputLength = Encode(inputBuffer, inputOffset, inputLength, outputBuffer, 0, outputLength);
+
+			byte[] result;
+
+			if (outputLength >= inputLength || outputLength == 0)
+			{
+				result = new byte[inputLength + WRAP_LENGTH];
+				Poke4(result, WRAP_OFFSET_0, (uint)inputLength);
+				Poke4(result, WRAP_OFFSET_4, (uint)inputLength);
+				Buffer.BlockCopy(inputBuffer, 0, result, WRAP_OFFSET_8, inputLength);
+			}
+			else
+			{
+				result = new byte[outputLength + WRAP_LENGTH];
+				Poke4(result, WRAP_OFFSET_0, (uint)inputLength);
+				Poke4(result, WRAP_OFFSET_4, (uint)outputLength);
+				Buffer.BlockCopy(outputBuffer, 0, result, WRAP_OFFSET_8, outputLength);
+			}
+
+			return result;
+		}
+
+		public static byte[] Unwrap(byte[] inputBuffer, int inputOffset = 0)
+		{
+			var inputLength = inputBuffer.Length - inputOffset;
+			if (inputLength < WRAP_LENGTH)
+				throw new ArgumentException("inputBuffer size is invalid");
+
+			var outputLength = (int)Peek4(inputBuffer, inputOffset + WRAP_OFFSET_0);
+			inputLength = (int)Peek4(inputBuffer, inputOffset + WRAP_OFFSET_4);
+			if (inputLength > inputBuffer.Length - WRAP_LENGTH)
+				throw new ArgumentException("inputBuffer size is invalid or has been corrupted");
+
+			byte[] result;
+
+			if (inputLength >= outputLength)
+			{
+				result = new byte[inputLength];
+				Buffer.BlockCopy(inputBuffer, WRAP_OFFSET_8, result, 0, inputLength);
+			}
+			else
+			{
+				result = new byte[outputLength];
+				Decode(inputBuffer, WRAP_OFFSET_8, inputLength, result, 0, outputLength, true);
+			}
+
+			return result;
+		}
 
 		#endregion
 	}

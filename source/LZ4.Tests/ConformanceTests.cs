@@ -10,11 +10,17 @@ namespace LZ4.Tests
 	[TestFixture]
 	public class ConformanceTests
 	{
+		#region consts
+
 		private const int MAXIMUM_LENGTH = 1 * 10 * 1024 * 1024; // 10MB
+
+		#endregion
+
+		#region utilities
 
 		private void TestConformance(TimedMethod[] compressors, TimedMethod[] decompressors)
 		{
-			var provider = new BlockDataProvider(Utilities.TEST_DATA_FOLDER);
+			var provider = new BlockDataProvider(Utilities.GetSilesiaCorpusFolder());
 
 			var r = new Random(0);
 
@@ -37,25 +43,14 @@ namespace LZ4.Tests
 					last_pct = pct;
 				}
 			}
+		}
 
-			/*
+		#endregion
 
-			The performance results from this test are completely unreliable
-			Too much garbage collection and caching.
-			So, no need to mislead anyone.
-
-			Console.WriteLine("Compression:");
-			foreach (var compressor in compressors)
-			{
-				Console.WriteLine("  {0}: {1:0.00}MB/s", compressor.Name, compressor.Speed);
-			}
-
-			Console.WriteLine("Decompression:");
-			foreach (var decompressor in decompressors)
-			{
-				Console.WriteLine("  {0}: {1:0.00}MB/s", decompressor.Name, decompressor.Speed);
-			}
-			*/
+		[TestFixtureSetUp]
+		public void Setup()
+		{
+			Utilities.Download();
 		}
 
 		[Test]

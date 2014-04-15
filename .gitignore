@@ -2,13 +2,18 @@ release/any/
 release/libz/
 release/x64/
 release/x86/
+
+# regular .NET output
 bin/
 obj/
 ipch/
-*.nupkg
 *.opensdf
 *.user
 *.suo
 *.sdf
 *.snk
-*.DotSettings
+
+# NuGet packages
+source/packages/**
+!source/packages/repositories.config
+!source/.nuget/NuGet.exe

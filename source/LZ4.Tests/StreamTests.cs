@@ -107,7 +107,7 @@ namespace LZ4.Tests
 				using (var lz4Stream = new LZ4Stream(tcpStream, CompressionMode.Compress, blockSize: 128*1024))
 				using (var writer = new BinaryWriter(lz4Stream))
 				{
-					foreach (var file in Directory.GetFiles(".", "*", SearchOption.AllDirectories))
+					foreach (var file in Directory.GetFiles(Utilities.GetSilesiaCorpusFolder(), "*", SearchOption.AllDirectories))
 					{
 						Console.WriteLine("server: {0}", file);
 
@@ -135,7 +135,7 @@ namespace LZ4.Tests
 
 		private static void DoAction(Action<byte[], Stream> action, bool read)
 		{
-			var provider = new BlockDataProvider(Utilities.TEST_DATA_FOLDER);
+			var provider = new BlockDataProvider(Utilities.GetSilesiaCorpusFolder());
 			var r = new Random(0);
 
 			Console.WriteLine("Architecture: {0}bit", IntPtr.Size*8);
