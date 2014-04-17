@@ -533,7 +533,7 @@ namespace LZ4
 				result = new byte[inputLength + WRAP_LENGTH];
 				Poke4(result, WRAP_OFFSET_0, (uint)inputLength);
 				Poke4(result, WRAP_OFFSET_4, (uint)inputLength);
-				Buffer.BlockCopy(inputBuffer, 0, result, WRAP_OFFSET_8, inputLength);
+				Buffer.BlockCopy(inputBuffer, inputOffset, result, WRAP_OFFSET_8, inputLength);
 			}
 			else
 			{
@@ -583,7 +583,7 @@ namespace LZ4
 
 			var outputLength = (int)Peek4(inputBuffer, inputOffset + WRAP_OFFSET_0);
 			inputLength = (int)Peek4(inputBuffer, inputOffset + WRAP_OFFSET_4);
-			if (inputLength > inputBuffer.Length - WRAP_LENGTH)
+			if (inputLength > inputBuffer.Length - inputOffset - WRAP_LENGTH)
 				throw new ArgumentException("inputBuffer size is invalid or has been corrupted");
 
 			byte[] result;
@@ -591,12 +591,12 @@ namespace LZ4
 			if (inputLength >= outputLength)
 			{
 				result = new byte[inputLength];
-				Buffer.BlockCopy(inputBuffer, WRAP_OFFSET_8, result, 0, inputLength);
+				Buffer.BlockCopy(inputBuffer, inputOffset + WRAP_OFFSET_8, result, 0, inputLength);
 			}
 			else
 			{
 				result = new byte[outputLength];
-				Decode(inputBuffer, WRAP_OFFSET_8, inputLength, result, 0, outputLength, true);
+				Decode(inputBuffer, inputOffset + WRAP_OFFSET_8, inputLength, result, 0, outputLength, true);
 			}
 
 			return result;
