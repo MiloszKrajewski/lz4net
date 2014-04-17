@@ -12,7 +12,7 @@ namespace LZ4.MixedModeAutoLoad
 			"voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat " +
 			"non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
-		static void Main(string[] args)
+		static void Main()
 		{
 			AutoLoad3264.Register("LZ4mm");
 			AutoLoad3264.Register("LZ4cc");

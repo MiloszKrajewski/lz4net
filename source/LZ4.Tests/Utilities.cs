@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 using Ionic.BZip2;
 using NUnit.Framework;
 
@@ -45,18 +45,19 @@ namespace LZ4.Tests
 
 		public static void Download()
 		{
-			Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "dickens");
-			Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "mozilla");
-			Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "mr");
-			Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "nci");
-			Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "ooffice");
-			Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "osdb");
-			Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "reymont");
-			Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "samba");
-			Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "sao");
-			Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "webster");
-			Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "xml");
-			Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "x-ray");
+			Parallel.Invoke(
+				() => Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "dickens"),
+				() => Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "mozilla"),
+				() => Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "mr"),
+				() => Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "nci"),
+				() => Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "ooffice"),
+				() => Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "osdb"),
+				() => Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "reymont"),
+				() => Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "samba"),
+				() => Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "sao"),
+				() => Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "webster"),
+				() => Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "xml"),
+				() => Download(SILESIA_CORPUS_URL, TEST_DATA_FOLDER, "x-ray"));
 		}
 
 		private static void Download(string source, string target, string filename)
@@ -70,7 +71,7 @@ namespace LZ4.Tests
 			// ReSharper disable once AssignNullToNotNullAttribute
 			Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
 
-			Console.WriteLine(string.Format("Downloading '{0}'", sourceUrl));
+			Console.WriteLine("Downloading '{0}'", sourceUrl);
 
 			if (!File.Exists(targetZip))
 			{

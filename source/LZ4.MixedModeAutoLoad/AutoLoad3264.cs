@@ -1,6 +1,6 @@
 using System;
-using System.Reflection;
 using System.IO;
+using System.Reflection;
 
 namespace LZ4.MixedModeAutoLoad
 {
@@ -12,16 +12,16 @@ namespace LZ4.MixedModeAutoLoad
 			if (executableFolder == null)
 			{
 				var assembly = Assembly.GetEntryAssembly() ?? typeof(AutoLoad3264).Assembly;
-				string fileName = assembly.Location;
+				var fileName = assembly.Location;
 				executableFolder = Path.GetDirectoryName(fileName);
 			}
 
 			AppDomain.CurrentDomain.AssemblyResolve += (_, e) => {
 				var n = new AssemblyName(e.Name);
-				if (string.Compare(assemblyName, n.Name, true) == 0)
+				if (String.Compare(assemblyName, n.Name, StringComparison.OrdinalIgnoreCase) == 0)
 				{
-					string fileName = Path.Combine(
-						executableFolder,
+					var fileName = Path.Combine(
+						executableFolder ?? ".",
 						string.Format("{0}.{1}.dll", assemblyName, (IntPtr.Size == 4) ? "x86" : "x64"));
 					return Assembly.LoadFile(fileName);
 				}

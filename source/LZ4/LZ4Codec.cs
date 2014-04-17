@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using LZ4.Services;
@@ -7,7 +6,7 @@ using LZ4.Services;
 namespace LZ4
 {
 	/// <summary>
-	///     LZ$ codec selecting best implementation depending on platform.
+	///     LZ4 codec selecting best implementation depending on platform.
 	/// </summary>
 	public static class LZ4Codec
 	{
@@ -134,7 +133,6 @@ namespace LZ4
 		/// <param name="method">The method.</param>
 		private static void Try(Action method)
 		{
-			// ReSharper disable EmptyGeneralCatchClause
 			try
 			{
 				method();
@@ -143,7 +141,6 @@ namespace LZ4
 			{
 				// ignore exception
 			}
-			// ReSharper restore EmptyGeneralCatchClause
 		}
 
 		/// <summary>Tries to create a specified <seealso cref="ILZ4Service" /> and tests it.</summary>
@@ -446,13 +443,17 @@ namespace LZ4
 
 		#endregion
 
-		#region Envelope
+		#region Wrap
 
 		private const int WRAP_OFFSET_0 = 0;
 		private const int WRAP_OFFSET_4 = sizeof(int);
 		private const int WRAP_OFFSET_8 = 2 * sizeof(int);
 		private const int WRAP_LENGTH = WRAP_OFFSET_8;
 
+		/// <summary>Sets uint32 value in byte buffer.</summary>
+		/// <param name="buffer">The buffer.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="value">The value.</param>
 		private static void Poke4(byte[] buffer, int offset, uint value)
 		{
 			buffer[offset + 0] = (byte)value;
@@ -461,6 +462,10 @@ namespace LZ4
 			buffer[offset + 3] = (byte)(value >> 24);
 		}
 
+		/// <summary>Gets uint32 from byte buffer.</summary>
+		/// <param name="buffer">The buffer.</param>
+		/// <param name="offset">The offset.</param>
+		/// <returns>The value.</returns>
 		private static uint Peek4(byte[] buffer, int offset)
 		{
 			// NOTE: It's faster than BitConverter.ToUInt32 (suprised? me too)
@@ -472,7 +477,14 @@ namespace LZ4
 				((uint)buffer[offset + 3] << 24);
 		}
 
-		public static byte[] Wrap(byte[] inputBuffer, int inputOffset = 0, int inputLength = int.MaxValue)
+		/// <summary>Compresses and wraps given input byte buffer.</summary>
+		/// <param name="inputBuffer">The input buffer.</param>
+		/// <param name="inputOffset">The input offset.</param>
+		/// <param name="inputLength">Length of the input.</param>
+		/// <param name="highCompression">if set to <c>true</c> uses high compression.</param>
+		/// <returns>Compressed buffer.</returns>
+		/// <exception cref="System.ArgumentException">inputBuffer size of inputLength is invalid</exception>
+		private static byte[] Wrap(byte[] inputBuffer, int inputOffset, int inputLength, bool highCompression)
 		{
 			inputLength = Math.Min(inputBuffer.Length - inputOffset, inputLength);
 			if (inputLength < 0)
@@ -482,7 +494,10 @@ namespace LZ4
 
 			var outputLength = inputLength; // MaximumOutputLength(inputLength);
 			var outputBuffer = new byte[outputLength];
-			outputLength = Encode(inputBuffer, inputOffset, inputLength, outputBuffer, 0, outputLength);
+
+			outputLength = highCompression
+				? EncodeHC(inputBuffer, inputOffset, inputLength, outputBuffer, 0, outputLength)
+				: Encode(inputBuffer, inputOffset, inputLength, outputBuffer, 0, outputLength);
 
 			byte[] result;
 
@@ -504,6 +519,35 @@ namespace LZ4
 			return result;
 		}
 
+		/// <summary>Compresses and wraps given input byte buffer.</summary>
+		/// <param name="inputBuffer">The input buffer.</param>
+		/// <param name="inputOffset">The input offset.</param>
+		/// <param name="inputLength">Length of the input.</param>
+		/// <returns>Compressed buffer.</returns>
+		/// <exception cref="System.ArgumentException">inputBuffer size of inputLength is invalid</exception>
+		public static byte[] Wrap(byte[] inputBuffer, int inputOffset = 0, int inputLength = int.MaxValue)
+		{
+			return Wrap(inputBuffer, inputOffset, inputLength, false);
+		}
+
+		/// <summary>Compresses (with high compression algorithm) and wraps given input byte buffer.</summary>
+		/// <param name="inputBuffer">The input buffer.</param>
+		/// <param name="inputOffset">The input offset.</param>
+		/// <param name="inputLength">Length of the input.</param>
+		/// <returns>Compressed buffer.</returns>
+		/// <exception cref="System.ArgumentException">inputBuffer size of inputLength is invalid</exception>
+		public static byte[] WrapHC(byte[] inputBuffer, int inputOffset = 0, int inputLength = int.MaxValue)
+		{
+			return Wrap(inputBuffer, inputOffset, inputLength, true);
+		}
+
+		/// <summary>Unwraps the specified compressed buffer.</summary>
+		/// <param name="inputBuffer">The input buffer.</param>
+		/// <param name="inputOffset">The input offset.</param>
+		/// <returns>Uncompressed buffer.</returns>
+		/// <exception cref="System.ArgumentException">
+		///     inputBuffer size is invalid or inputBuffer size is invalid or has been corrupted
+		/// </exception>
 		public static byte[] Unwrap(byte[] inputBuffer, int inputOffset = 0)
 		{
 			var inputLength = inputBuffer.Length - inputOffset;
