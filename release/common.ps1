@@ -2,8 +2,22 @@ function Clean-BinObj([string] $src)
 {
 	$folders = get-childitem -recurse -force $src -include bin,obj
 	$folders | % {
-		write-host "Removing: $_"
-		remove-item -recurse -force $_
+		try {
+			remove-item $_.fullname -recurse -force
+		}
+		catch {
+			write-host -fore yellow $_
+		}
+	}
+	$folders = get-childitem -recurse -force $src -include bin,obj
+	$files = $folders | % { get-childitem $_.fullname * -recurse -file }
+	$files | % { 
+		try {
+			remove-item $_.fullname 
+		}
+		catch {
+			write-host -fore yellow $_
+		}
 	}
 }
 
@@ -13,13 +27,19 @@ function Create-Folder([string] $path)
 	new-item $path -itemtype directory
 }
 
+function Remove-Folder([string] $path)
+{
+	remove-item -recurse -force $path
+}
+
 function Set-VsVars()
 {
 	$vstools = "."
 	if (test-path env:VS90COMNTOOLS) { $vstools = $env:VS90COMNTOOLS } # 2008
 	if (test-path env:VS100COMNTOOLS) { $vstools = $env:VS100COMNTOOLS } # 2010
 	if (test-path env:VS110COMNTOOLS) { $vstools = $env:VS110COMNTOOLS } # 2012
-
+	if (test-path env:VS120COMNTOOLS) { $vstools = $env:VS120COMNTOOLS } # 2013
+	
 	$batchFile = join-path $vstools "vsvars32.bat"
 
 	$cmd = "`"$batchFile`" & set"
@@ -29,6 +49,12 @@ function Set-VsVars()
 	}
 	
 	write-host -foreground Yellow "VsVars has been loaded from: '$batchFile'"
+}
+
+function Clean-Solution([string] $sln)
+{
+	write-host -foreground Yellow "Cleaning '$sln'"
+	exec { msbuild $sln "/t:Clean" "/v:minimal" }
 }
 
 function Build-Solution([string] $sln, [string] $platform = $null)
