@@ -29,6 +29,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using LZ4.Services;
+using Microsoft.Win32;
 
 namespace LZ4
 {
@@ -79,8 +80,11 @@ namespace LZ4
 			// are needed so we can safely try load and handle if not loaded
 			// I may change in future versions of .NET
 
-			Try(InitializeLZ4mm);
-			Try(InitializeLZ4cc);
+			if (HasVs2010Runtime())
+			{
+				Try(InitializeLZ4mm);
+				Try(InitializeLZ4cc);
+			}
 			Try(InitializeLZ4n);
 			Try(InitializeLZ4s);
 
@@ -153,6 +157,35 @@ namespace LZ4
 			if (Encoder == null || Decoder == null)
 			{
 				throw new NotSupportedException("No LZ4 compression service found");
+			}
+		}
+
+		/// <summary>Determines whether VS2010 runtime is installed.</summary>
+		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise.</returns>
+		private static bool HasVs2010Runtime()
+		{
+			var keyName =
+				IntPtr.Size == 4 ? @"SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" :
+				IntPtr.Size == 8 ? @"SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64" :
+				null;
+			if (keyName == null)
+				return false;
+
+			var key = Registry.LocalMachine.OpenSubKey(keyName, false);
+			if (key == null)
+				return false;
+
+			var value = key.GetValue(@"Installed");
+			if (value == null)
+				return false;
+
+			try
+			{
+				return Convert.ToUInt32(value) != 0;
+			}
+			catch
+			{
+				return false;
 			}
 		}
 
