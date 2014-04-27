@@ -80,7 +80,7 @@ namespace LZ4
 			// are needed so we can safely try load and handle if not loaded
 			// I may change in future versions of .NET
 
-			if (HasVs2010Runtime())
+			if (Has2010Runtime())
 			{
 				Try(InitializeLZ4mm);
 				Try(InitializeLZ4cc);
@@ -162,29 +162,30 @@ namespace LZ4
 
 		/// <summary>Determines whether VS2010 runtime is installed.</summary>
 		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise.</returns>
-		private static bool HasVs2010Runtime()
+		private static bool Has2010Runtime()
 		{
-			var keyName =
-				IntPtr.Size == 4 ? @"SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" :
-				IntPtr.Size == 8 ? @"SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64" :
-				null;
-			if (keyName == null)
-				return false;
-
-			var key = Registry.LocalMachine.OpenSubKey(keyName, false);
-			if (key == null)
-				return false;
-
-			var value = key.GetValue(@"Installed");
-			if (value == null)
-				return false;
-
 			try
 			{
+				var keyName =
+					IntPtr.Size == 4 ? @"SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" :
+						IntPtr.Size == 8 ? @"SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64" :
+							null;
+				if (keyName == null)
+					return false;
+
+				var key = Registry.LocalMachine.OpenSubKey(keyName, false);
+				if (key == null)
+					return false;
+
+				var value = key.GetValue(@"Installed");
+				if (value == null)
+					return false;
+
 				return Convert.ToUInt32(value) != 0;
 			}
 			catch
 			{
+				// the whole thing is optional, so in case of any error just use safe encoder
 				return false;
 			}
 		}
