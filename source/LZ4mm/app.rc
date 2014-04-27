@@ -60,11 +60,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Milosz Krajewski"
             VALUE "FileDescription", "LZ4mm"
-            VALUE "FileVersion", "1.0.1.93"
+            VALUE "FileVersion", "1.0.5.93"
             VALUE "LegalCopyright", "Copyright (c) 2014, Milosz Krajewski"
             VALUE "OriginalFilename", "LZ4mm.dll"
             VALUE "ProductName", "LZ4mm"
-            VALUE "ProductVersion", "1.0.1.93"
+            VALUE "ProductVersion", "1.0.5.93"
         END
     END
     BLOCK "VarFileInfo"

@@ -68,15 +68,15 @@ function Update-AssemblyVersion([string] $folder, [string] $version, [string[]] 
 	if ($version -notmatch "[0-9]+(\.([0-9]+|\*)){1,3}") {
 		Write-Error "Version number incorrect format: $version"
 	}
-
+	
 	$aiProductVersionRx = '(?<=AssemblyVersion(Attribute)?\(")[0-9]+(\.([0-9]+|\*)){1,3}(?="\))'
 	$aiFileVersionRx = '(?<=AssemblyFileVersion(Attribute)?\(")[0-9]+(\.([0-9]+|\*)){1,3}(?="\))'
 
     $rclProductVersionRx = "(?<=^\s*PRODUCTVERSION\s+)[0-9]+(\,([0-9]+|\*)){1,3}(?=\s*$)"
     $rclFileVersionRx = "(?<=^\s*FILEVERSION\s+)[0-9]+(\,([0-9]+|\*)){1,3}(?=\s*$)"
 
-    $rcvProductVersionRx = '(?<=^\s*VALUE\s+"ProductVersion",\s*")1.0.0.90(?="\s*$)'
-    $rcvFileVersionRx = '(?<=^\s*VALUE\s+"FileVersion",\s*")1.0.0.90(?="\s*$)'
+    $rcvProductVersionRx = '(?<=^\s*VALUE\s+"ProductVersion",\s*")[0-9]+(\.([0-9]+|\*)){1,3}(?="\s*$)'
+    $rcvFileVersionRx = '(?<=^\s*VALUE\s+"FileVersion",\s*")[0-9]+(\.([0-9]+|\*)){1,3}(?="\s*$)'
 	
 	get-childitem -recurse -include "AssemblyInfo.cs","AssemblyInfo.cpp","app.rc" $folder | % {
 		$name = resolve-path $_.FullName -relative
@@ -114,8 +114,10 @@ function Update-AssemblyVersion([string] $folder, [string] $version, [string[]] 
 			} else {
 				write-host "Updating FileVersion only for '$name' to '$version'"
 			}
+			
+			$encoding = New-Object System.Text.UTF8Encoding($False)
+			[System.IO.File]::WriteAllLines($tmp, $content, $encoding)
 		
-			$content > $tmp
 		    if (test-path ($name)) { remove-item $name }
 		    move-item $tmp $name -force	
 		}
