@@ -508,6 +508,7 @@ namespace LZ4n
 			fixed (byte* outputPtr = &output[outputOffset])
 			{
 				var length = LZ4_compressHC_32(inputPtr, outputPtr, inputLength, outputLength);
+				// NOTE: there is a potential problem here as original implementation returns 0 not -1
 				return length <= 0 ? -1 : length;
 			}
 		}
@@ -573,6 +574,7 @@ namespace LZ4n
 			fixed (byte* outputPtr = &output[outputOffset])
 			{
 				var length = LZ4_compressHC_64(inputPtr, outputPtr, inputLength, outputLength);
+				// NOTE: there is a potential problem here as original implementation returns 0 not -1
 				return length <= 0 ? -1 : length;
 			}
 		}

@@ -34,5 +34,17 @@ namespace LZ4.Tests
 				Convert.ToBase64String(buffer), 
 				Convert.ToBase64String(decompressed));
 		}
+
+		[Test]
+		public void Wrap1B()
+		{
+			LZ4Codec.Wrap(new byte[1]);
+		}
+
+		[Test]
+		public void Wrap1B_HC()
+		{
+			LZ4Codec.WrapHC(new byte[1]);
+		}
 	}
 }

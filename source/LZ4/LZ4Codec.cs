@@ -160,28 +160,15 @@ namespace LZ4
 			}
 		}
 
-		/// <summary>Determines whether VS2010 runtime is installed.</summary>
+		/// <summary>Determines whether VS2010 runtime is installed. 
+		/// Note, on Mono the Registry class is not available at all, 
+		/// so access to it have to be isolated (thus: <see cref="Has2010RuntimeImpl"/>).</summary>
 		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise.</returns>
 		private static bool Has2010Runtime()
 		{
 			try
 			{
-				var keyName =
-					IntPtr.Size == 4 ? @"SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" :
-						IntPtr.Size == 8 ? @"SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64" :
-							null;
-				if (keyName == null)
-					return false;
-
-				var key = Registry.LocalMachine.OpenSubKey(keyName, false);
-				if (key == null)
-					return false;
-
-				var value = key.GetValue(@"Installed");
-				if (value == null)
-					return false;
-
-				return Convert.ToUInt32(value) != 0;
+				return Has2010RuntimeImpl();
 			}
 			catch
 			{
@@ -292,6 +279,29 @@ namespace LZ4
 		}
 
 		// ReSharper disable InconsistentNaming
+
+		/// <summary>Determines whether VS2010 runtime is installed. The actual implementation.</summary>
+		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise. Uses registry to check.</returns>
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private static bool Has2010RuntimeImpl()
+		{
+			var keyName =
+				IntPtr.Size == 4 ? @"SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" :
+					IntPtr.Size == 8 ? @"SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64" :
+						null;
+			if (keyName == null)
+				return false;
+
+			var key = Registry.LocalMachine.OpenSubKey(keyName, false);
+			if (key == null)
+				return false;
+
+			var value = key.GetValue(@"Installed");
+			if (value == null)
+				return false;
+
+			return Convert.ToUInt32(value) != 0;
+		}
 
 		/// <summary>Initializes codecs from LZ4mm.</summary>
 		[MethodImpl(MethodImplOptions.NoInlining)]
@@ -562,7 +572,7 @@ namespace LZ4
 
 			byte[] result;
 
-			if (outputLength >= inputLength || outputLength == 0)
+			if (outputLength >= inputLength || outputLength <= 0)
 			{
 				result = new byte[inputLength + WRAP_LENGTH];
 				Poke4(result, WRAP_OFFSET_0, (uint)inputLength);

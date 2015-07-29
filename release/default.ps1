@@ -1,5 +1,5 @@
 Properties {
-	$release = "1.0.5.93"
+	$release = "1.0.6.93"
 	$src = "..\source"
 	$sln = "$src\LZ4.sln"
 	$snk = "$src\LZ4.snk"

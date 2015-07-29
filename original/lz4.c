@@ -822,7 +822,7 @@ int LZ4_uncompress(const char* source,
     BYTE* cpy;
 
     #ifdef LZ4_MK_OPT
-		const BYTE* oend_LASTLITERALS = oend - LASTLITERALS;
+        const BYTE* oend_LASTLITERALS = oend - LASTLITERALS;
         const BYTE* oend_COPYLENGTH = oend - COPYLENGTH;
         const BYTE* oend_COPYLENGTH_STEPSIZE_4 = oend - COPYLENGTH - (STEPSIZE - 4);
     #endif

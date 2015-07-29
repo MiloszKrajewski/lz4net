@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>lz4net</id>
-        <version>1.0.5.93</version>
+        <version>1.0.6.93</version>
         <title>lz4net</title>
         <authors>Milosz Krajewski</authors>
         <owners>Milosz Krajewski</owners>
@@ -14,8 +14,8 @@
 It is actually 6 DLLs packed inside facade DLL which will select the fastest one depending on platform. 
 Multiple implementations give you ability to use it in any environment (trust level).</description>
         <summary>Six implementations (safe, unsafe, C++/CLI x86/x64, MixedMode x86/x64) of LZ4 and LZ4HC - ultra fast compression algorithm.</summary>
-        <releaseNotes>+ added wrapping functions
-+ added VS 2010 runtime detection</releaseNotes>
+        <releaseNotes>+ fixed VS2010 detection on Mono
++ fixed IndexOutOfRange exception when using Wrapwith small buffers</releaseNotes>
         <copyright>Milosz Krajewski</copyright>
         <tags>lz4 lz4hc fast compression decompression zlib lzf lzo snappy quicklz</tags>
     </metadata>

@@ -653,6 +653,7 @@ namespace LZ4s
 				output, outputOffset, ref outputLength);
 
 			var length = LZ4_compressHC_32(input, inputOffset, inputLength, output, outputOffset, outputLength);
+			// NOTE: there is a potential problem here as original implementation returns 0 not -1
 			return length <= 0 ? -1 : length;
 		}
 
@@ -718,6 +719,7 @@ namespace LZ4s
 				output, outputOffset, ref outputLength);
 
 			var length = LZ4_compressHC_64(input, inputOffset, inputLength, output, outputOffset, outputLength);
+			// NOTE: there is a potential problem here as original implementation returns 0 not -1
 			return length <= 0 ? -1 : length;
 		}
 
