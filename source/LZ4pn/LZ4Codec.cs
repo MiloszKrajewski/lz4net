@@ -29,18 +29,18 @@ using System;
 
 /*
 NOTE:
-	This file is shared between LZ4n and LZ4s.
+	This file is shared between LZ4pn and LZ4ps.
 	If you would like to modify this file please keep in mind that your changes will
 	affect both projects.
-	Use 'LZ4s' conditional define to differentiate
+	Use 'SAFE' conditional define to differentiate
 */
 
 // ReSharper disable InconsistentNaming
 
-#if LZ4s
-namespace LZ4s
+#if SAFE
+namespace LZ4ps
 #else
-namespace LZ4n
+namespace LZ4pn
 #endif
 {
 	public static partial class LZ4Codec
@@ -64,7 +64,7 @@ namespace LZ4n
 		/// </summary>
 		private const int NOTCOMPRESSIBLE_DETECTIONLEVEL = 6;
 
-#if LZ4s
+#if SAFE
 
 		/// <summary>Buffer length when Buffer.BlockCopy becomes faster than straight loop.
 		/// Please note that safe implementation REQUIRES it to be greater (not even equal) than 8.</summary>

@@ -25,32 +25,18 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #endregion
 
-namespace LZ4.Services
+namespace LZ4
 {
-	internal class Unsafe64LZ4Service: ILZ4Service
+	/// <summary>
+	/// Originally this type comes from System.IO.Compression, 
+	/// but it is not present in portable assemblies.
+	/// </summary>
+	public enum LZ4StreamMode
 	{
-		#region ILZ4Service Members
+		/// <summary>Compress</summary>
+		Compress,
 
-		public string CodecName
-		{
-			get { return "Unsafe 64"; }
-		}
-
-		public int Encode(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength)
-		{
-			return LZ4pn.LZ4Codec.Encode64(input, inputOffset, inputLength, output, outputOffset, outputLength);
-		}
-
-		public int Decode(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength, bool knownOutputLength)
-		{
-			return LZ4pn.LZ4Codec.Decode64(input, inputOffset, inputLength, output, outputOffset, outputLength, knownOutputLength);
-		}
-
-		public int EncodeHC(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength)
-		{
-			return LZ4pn.LZ4Codec.Encode64HC(input, inputOffset, inputLength, output, outputOffset, outputLength);
-		}
-
-		#endregion
+		/// <summary>Decompress</summary>
+		Decompress,
 	}
 }

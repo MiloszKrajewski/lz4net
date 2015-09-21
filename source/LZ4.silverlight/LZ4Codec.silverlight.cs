@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 
 /*
 Copyright (c) 2013, Milosz Krajewski
@@ -25,32 +25,38 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #endregion
 
-namespace LZ4.Services
+using LZ4.Services;
+using System.Runtime.CompilerServices;
+
+namespace LZ4
 {
-	internal class Unsafe64LZ4Service: ILZ4Service
+	public static partial class LZ4Codec
 	{
-		#region ILZ4Service Members
+		/// <summary>Determines whether VS2010 runtime is installed. 
+		/// Note, on Mono the Registry class is not available at all, 
+		/// so access to it have to be isolated.</summary>
+		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise.</returns>
+		private static bool Has2010Runtime() { return false; }
 
-		public string CodecName
+		// ReSharper disable InconsistentNaming
+
+		/// <summary>Initializes codecs from LZ4mm.</summary>
+		private static void InitializeLZ4mm() { _service_MM64 = _service_MM32 = null; }
+
+		/// <summary>Initializes codecs from LZ4cc.</summary>
+		private static void InitializeLZ4cc() { _service_CC64 = _service_CC32 = null; }
+
+		/// <summary>Initializes codecs from LZ4n.</summary>
+		private static void InitializeLZ4n() { _service_N64 = _service_N32 = null; }
+
+		/// <summary>Initializes codecs from LZ4s.</summary>
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private static void InitializeLZ4s()
 		{
-			get { return "Unsafe 64"; }
+			_service_S32 = TryService<Safe32LZ4Service>();
+			_service_S64 = TryService<Safe64LZ4Service>();
 		}
 
-		public int Encode(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength)
-		{
-			return LZ4pn.LZ4Codec.Encode64(input, inputOffset, inputLength, output, outputOffset, outputLength);
-		}
-
-		public int Decode(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength, bool knownOutputLength)
-		{
-			return LZ4pn.LZ4Codec.Decode64(input, inputOffset, inputLength, output, outputOffset, outputLength, knownOutputLength);
-		}
-
-		public int EncodeHC(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength)
-		{
-			return LZ4pn.LZ4Codec.Encode64HC(input, inputOffset, inputLength, output, outputOffset, outputLength);
-		}
-
-		#endregion
+		// ReSharper restore InconsistentNaming
 	}
 }

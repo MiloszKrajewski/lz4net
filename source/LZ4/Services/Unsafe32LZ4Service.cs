@@ -38,17 +38,17 @@ namespace LZ4.Services
 
 		public int Encode(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength)
 		{
-			return LZ4n.LZ4Codec.Encode32(input, inputOffset, inputLength, output, outputOffset, outputLength);
+			return LZ4pn.LZ4Codec.Encode32(input, inputOffset, inputLength, output, outputOffset, outputLength);
 		}
 
 		public int Decode(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength, bool knownOutputLength)
 		{
-			return LZ4n.LZ4Codec.Decode32(input, inputOffset, inputLength, output, outputOffset, outputLength, knownOutputLength);
+			return LZ4pn.LZ4Codec.Decode32(input, inputOffset, inputLength, output, outputOffset, outputLength, knownOutputLength);
 		}
 
 		public int EncodeHC(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength)
 		{
-			return LZ4n.LZ4Codec.Encode32HC(input, inputOffset, inputLength, output, outputOffset, outputLength);
+			return LZ4pn.LZ4Codec.Encode32HC(input, inputOffset, inputLength, output, outputOffset, outputLength);
 		}
 
 		#endregion

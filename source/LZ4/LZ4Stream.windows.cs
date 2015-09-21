@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 
 /*
 Copyright (c) 2013, Milosz Krajewski
@@ -25,32 +25,44 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #endregion
 
-namespace LZ4.Services
+using System;
+using System.IO;
+using System.IO.Compression;
+
+namespace LZ4
 {
-	internal class Unsafe64LZ4Service: ILZ4Service
+	public partial class LZ4Stream
 	{
-		#region ILZ4Service Members
-
-		public string CodecName
+		/// <summary>Initializes a new instance of the <see cref="LZ4Stream" /> class.</summary>
+		/// <param name="innerStream">The inner stream.</param>
+		/// <param name="compressionMode">The compression mode.</param>
+		/// <param name="highCompression">if set to <c>true</c> [high compression].</param>
+		/// <param name="blockSize">Size of the block.</param>
+		public LZ4Stream(
+			Stream innerStream,
+			CompressionMode compressionMode,
+			bool highCompression = false,
+			int blockSize = 1024*1024)
+			: this(innerStream, ToLZ4StreamMode(compressionMode), highCompression, blockSize)
 		{
-			get { return "Unsafe 64"; }
 		}
 
-		public int Encode(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength)
+		/// <summary>Converts CompressionMode to LZ4StreamMode.</summary>
+		/// <param name="compressionMode">The compression mode.</param>
+		/// <returns>LZ4StreamMode</returns>
+		/// <exception cref="System.ArgumentException"></exception>
+		private static LZ4StreamMode ToLZ4StreamMode(CompressionMode compressionMode)
 		{
-			return LZ4pn.LZ4Codec.Encode64(input, inputOffset, inputLength, output, outputOffset, outputLength);
+			switch (compressionMode)
+			{
+				case CompressionMode.Compress:
+					return LZ4StreamMode.Compress;
+				case CompressionMode.Decompress:
+					return LZ4StreamMode.Decompress;
+				default:
+					throw new ArgumentException(
+						string.Format("Unhandled compression mode: {0}", compressionMode));
+			}
 		}
-
-		public int Decode(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength, bool knownOutputLength)
-		{
-			return LZ4pn.LZ4Codec.Decode64(input, inputOffset, inputLength, output, outputOffset, outputLength, knownOutputLength);
-		}
-
-		public int EncodeHC(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int outputLength)
-		{
-			return LZ4pn.LZ4Codec.Encode64HC(input, inputOffset, inputLength, output, outputOffset, outputLength);
-		}
-
-		#endregion
 	}
 }

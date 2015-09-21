@@ -64,17 +64,18 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // ReSharper disable InconsistentNaming
 
-namespace LZ4s
+namespace LZ4ps
 {
 	public static partial class LZ4Codec
 	{
-		private static void LZ4HC_Insert_64(LZ4HC_Data_Structure ctx, int src_p)
+		// Update chains up to ip (excluded)
+		private static void LZ4HC_Insert_32(LZ4HC_Data_Structure ctx, int src_p)
 		{
 			var chainTable = ctx.chainTable;
 			var hashTable = ctx.hashTable;
+			var nextToUpdate = ctx.nextToUpdate;
 			var src = ctx.src;
 			var src_base = ctx.src_base;
-			var nextToUpdate = ctx.nextToUpdate;
 
 			while (nextToUpdate < src_p)
 			{
@@ -89,29 +90,25 @@ namespace LZ4s
 			ctx.nextToUpdate = nextToUpdate;
 		}
 
-		private static int LZ4HC_CommonLength_64(LZ4HC_Data_Structure ctx, int p1, int p2)
+		private static int LZ4HC_CommonLength_32(LZ4HC_Data_Structure ctx, int p1, int p2)
 		{
-			var debruijn64 = DEBRUIJN_TABLE_64;
+			var debruijn32 = DEBRUIJN_TABLE_32;
 			var src = ctx.src;
 			var src_LASTLITERALS = ctx.src_LASTLITERALS;
+
 			var p1t = p1;
 
-			while (p1t < src_LASTLITERALS - (STEPSIZE_64 - 1))
+			while (p1t < src_LASTLITERALS - (STEPSIZE_32 - 1))
 			{
-				var diff = (long)Xor8(src, p2, p1t);
+				var diff = (int)Xor4(src, p2, p1t);
 				if (diff == 0)
 				{
-					p1t += STEPSIZE_64;
-					p2 += STEPSIZE_64;
+					p1t += STEPSIZE_32;
+					p2 += STEPSIZE_32;
 					continue;
 				}
-				p1t += debruijn64[((ulong)((diff) & -(diff)) * 0x0218A392CDABBD3FL) >> 58];
+				p1t += debruijn32[((uint)((diff) & -(diff)) * 0x077CB531u) >> 27];
 				return (p1t - p1);
-			}
-			if ((p1t < (src_LASTLITERALS - 3)) && (Equal4(src, p2, p1t)))
-			{
-				p1t += 4;
-				p2 += 4;
 			}
 			if ((p1t < (src_LASTLITERALS - 1)) && (Equal2(src, p2, p1t)))
 			{
@@ -122,19 +119,21 @@ namespace LZ4s
 			return (p1t - p1);
 		}
 
-		private static int LZ4HC_InsertAndFindBestMatch_64(LZ4HC_Data_Structure ctx, int src_p, ref int matchpos)
+		private static int LZ4HC_InsertAndFindBestMatch_32(LZ4HC_Data_Structure ctx, int src_p, ref int src_match)
 		{
 			var chainTable = ctx.chainTable;
 			var hashTable = ctx.hashTable;
 			var src = ctx.src;
 			var src_base = ctx.src_base;
+
 			var nbAttempts = MAX_NB_ATTEMPTS;
 			int repl = 0, ml = 0;
 			ushort delta = 0;
 
 			// HC4 match finder
-			LZ4HC_Insert_64(ctx, src_p);
+			LZ4HC_Insert_32(ctx, src_p);
 			var src_ref = (hashTable[(((Peek4(src, src_p)) * 2654435761u) >> HASHHC_ADJUST)] + src_base);
+
 
 			// Detect repetitive sequences of length <= 4
 			if (src_ref >= src_p - 4) // potential repetition
@@ -142,25 +141,24 @@ namespace LZ4s
 				if (Equal4(src, src_ref, src_p)) // confirmed
 				{
 					delta = (ushort)(src_p - src_ref);
-					repl = ml = LZ4HC_CommonLength_64(ctx, src_p + MINMATCH, src_ref + MINMATCH) + MINMATCH;
-					matchpos = src_ref;
+					repl = ml = LZ4HC_CommonLength_32(ctx, src_p + MINMATCH, src_ref + MINMATCH) + MINMATCH;
+					src_match = src_ref;
 				}
 				src_ref = ((src_ref) - chainTable[(src_ref) & MAXD_MASK]);
 			}
 
-
 			while ((src_ref >= src_p - MAX_DISTANCE) && (nbAttempts != 0))
 			{
 				nbAttempts--;
-				if (src[src_ref + ml] == src[src_p + ml])
+				if (src[(src_ref + ml)] == src[(src_p + ml)])
 				{
 					if (Equal4(src, src_ref, src_p))
 					{
-						var mlt = LZ4HC_CommonLength_64(ctx, src_p + MINMATCH, src_ref + MINMATCH) + MINMATCH;
+						var mlt = LZ4HC_CommonLength_32(ctx, src_p + MINMATCH, src_ref + MINMATCH) + MINMATCH;
 						if (mlt > ml)
 						{
 							ml = mlt;
-							matchpos = src_ref;
+							src_match = src_ref;
 						}
 					}
 				}
@@ -171,45 +169,46 @@ namespace LZ4s
 			// Complete table
 			if (repl != 0)
 			{
-				var ptr = src_p;
+				var src_ptr = src_p;
 
 				var end = src_p + repl - (MINMATCH - 1);
-				while (ptr < end - delta)
+				while (src_ptr < end - delta)
 				{
-					chainTable[(ptr) & MAXD_MASK] = delta; // Pre-Load
-					ptr++;
+					chainTable[(src_ptr) & MAXD_MASK] = delta; // Pre-Load
+					src_ptr++;
 				}
 				do
 				{
-					chainTable[(ptr) & MAXD_MASK] = delta;
-					hashTable[(((Peek4(src, ptr)) * 2654435761u) >> HASHHC_ADJUST)] = ((ptr) - src_base); // Head of chain
-					ptr++;
-				} while (ptr < end);
+					chainTable[(src_ptr) & MAXD_MASK] = delta;
+					hashTable[(((Peek4(src, src_ptr)) * 2654435761u) >> HASHHC_ADJUST)] = ((src_ptr) - src_base); // Head of chain
+					src_ptr++;
+				} while (src_ptr < end);
 				ctx.nextToUpdate = end;
 			}
 
 			return ml;
 		}
 
-		private static int LZ4HC_InsertAndGetWiderMatch_64(LZ4HC_Data_Structure ctx, int src_p, int startLimit, int longest, ref int matchpos, ref int startpos)
+		private static int LZ4HC_InsertAndGetWiderMatch_32(
+			LZ4HC_Data_Structure ctx, int src_p, int startLimit, int longest, ref int matchpos, ref int startpos)
 		{
-			var debruijn64 = DEBRUIJN_TABLE_64;
 			var chainTable = ctx.chainTable;
 			var hashTable = ctx.hashTable;
 			var src = ctx.src;
 			var src_base = ctx.src_base;
 			var src_LASTLITERALS = ctx.src_LASTLITERALS;
+			var debruijn32 = DEBRUIJN_TABLE_32;
 			var nbAttempts = MAX_NB_ATTEMPTS;
 			var delta = (src_p - startLimit);
 
 			// First Match
-			LZ4HC_Insert_64(ctx, src_p);
+			LZ4HC_Insert_32(ctx, src_p);
 			var src_ref = (hashTable[(((Peek4(src, src_p)) * 2654435761u) >> HASHHC_ADJUST)] + src_base);
 
 			while ((src_ref >= src_p - MAX_DISTANCE) && (nbAttempts != 0))
 			{
 				nbAttempts--;
-				if (src[startLimit + longest] == src[src_ref - delta + longest])
+				if (src[(startLimit + longest)] == src[(src_ref - delta + longest)])
 				{
 					if (Equal4(src, src_ref, src_p))
 					{
@@ -217,22 +216,17 @@ namespace LZ4s
 						var ipt = src_p + MINMATCH;
 						var startt = src_p;
 
-						while (ipt < src_LASTLITERALS - (STEPSIZE_64 - 1))
+						while (ipt < src_LASTLITERALS - (STEPSIZE_32 - 1))
 						{
-							var diff = (long)Xor8(src, reft, ipt);
+							var diff = (int)Xor4(src, reft, ipt);
 							if (diff == 0)
 							{
-								ipt += STEPSIZE_64;
-								reft += STEPSIZE_64;
+								ipt += STEPSIZE_32;
+								reft += STEPSIZE_32;
 								continue;
 							}
-							ipt += debruijn64[((ulong)((diff) & -(diff)) * 0x0218A392CDABBD3FL) >> 58];
+							ipt += debruijn32[((uint)((diff) & -(diff)) * 0x077CB531u) >> 27];
 							goto _endCount;
-						}
-						if ((ipt < (src_LASTLITERALS - 3)) && (Equal4(src, reft, ipt)))
-						{
-							ipt += 4;
-							reft += 4;
 						}
 						if ((ipt < (src_LASTLITERALS - 1)) && (Equal2(src, reft, ipt)))
 						{
@@ -264,16 +258,16 @@ namespace LZ4s
 			return longest;
 		}
 
-		private static int LZ4_encodeSequence_64(LZ4HC_Data_Structure ctx, ref int src_p, ref int dst_p, ref int src_anchor, int matchLength, int src_ref)
+		private static int LZ4_encodeSequence_32(
+			LZ4HC_Data_Structure ctx, ref int src_p, ref int dst_p, ref int src_anchor, int matchLength, int src_ref, int dst_end)
 		{
+			int len;
 			var src = ctx.src;
 			var dst = ctx.dst;
-			var dst_end = ctx.dst_end;
-			int len;
 
 			// Encode Literal length
-			var length = (src_p - src_anchor);
-			var dst_token = (dst_p)++;
+			var length = src_p - src_anchor;
+			var dst_token = dst_p++;
 			if ((dst_p + length + (2 + 1 + LASTLITERALS) + (length >> 8)) > dst_end) return 1; // Check output limit
 			if (length >= RUN_MASK)
 			{
@@ -308,15 +302,15 @@ namespace LZ4s
 				len -= ML_MASK;
 				for (; len > 509; len -= 510)
 				{
-					dst[dst_p++] = 255;
-					dst[dst_p++] = 255;
+					dst[(dst_p)++] = 255;
+					dst[(dst_p)++] = 255;
 				}
 				if (len > 254)
 				{
 					len -= 255;
-					dst[dst_p++] = 255;
+					dst[(dst_p)++] = 255;
 				}
-				dst[dst_p++] = (byte)len;
+				dst[(dst_p)++] = (byte)len;
 			}
 			else
 			{
@@ -330,19 +324,23 @@ namespace LZ4s
 			return 0;
 		}
 
-		private static int LZ4_compressHCCtx_64(LZ4HC_Data_Structure ctx)
+		private static int LZ4_compressHCCtx_32(LZ4HC_Data_Structure ctx)
 		{
 			var src = ctx.src;
-			var src_p = ctx.src_base;
+			var dst = ctx.dst;
+			var src_0 = ctx.src_base;
 			var src_end = ctx.src_end;
 			var dst_0 = ctx.dst_base;
+			var dst_len = ctx.dst_len;
+			var dst_end = ctx.dst_end;
+
+			var src_p = src_0;
 			var src_anchor = src_p;
 			var src_mflimit = src_end - MFLIMIT;
-			var dst = ctx.dst;
-			var dst_len = ctx.dst_len;
-			var dst_p = ctx.dst_base;
 
-			var xxx_ref = 0;
+			var dst_p = dst_0;
+
+			var src_ref = 0;
 			var start2 = 0;
 			var ref2 = 0;
 			var start3 = 0;
@@ -353,7 +351,7 @@ namespace LZ4s
 			// Main Loop
 			while (src_p < src_mflimit)
 			{
-				var ml = LZ4HC_InsertAndFindBestMatch_64(ctx, src_p, ref xxx_ref);
+				var ml = LZ4HC_InsertAndFindBestMatch_32(ctx, src_p, ref src_ref);
 				if (ml == 0)
 				{
 					src_p++;
@@ -362,17 +360,17 @@ namespace LZ4s
 
 				// saved, in case we would skip too much
 				var start0 = src_p;
-				var ref0 = xxx_ref;
+				var ref0 = src_ref;
 				var ml0 = ml;
 
 			_Search2:
 				var ml2 = src_p + ml < src_mflimit
-					? LZ4HC_InsertAndGetWiderMatch_64(ctx, src_p + ml - 2, src_p + 1, ml, ref ref2, ref start2)
+					? LZ4HC_InsertAndGetWiderMatch_32(ctx, src_p + ml - 2, src_p + 1, ml, ref ref2, ref start2)
 					: ml;
 
 				if (ml2 == ml) // No better match
 				{
-					if (LZ4_encodeSequence_64(ctx, ref src_p, ref dst_p, ref src_anchor, ml, xxx_ref) != 0) return 0;
+					if (LZ4_encodeSequence_32(ctx, ref src_p, ref dst_p, ref src_anchor, ml, src_ref, dst_end) != 0) return 0;
 					continue;
 				}
 
@@ -381,7 +379,7 @@ namespace LZ4s
 					if (start2 < src_p + ml0) // empirical
 					{
 						src_p = start0;
-						xxx_ref = ref0;
+						src_ref = ref0;
 						ml = ml0;
 					}
 				}
@@ -391,7 +389,7 @@ namespace LZ4s
 				{
 					ml = ml2;
 					src_p = start2;
-					xxx_ref = ref2;
+					src_ref = ref2;
 					goto _Search2;
 				}
 
@@ -415,7 +413,7 @@ namespace LZ4s
 				// Now, we have start2 = ip+new_ml, with new_ml=min(ml, OPTIMAL_ML=18)
 
 				var ml3 = start2 + ml2 < src_mflimit
-					? LZ4HC_InsertAndGetWiderMatch_64(ctx, start2 + ml2 - 3, start2, ml2, ref ref3, ref start3)
+					? LZ4HC_InsertAndGetWiderMatch_32(ctx, start2 + ml2 - 3, start2, ml2, ref ref3, ref start3)
 					: ml2;
 
 				if (ml3 == ml2) // No better match : 2 sequences to encode
@@ -423,9 +421,9 @@ namespace LZ4s
 					// ip & ref are known; Now for ml
 					if (start2 < src_p + ml) ml = (start2 - src_p);
 					// Now, encode 2 sequences
-					if (LZ4_encodeSequence_64(ctx, ref src_p, ref dst_p, ref src_anchor, ml, xxx_ref) != 0) return 0;
+					if (LZ4_encodeSequence_32(ctx, ref src_p, ref dst_p, ref src_anchor, ml, src_ref, dst_end) != 0) return 0;
 					src_p = start2;
-					if (LZ4_encodeSequence_64(ctx, ref src_p, ref dst_p, ref src_anchor, ml2, ref2) != 0) return 0;
+					if (LZ4_encodeSequence_32(ctx, ref src_p, ref dst_p, ref src_anchor, ml2, ref2, dst_end) != 0) return 0;
 					continue;
 				}
 
@@ -447,9 +445,9 @@ namespace LZ4s
 							}
 						}
 
-						if (LZ4_encodeSequence_64(ctx, ref src_p, ref dst_p, ref src_anchor, ml, xxx_ref) != 0) return 0;
+						if (LZ4_encodeSequence_32(ctx, ref src_p, ref dst_p, ref src_anchor, ml, src_ref, dst_end) != 0) return 0;
 						src_p = start3;
-						xxx_ref = ref3;
+						src_ref = ref3;
 						ml = ml3;
 
 						start0 = start2;
@@ -485,10 +483,10 @@ namespace LZ4s
 						ml = (start2 - src_p);
 					}
 				}
-				if (LZ4_encodeSequence_64(ctx, ref src_p, ref dst_p, ref src_anchor, ml, xxx_ref) != 0) return 0;
+				if (LZ4_encodeSequence_32(ctx, ref src_p, ref dst_p, ref src_anchor, ml, src_ref, dst_end) != 0) return 0;
 
 				src_p = start2;
-				xxx_ref = ref2;
+				src_ref = ref2;
 				ml = ml2;
 
 				start2 = start3;

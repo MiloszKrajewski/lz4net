@@ -33,9 +33,19 @@
     <DefineConstants>PORTABLE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\LZ4\LZ4StreamMode.cs">
+      <Link>LZ4StreamMode.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4\Services\Safe32LZ4Service.cs">
+      <Link>Services\Safe32LZ4Service.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4\Services\Safe64LZ4Service.cs">
+      <Link>Services\Safe64LZ4Service.cs</Link>
+    </Compile>
     <Compile Include="..\LZ4\Services\Unsafe64LZ4Service.cs">
       <Link>Services\Unsafe64LZ4Service.cs</Link>
     </Compile>
+    <Compile Include="LZ4Codec.portable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\LZ4\ILZ4Service.cs">
       <Link>ILZ4Service.cs</Link>
@@ -49,25 +59,16 @@
     <Compile Include="..\LZ4\Services\Unsafe32LZ4Service.cs">
       <Link>Services\Unsafe32LZ4Service.cs</Link>
     </Compile>
-    <Compile Include="..\LZ4n\LZ4Codec.cs">
-      <Link>LZ4n\LZ4Codec.cs</Link>
-    </Compile>
-    <Compile Include="..\LZ4n\LZ4Codec.Unsafe.cs">
-      <Link>LZ4n\LZ4Codec.Unsafe.cs</Link>
-    </Compile>
-    <Compile Include="..\LZ4n\LZ4Codec.Unsafe32.Dirty.cs">
-      <Link>LZ4n\LZ4Codec.Unsafe32.Dirty.cs</Link>
-    </Compile>
-    <Compile Include="..\LZ4n\LZ4Codec.Unsafe32HC.Dirty.cs">
-      <Link>LZ4n\LZ4Codec.Unsafe32HC.Dirty.cs</Link>
-    </Compile>
-    <Compile Include="..\LZ4n\LZ4Codec.Unsafe64.Dirty.cs">
-      <Link>LZ4n\LZ4Codec.Unsafe64.Dirty.cs</Link>
-    </Compile>
-    <Compile Include="..\LZ4n\LZ4Codec.Unsafe64HC.Dirty.cs">
-      <Link>LZ4n\LZ4Codec.Unsafe64HC.Dirty.cs</Link>
-    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\LZ4pn\LZ4pn.csproj">
+      <Project>{122171e5-3ca2-49d4-b452-8fd2bf03c174}</Project>
+      <Name>LZ4pn</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LZ4ps\LZ4ps.csproj">
+      <Project>{7af681fe-7575-4677-bdf0-5e0ed5300fcb}</Project>
+      <Name>LZ4ps</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

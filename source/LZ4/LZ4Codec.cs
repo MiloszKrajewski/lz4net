@@ -28,17 +28,13 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
-using LZ4.Services;
-#if !PORTABLE
-using Microsoft.Win32;
-#endif
 
 namespace LZ4
 {
 	/// <summary>
 	///     LZ4 codec selecting best implementation depending on platform.
 	/// </summary>
-	public static class LZ4Codec
+	public static partial class LZ4Codec
 	{
 		#region fields
 
@@ -82,7 +78,7 @@ namespace LZ4
 			// are needed so we can safely try load and handle if not loaded
 			// I may change in future versions of .NET
 
-			if (Has2010Runtime())
+			if (Try(Has2010Runtime, false))
 			{
 				Try(InitializeLZ4mm);
 				Try(InitializeLZ4cc);
@@ -90,14 +86,27 @@ namespace LZ4
 			Try(InitializeLZ4n);
 			Try(InitializeLZ4s);
 
-			// refer to: http://lz4net.codeplex.com/wikipage?title=Performance%20Testing
-			// for explanation about this order
-			// feel free to change preferred order, just don't do it willy-nilly
-			// back it up with some evidence
+			ILZ4Service encoder, decoder, encoderHC;
+			SelectCodec(out encoder, out decoder, out encoderHC);
 
+			Encoder = encoder;
+			Decoder = decoder;
+			EncoderHC = encoderHC;
+
+			if (Encoder == null || Decoder == null)
+			{
+				throw new NotSupportedException("No LZ4 compression service found");
+			}
+		}
+
+		private static void SelectCodec(out ILZ4Service encoder, out ILZ4Service decoder, out ILZ4Service encoderHC)
+		{
+			// refer to: http://lz4net.codeplex.com/wikipage?title=Performance%20Testing for explanation about this order
+			// feel free to change preferred order, just don't do it willy-nilly back it up with some evidence
+			// it has been tested for Intel on Microsoft .NET only but looks reasonable for Mono as well
 			if (IntPtr.Size == 4)
 			{
-				Encoder =
+				encoder =
 					_service_MM32 ??
 					_service_MM64 ??
 					_service_N32 ??
@@ -106,7 +115,7 @@ namespace LZ4
 					_service_CC64 ??
 					_service_S32 ??
 					_service_S64;
-				Decoder =
+				decoder =
 					_service_MM32 ??
 					_service_MM64 ??
 					_service_CC64 ??
@@ -115,7 +124,7 @@ namespace LZ4
 					_service_N32 ??
 					_service_S64 ??
 					_service_S32;
-				EncoderHC =
+				encoderHC =
 					_service_MM32 ??
 					_service_MM64 ??
 					_service_N32 ??
@@ -127,7 +136,7 @@ namespace LZ4
 			}
 			else
 			{
-				Encoder =
+				encoder =
 					_service_MM64 ??
 					_service_MM32 ??
 					_service_N64 ??
@@ -136,7 +145,7 @@ namespace LZ4
 					_service_CC32 ??
 					_service_S32 ??
 					_service_S64;
-				Decoder =
+				decoder =
 					_service_MM64 ??
 					_service_N64 ??
 					_service_N32 ??
@@ -145,7 +154,7 @@ namespace LZ4
 					_service_CC32 ??
 					_service_S64 ??
 					_service_S32;
-				EncoderHC =
+				encoderHC =
 					_service_MM64 ??
 					_service_MM32 ??
 					_service_CC32 ??
@@ -155,20 +164,17 @@ namespace LZ4
 					_service_S32 ??
 					_service_S64;
 			}
-
-			if (Encoder == null || Decoder == null)
-			{
-				throw new NotSupportedException("No LZ4 compression service found");
-			}
 		}
 
-		/// <summary>Perofrms the quick auto-test on given compression service.</summary>
+		/// <summary>Performs the quick auto-test on given compression service.</summary>
 		/// <param name="service">The service.</param>
 		/// <returns>A service or <c>null</c> if it failed.</returns>
 		private static ILZ4Service AutoTest(ILZ4Service service)
 		{
 			const string loremIpsum =
-				"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut " +
+				"Lorem ipsum dolor sit amet, consectetur adipis" +
+				"" +
+				"icing elit, sed do eiusmod tempor incididunt ut " +
 				"labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco " +
 				"laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in " +
 				"voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat " +
@@ -233,25 +239,9 @@ namespace LZ4
 			return service;
 		}
 
-		/// <summary>Determines whether VS2010 runtime is installed. 
-		/// Note, on Mono the Registry class is not available at all, 
-		/// so access to it have to be isolated (thus: <see cref="Has2010RuntimeImpl"/>).</summary>
-		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise.</returns>
-		private static bool Has2010Runtime()
-		{
-			try
-			{
-				return Has2010RuntimeImpl();
-			}
-			catch
-			{
-				// the whole thing is optional, so in case of any error just use safe encoder
-				return false;
-			}
-		}
-
 		/// <summary>Tries to execute specified action. Ignores exception if it failed.</summary>
 		/// <param name="method">The method.</param>
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private static void Try(Action method)
 		{
 			try
@@ -264,10 +254,29 @@ namespace LZ4
 			}
 		}
 
+		/// <summary>Tries to execute specified action. Ignores exception if it failed.</summary>
+		/// <typeparam name="T">Type of result.</typeparam>
+		/// <param name="method">The method.</param>
+		/// <param name="defaultValue">The default value, returned when action fails.</param>
+		/// <returns>Result of given method, or default value.</returns>
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private static T Try<T>(Func<T> method, T defaultValue)
+		{
+			try
+			{
+				return method();
+			}
+			catch
+			{
+				return defaultValue;
+			}
+		}
+
 		/// <summary>Tries to create a specified <seealso cref="ILZ4Service" /> and tests it.</summary>
 		/// <typeparam name="T">Concrete <seealso cref="ILZ4Service" /> type.</typeparam>
 		/// <returns>A service if suceeded or <c>null</c> if it failed.</returns>
-		private static ILZ4Service Try<T>()
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private static ILZ4Service TryService<T>()
 			where T: ILZ4Service, new()
 		{
 			try
@@ -279,92 +288,6 @@ namespace LZ4
 				return null;
 			}
 		}
-
-		// ReSharper disable InconsistentNaming
-
-		#if !PORTABLE
-
-		/// <summary>Determines whether VS2010 runtime is installed. The actual implementation.</summary>
-		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise. Uses registry to check.</returns>
-		[MethodImpl(MethodImplOptions.NoInlining)]
-		private static bool Has2010RuntimeImpl()
-		{
-			var keyName =
-				IntPtr.Size == 4 ? @"SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" :
-					IntPtr.Size == 8 ? @"SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64" :
-						null;
-			if (keyName == null)
-				return false;
-
-			var key = Registry.LocalMachine.OpenSubKey(keyName, false);
-			if (key == null)
-				return false;
-
-			var value = key.GetValue(@"Installed");
-			if (value == null)
-				return false;
-
-			return Convert.ToUInt32(value) != 0;
-		}
-
-		/// <summary>Initializes codecs from LZ4mm.</summary>
-		[MethodImpl(MethodImplOptions.NoInlining)]
-		private static void InitializeLZ4mm()
-		{
-			_service_MM32 = Try<CppMM32LZ4Service>();
-			_service_MM64 = Try<CppMM64LZ4Service>();
-		}
-
-		/// <summary>Initializes codecs from LZ4cc.</summary>
-		[MethodImpl(MethodImplOptions.NoInlining)]
-		private static void InitializeLZ4cc()
-		{
-			_service_CC32 = Try<CppCC32LZ4Service>();
-			_service_CC64 = Try<CppCC64LZ4Service>();
-		}
-
-		/// <summary>Initializes codecs from LZ4n.</summary>
-		[MethodImpl(MethodImplOptions.NoInlining)]
-		private static void InitializeLZ4n()
-		{
-			_service_N32 = Try<Unsafe32LZ4Service>();
-			_service_N64 = Try<Unsafe64LZ4Service>();
-		}
-
-		/// <summary>Initializes codecs from LZ4s.</summary>
-		[MethodImpl(MethodImplOptions.NoInlining)]
-		private static void InitializeLZ4s()
-		{
-			_service_S32 = Try<Safe32LZ4Service>();
-			_service_S64 = Try<Safe64LZ4Service>();
-		}
-
-		#else
-
-		/// <summary>Determines whether VS2010 runtime is installed. The actual implementation.</summary>
-		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise. Uses registry to check.</returns>
-		private static bool Has2010RuntimeImpl() { return false; }
-
-		/// <summary>Initializes codecs from LZ4mm.</summary>
-		private static void InitializeLZ4mm() { _service_MM32 = _service_MM64 = null; }
-
-		/// <summary>Initializes codecs from LZ4cc.</summary>
-		private static void InitializeLZ4cc() { _service_CC32 = _service_CC64 = null; }
-
-		/// <summary>Initializes codecs from LZ4n.</summary>
-		[MethodImpl(MethodImplOptions.NoInlining)]
-		private static void InitializeLZ4n()
-		{
-			_service_N32 = Try<Unsafe32LZ4Service>();
-			_service_N64 = Try<Unsafe64LZ4Service>();
-		}
-
-		/// <summary>Initializes codecs from LZ4s.</summary>
-		private static void InitializeLZ4s() { _service_S32 = _service_S64 = null; }
-
-		#endif
-
-		// ReSharper restore InconsistentNaming
 
 		#endregion
 

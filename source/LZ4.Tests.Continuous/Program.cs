@@ -133,23 +133,23 @@ namespace LZ4.Tests.Continuous
 					break;
 				case "unsafe64":
 					codecCode = string.Format("Unsafe64@{0}", architecture);
-					compressor = new TimedMethod(codecCode, (b, l) => LZ4n.LZ4Codec.Encode64(b, 0, l));
-					decompressor = new TimedMethod(codecCode, (b, l) => LZ4n.LZ4Codec.Decode64(b, 0, b.Length, l));
+					compressor = new TimedMethod(codecCode, (b, l) => LZ4pn.LZ4Codec.Encode64(b, 0, l));
+					decompressor = new TimedMethod(codecCode, (b, l) => LZ4pn.LZ4Codec.Decode64(b, 0, b.Length, l));
 					break;
 				case "unsafe32":
 					codecCode = string.Format("Unsafe32@{0}", architecture);
-					compressor = new TimedMethod(codecCode, (b, l) => LZ4n.LZ4Codec.Encode32(b, 0, l));
-					decompressor = new TimedMethod(codecCode, (b, l) => LZ4n.LZ4Codec.Decode32(b, 0, b.Length, l));
+					compressor = new TimedMethod(codecCode, (b, l) => LZ4pn.LZ4Codec.Encode32(b, 0, l));
+					decompressor = new TimedMethod(codecCode, (b, l) => LZ4pn.LZ4Codec.Decode32(b, 0, b.Length, l));
 					break;
 				case "safe64":
 					codecCode = string.Format("Safe64@{0}", architecture);
-					compressor = new TimedMethod(codecCode, (b, l) => LZ4s.LZ4Codec.Encode64(b, 0, l));
-					decompressor = new TimedMethod(codecCode, (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l));
+					compressor = new TimedMethod(codecCode, (b, l) => LZ4ps.LZ4Codec.Encode64(b, 0, l));
+					decompressor = new TimedMethod(codecCode, (b, l) => LZ4ps.LZ4Codec.Decode64(b, 0, b.Length, l));
 					break;
 				case "safe32":
 					codecCode = string.Format("Safe32@{0}", architecture);
-					compressor = new TimedMethod(codecCode, (b, l) => LZ4s.LZ4Codec.Encode32(b, 0, l));
-					decompressor = new TimedMethod(codecCode, (b, l) => LZ4s.LZ4Codec.Decode32(b, 0, b.Length, l));
+					compressor = new TimedMethod(codecCode, (b, l) => LZ4ps.LZ4Codec.Encode32(b, 0, l));
+					decompressor = new TimedMethod(codecCode, (b, l) => LZ4ps.LZ4Codec.Decode32(b, 0, b.Length, l));
 					break;
 
 				// compare implementation for LZ4HC only
@@ -176,23 +176,23 @@ namespace LZ4.Tests.Continuous
 					break;
 				case "unsafe64hc":
 					codecCode = string.Format("Unsafe64HC@{0}", architecture);
-					compressor = new TimedMethod(codecCode, (b, l) => LZ4n.LZ4Codec.Encode64HC(b, 0, l));
-					decompressor = new TimedMethod(codecCode, (b, l) => LZ4n.LZ4Codec.Decode64(b, 0, b.Length, l));
+					compressor = new TimedMethod(codecCode, (b, l) => LZ4pn.LZ4Codec.Encode64HC(b, 0, l));
+					decompressor = new TimedMethod(codecCode, (b, l) => LZ4pn.LZ4Codec.Decode64(b, 0, b.Length, l));
 					break;
 				case "unsafe32hc":
 					codecCode = string.Format("Unsafe32HC@{0}", architecture);
-					compressor = new TimedMethod(codecCode, (b, l) => LZ4n.LZ4Codec.Encode32HC(b, 0, l));
-					decompressor = new TimedMethod(codecCode, (b, l) => LZ4n.LZ4Codec.Decode32(b, 0, b.Length, l));
+					compressor = new TimedMethod(codecCode, (b, l) => LZ4pn.LZ4Codec.Encode32HC(b, 0, l));
+					decompressor = new TimedMethod(codecCode, (b, l) => LZ4pn.LZ4Codec.Decode32(b, 0, b.Length, l));
 					break;
 				case "safe64hc":
 					codecCode = string.Format("Safe64HC@{0}", architecture);
-					compressor = new TimedMethod(codecCode, (b, l) => LZ4s.LZ4Codec.Encode64HC(b, 0, l));
-					decompressor = new TimedMethod(codecCode, (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l));
+					compressor = new TimedMethod(codecCode, (b, l) => LZ4ps.LZ4Codec.Encode64HC(b, 0, l));
+					decompressor = new TimedMethod(codecCode, (b, l) => LZ4ps.LZ4Codec.Decode64(b, 0, b.Length, l));
 					break;
 				case "safe32hc":
 					codecCode = string.Format("Safe32HC@{0}", architecture);
-					compressor = new TimedMethod(codecCode, (b, l) => LZ4s.LZ4Codec.Encode32HC(b, 0, l));
-					decompressor = new TimedMethod(codecCode, (b, l) => LZ4s.LZ4Codec.Decode32(b, 0, b.Length, l));
+					compressor = new TimedMethod(codecCode, (b, l) => LZ4ps.LZ4Codec.Encode32HC(b, 0, l));
+					decompressor = new TimedMethod(codecCode, (b, l) => LZ4ps.LZ4Codec.Decode32(b, 0, b.Length, l));
 					break;
 
 				// compare different algorithms (LZ4, LZO, Snappy, QuickLZ)
@@ -215,13 +215,13 @@ namespace LZ4.Tests.Continuous
 					codecCode = string.Format("LZ4.unsafe@{0}", architecture);
 					if (IntPtr.Size == 4)
 					{
-						compressor = new TimedMethod(codecCode, (b, l) => LZ4n.LZ4Codec.Encode32(b, 0, l));
-						decompressor = new TimedMethod(codecCode, (b, l) => LZ4n.LZ4Codec.Decode64(b, 0, b.Length, l));
+						compressor = new TimedMethod(codecCode, (b, l) => LZ4pn.LZ4Codec.Encode32(b, 0, l));
+						decompressor = new TimedMethod(codecCode, (b, l) => LZ4pn.LZ4Codec.Decode64(b, 0, b.Length, l));
 					}
 					else
 					{
-						compressor = new TimedMethod(codecCode, (b, l) => LZ4n.LZ4Codec.Encode64(b, 0, l));
-						decompressor = new TimedMethod(codecCode, (b, l) => LZ4n.LZ4Codec.Decode32(b, 0, b.Length, l));
+						compressor = new TimedMethod(codecCode, (b, l) => LZ4pn.LZ4Codec.Encode64(b, 0, l));
+						decompressor = new TimedMethod(codecCode, (b, l) => LZ4pn.LZ4Codec.Decode32(b, 0, b.Length, l));
 					}
 					break;
 
@@ -306,13 +306,13 @@ namespace LZ4.Tests.Continuous
 					codecCode = string.Format("LZ4.safe@{0}", architecture);
 					if (IntPtr.Size == 4)
 					{
-						compressor = new TimedMethod(codecCode, (b, l) => LZ4s.LZ4Codec.Encode32(b, 0, l));
-						decompressor = new TimedMethod(codecCode, (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l));
+						compressor = new TimedMethod(codecCode, (b, l) => LZ4ps.LZ4Codec.Encode32(b, 0, l));
+						decompressor = new TimedMethod(codecCode, (b, l) => LZ4ps.LZ4Codec.Decode64(b, 0, b.Length, l));
 					}
 					else
 					{
-						compressor = new TimedMethod(codecCode, (b, l) => LZ4s.LZ4Codec.Encode32(b, 0, l));
-						decompressor = new TimedMethod(codecCode, (b, l) => LZ4s.LZ4Codec.Decode64(b, 0, b.Length, l));
+						compressor = new TimedMethod(codecCode, (b, l) => LZ4ps.LZ4Codec.Encode32(b, 0, l));
+						decompressor = new TimedMethod(codecCode, (b, l) => LZ4ps.LZ4Codec.Decode64(b, 0, b.Length, l));
 					}
 					break;
 

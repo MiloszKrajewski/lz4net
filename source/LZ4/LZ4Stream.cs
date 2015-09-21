@@ -27,22 +27,11 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System;
 using System.IO;
-#if !PORTABLE
-using System.IO.Compression;
-#endif
 
 namespace LZ4
 {
-	#if PORTABLE
-	public enum CompressionMode 
-	{
-		Compress,
-		Decompress,
-	}
-	#endif
-
 	/// <summary>Block compression stream. Allows to use LZ4 for stream compression.</summary>
-	public class LZ4Stream: Stream
+	public partial class LZ4Stream: Stream
 	{
 		#region ChunkFlags
 
@@ -75,7 +64,7 @@ namespace LZ4
 		private readonly Stream _innerStream;
 
 		/// <summary>The compression mode.</summary>
-		private readonly CompressionMode _compressionMode;
+		private readonly LZ4StreamMode _compressionMode;
 
 		/// <summary>The high compression flag (compression only).</summary>
 		private readonly bool _highCompression;
@@ -103,7 +92,7 @@ namespace LZ4
 		/// <param name="blockSize">Size of the block.</param>
 		public LZ4Stream(
 			Stream innerStream,
-			CompressionMode compressionMode,
+			LZ4StreamMode compressionMode,
 			bool highCompression = false,
 			int blockSize = 1024*1024)
 		{
@@ -258,7 +247,7 @@ namespace LZ4
 				var originalLength = (int)ReadVarInt();
 				var compressedLength = isCompressed ? (int)ReadVarInt() : originalLength;
 				if (compressedLength > originalLength) throw EndOfStream(); // corrupted
-				
+
 				var compressed = new byte[compressedLength];
 				var chunk = ReadBlock(compressed, 0, compressedLength);
 
@@ -294,7 +283,7 @@ namespace LZ4
 		/// <returns>true if the stream supports reading; otherwise, false.</returns>
 		public override bool CanRead
 		{
-			get { return _compressionMode == CompressionMode.Decompress; }
+			get { return _compressionMode == LZ4StreamMode.Decompress; }
 		}
 
 		/// <summary>When overridden in a derived class, gets a value indicating whether the current stream supports seeking.</summary>
@@ -308,7 +297,7 @@ namespace LZ4
 		/// <returns>true if the stream supports writing; otherwise, false.</returns>
 		public override bool CanWrite
 		{
-			get { return _compressionMode == CompressionMode.Compress; }
+			get { return _compressionMode == LZ4StreamMode.Compress; }
 		}
 
 		/// <summary>When overridden in a derived class, clears all buffers for this stream and causes any buffered data to be written to the underlying device.</summary>

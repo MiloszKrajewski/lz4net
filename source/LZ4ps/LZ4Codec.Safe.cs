@@ -31,7 +31,7 @@ using System.Diagnostics;
 // ReSharper disable CheckNamespace
 // ReSharper disable InconsistentNaming
 
-namespace LZ4s
+namespace LZ4ps
 {
 	/// <summary>Safe LZ4 codec.</summary>
 	public static partial class LZ4Codec
