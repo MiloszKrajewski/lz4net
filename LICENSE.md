@@ -1,4 +1,5 @@
 Copyright (c) 2013-2015, Milosz Krajewski
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
