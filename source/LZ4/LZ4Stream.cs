@@ -27,10 +27,20 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System;
 using System.IO;
+#if !PORTABLE
 using System.IO.Compression;
+#endif
 
 namespace LZ4
 {
+	#if PORTABLE
+	public enum CompressionMode 
+	{
+		Compress,
+		Decompress,
+	}
+	#endif
+
 	/// <summary>Block compression stream. Allows to use LZ4 for stream compression.</summary>
 	public class LZ4Stream: Stream
 	{

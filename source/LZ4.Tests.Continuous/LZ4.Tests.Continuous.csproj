@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{D42728A8-B824-4C7A-84D7-AFFD3CB17F90}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -42,6 +40,8 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -53,12 +53,9 @@
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
     <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LZ4Sharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\external\LZ4Sharp.dll</HintPath>
-    </Reference>
     <Reference Include="LZF.S">
       <HintPath>..\..\external\LZF.S.dll</HintPath>
     </Reference>
@@ -81,6 +78,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="LZ4Sharp">
+      <HintPath>..\..\external\LZ4Sharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -101,12 +101,8 @@
       <Name>LZ4n</Name>
     </ProjectReference>
     <ProjectReference Include="..\LZ4s\LZ4s.csproj">
-      <Project>{e31fde4e-3fa9-47d5-908f-78be8957b5ac}</Project>
+      <Project>{E31FDE4E-3FA9-47D5-908F-78BE8957B5AC}</Project>
       <Name>LZ4s</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LZ4\LZ4.csproj">
-      <Project>{3DB8E05B-22F8-4B64-8B0C-9AC95293EAD5}</Project>
-      <Name>LZ4</Name>
     </ProjectReference>
     <ProjectReference Include="..\LZ4.Tests.Helpers\LZ4.Tests.Helpers.csproj">
       <Project>{FCE38D40-0406-47F4-930D-03534E7F9119}</Project>

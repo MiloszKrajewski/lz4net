@@ -1,0 +1,14 @@
+﻿<Properties StartupItem="LZ4n\LZ4n.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="d:\Projects\lz4net\source\LZ4n\LZ4Codec.Unsafe.cs">
+    <Files>
+      <File FileName="LZ4\ILZ4Service.cs" Line="1" Column="1" />
+      <File FileName="LZ4\LZ4Codec.cs" Line="363" Column="1" />
+      <File FileName="d:\Projects\lz4net\source\LZ4n\LZ4Codec.Unsafe.cs" Line="286" Column="13" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

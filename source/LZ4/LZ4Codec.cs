@@ -29,7 +29,9 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using LZ4.Services;
+#if !PORTABLE
 using Microsoft.Win32;
+#endif
 
 namespace LZ4
 {
@@ -160,6 +162,77 @@ namespace LZ4
 			}
 		}
 
+		/// <summary>Perofrms the quick auto-test on given compression service.</summary>
+		/// <param name="service">The service.</param>
+		/// <returns>A service or <c>null</c> if it failed.</returns>
+		private static ILZ4Service AutoTest(ILZ4Service service)
+		{
+			const string loremIpsum =
+				"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut " +
+				"labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco " +
+				"laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in " +
+				"voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat " +
+				"non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+			// generate some well-known array of bytes
+			const string inputText = loremIpsum + loremIpsum + loremIpsum + loremIpsum + loremIpsum;
+			var original = Encoding.UTF8.GetBytes(inputText);
+
+			// LZ4 test
+			{
+				// compress it
+				var encoded = new byte[MaximumOutputLength(original.Length)];
+				var encodedLength = service.Encode(original, 0, original.Length, encoded, 0, encoded.Length);
+				if (encodedLength < 0)
+					return null;
+
+				// decompress it (knowing original length)
+				var decoded = new byte[original.Length];
+				var decodedLength1 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, true);
+				if (decodedLength1 != original.Length)
+					return null;
+				var outputText1 = Encoding.UTF8.GetString(decoded, 0, decoded.Length);
+				if (outputText1 != inputText)
+					return null;
+
+				// decompress it (not knowing original length)
+				var decodedLength2 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, false);
+				if (decodedLength2 != original.Length)
+					return null;
+				var outputText2 = Encoding.UTF8.GetString(decoded, 0, decoded.Length);
+				if (outputText2 != inputText)
+					return null;
+			}
+
+			// LZ4HC
+			{
+				// compress it
+				var encoded = new byte[MaximumOutputLength(original.Length)];
+				var encodedLength = service.EncodeHC(original, 0, original.Length, encoded, 0, encoded.Length);
+				if (encodedLength < 0)
+					return null;
+
+				// decompress it (knowing original length)
+				var decoded = new byte[original.Length];
+				var decodedLength1 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, true);
+				if (decodedLength1 != original.Length)
+					return null;
+				var outputText1 = Encoding.UTF8.GetString(decoded, 0, decoded.Length);
+				if (outputText1 != inputText)
+					return null;
+
+				// decompress it (not knowing original length)
+				var decodedLength2 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, false);
+				if (decodedLength2 != original.Length)
+					return null;
+				var outputText2 = Encoding.UTF8.GetString(decoded, 0, decoded.Length);
+				if (outputText2 != inputText)
+					return null;
+			}
+
+			return service;
+		}
+
 		/// <summary>Determines whether VS2010 runtime is installed. 
 		/// Note, on Mono the Registry class is not available at all, 
 		/// so access to it have to be isolated (thus: <see cref="Has2010RuntimeImpl"/>).</summary>
@@ -207,78 +280,9 @@ namespace LZ4
 			}
 		}
 
-		/// <summary>Perofrms the quick auto-test on given compression service.</summary>
-		/// <param name="service">The service.</param>
-		/// <returns>A service or <c>null</c> if it failed.</returns>
-		private static ILZ4Service AutoTest(ILZ4Service service)
-		{
-			const string loremIpsum =
-				"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut " +
-				"labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco " +
-				"laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in " +
-				"voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat " +
-				"non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-
-			// generate some well-known array of bytes
-			const string inputText = loremIpsum + loremIpsum + loremIpsum + loremIpsum + loremIpsum;
-			var original = Encoding.UTF8.GetBytes(inputText);
-
-			// LZ4 test
-			{
-				// compress it
-				var encoded = new byte[MaximumOutputLength(original.Length)];
-				var encodedLength = service.Encode(original, 0, original.Length, encoded, 0, encoded.Length);
-				if (encodedLength < 0)
-					return null;
-
-				// decompress it (knowing original length)
-				var decoded = new byte[original.Length];
-				var decodedLength1 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, true);
-				if (decodedLength1 != original.Length)
-					return null;
-				var outputText1 = Encoding.UTF8.GetString(decoded);
-				if (outputText1 != inputText)
-					return null;
-
-				// decompress it (not knowing original length)
-				var decodedLength2 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, false);
-				if (decodedLength2 != original.Length)
-					return null;
-				var outputText2 = Encoding.UTF8.GetString(decoded);
-				if (outputText2 != inputText)
-					return null;
-			}
-
-			// LZ4HC
-			{
-				// compress it
-				var encoded = new byte[MaximumOutputLength(original.Length)];
-				var encodedLength = service.EncodeHC(original, 0, original.Length, encoded, 0, encoded.Length);
-				if (encodedLength < 0)
-					return null;
-
-				// decompress it (knowing original length)
-				var decoded = new byte[original.Length];
-				var decodedLength1 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, true);
-				if (decodedLength1 != original.Length)
-					return null;
-				var outputText1 = Encoding.UTF8.GetString(decoded);
-				if (outputText1 != inputText)
-					return null;
-
-				// decompress it (not knowing original length)
-				var decodedLength2 = service.Decode(encoded, 0, encodedLength, decoded, 0, decoded.Length, false);
-				if (decodedLength2 != original.Length)
-					return null;
-				var outputText2 = Encoding.UTF8.GetString(decoded);
-				if (outputText2 != inputText)
-					return null;
-			}
-
-			return service;
-		}
-
 		// ReSharper disable InconsistentNaming
+
+		#if !PORTABLE
 
 		/// <summary>Determines whether VS2010 runtime is installed. The actual implementation.</summary>
 		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise. Uses registry to check.</returns>
@@ -334,6 +338,31 @@ namespace LZ4
 			_service_S32 = Try<Safe32LZ4Service>();
 			_service_S64 = Try<Safe64LZ4Service>();
 		}
+
+		#else
+
+		/// <summary>Determines whether VS2010 runtime is installed. The actual implementation.</summary>
+		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise. Uses registry to check.</returns>
+		private static bool Has2010RuntimeImpl() { return false; }
+
+		/// <summary>Initializes codecs from LZ4mm.</summary>
+		private static void InitializeLZ4mm() { _service_MM32 = _service_MM64 = null; }
+
+		/// <summary>Initializes codecs from LZ4cc.</summary>
+		private static void InitializeLZ4cc() { _service_CC32 = _service_CC64 = null; }
+
+		/// <summary>Initializes codecs from LZ4n.</summary>
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private static void InitializeLZ4n()
+		{
+			_service_N32 = Try<Unsafe32LZ4Service>();
+			_service_N64 = Try<Unsafe64LZ4Service>();
+		}
+
+		/// <summary>Initializes codecs from LZ4s.</summary>
+		private static void InitializeLZ4s() { _service_S32 = _service_S64 = null; }
+
+		#endif
 
 		// ReSharper restore InconsistentNaming
 

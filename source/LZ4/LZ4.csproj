@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{3DB8E05B-22F8-4B64-8B0C-9AC95293EAD5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -34,6 +32,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\LZ4.xml</DocumentationFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\LZ4.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <AssemblyOriginatorKeyFile>..\LZ4.snk</AssemblyOriginatorKeyFile>
@@ -72,7 +72,7 @@
       <Name>LZ4n</Name>
     </ProjectReference>
     <ProjectReference Include="..\LZ4s\LZ4s.csproj">
-      <Project>{e31fde4e-3fa9-47d5-908f-78be8957b5ac}</Project>
+      <Project>{E31FDE4E-3FA9-47D5-908F-78BE8957B5AC}</Project>
       <Name>LZ4s</Name>
     </ProjectReference>
   </ItemGroup>
