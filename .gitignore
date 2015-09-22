@@ -201,3 +201,4 @@ FakesAssemblies/
 !/src/.paket/paket.bootstrapper.exe
 !/src/.paket/paket.targets
 /src/.fake/
+*.snk

@@ -7,7 +7,7 @@
     <ProjectGuid>{2E4012F6-57B3-4F92-BC70-4B8B33252918}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>LZ4</RootNamespace>
-    <AssemblyName>LZ4</AssemblyName>
+    <AssemblyName>LZ4.portable</AssemblyName>
     <TargetFrameworkProfile>Profile92</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
@@ -31,6 +31,10 @@
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>PORTABLE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <AssemblyOriginatorKeyFile>..\LZ4.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\LZ4\LZ4StreamMode.cs">
