@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{4508AE6B-DACC-4BDF-936E-0AAAB409135C}"
+	ProjectSection(SolutionItems) = preProject
+		paket.dependencies = paket.dependencies
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libLZ4", "libLZ4\libLZ4.vcxproj", "{72962F32-12A3-4A36-A003-AFE44FC239A3}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LZ4cc", "LZ4cc\LZ4cc.vcxproj", "{5A7AED54-B6C2-44E2-830A-FE08FBCCEAA5}"
@@ -33,14 +38,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LZ4.Tests.Continuous", "LZ4.Tests.Continuous\LZ4.Tests.Continuous.csproj", "{D42728A8-B824-4C7A-84D7-AFFD3CB17F90}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LZ4.Tests.Helpers", "LZ4.Tests.Helpers\LZ4.Tests.Helpers.csproj", "{FCE38D40-0406-47F4-930D-03534E7F9119}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{6785234C-56FD-46D2-BD2A-67CD5FB8607A}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LZ4.portable", "LZ4.portable\LZ4.portable.csproj", "{2E4012F6-57B3-4F92-BC70-4B8B33252918}"
 EndProject
