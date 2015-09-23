@@ -31,9 +31,9 @@ goto :cycle
 
 :run
 call :echo %1 @ 64-bit
-..\source\%PROJECT%\bin\x64\Release\%PROJECT%.exe compare_algorithms.xml %FILES% 1024 %1
+%~dp0\..\src\%PROJECT%\bin\x64\Release\%PROJECT%.exe compare_algorithms.xml %FILES% 1024 %1
 call :echo %1 @ 32-bit
-..\source\%PROJECT%\bin\x86\Release\%PROJECT%.exe compare_algorithms.xml %FILES% 1024 %1
+%~dp0\..\src\%PROJECT%\bin\x86\Release\%PROJECT%.exe compare_algorithms.xml %FILES% 1024 %1
 exit /b
 
 :echo

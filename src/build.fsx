@@ -1,10 +1,11 @@
 #r "packages/FAKE/tools/FakeLib.dll"
 
+open System
+open System.IO
+open System.Text.RegularExpressions
 open Fake
 open Fake.Testing
 open StrongNamingHelper
-open System.IO
-open System.Text.RegularExpressions
 
 let outDir = "./../out"
 let testDir = outDir @@ "test"
@@ -123,9 +124,19 @@ Target "Release" (fun _ ->
     |> shellExec |> ignore
 )
 
+Target "Test" (fun _ ->
+    [ "x86"; "x64" ]
+    |> Seq.iter (fun platform ->
+        let suffix = match platform with | "x86" -> "-x86" | _ -> ""
+        !! (platform |> sprintf "LZ4.Tests/bin/%s/Release/LZ4.Tests.dll")
+        |> NUnit (fun p -> { p with Framework = "4.0"; ToolName = sprintf "nunit-console%s.exe" suffix; TimeOut = TimeSpan.FromHours(1.0) })
+    )
+)
+
 "KeyGen" ==> "Build"
 "Version" ==> "Build"
 "Clean" ==> "Release"
 "Build" ==> "Release"
+"Build" ==> "Test"
 
 RunTargetOrDefault "Release"

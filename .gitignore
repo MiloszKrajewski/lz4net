@@ -134,10 +134,10 @@ publish/
 *.publishproj
 
 # NuGet Packages
-*.nupkg
-/src/packages/*
-!/src/packages/build/
-!/src/packages/repositories.config
+# *.nupkg
+# /src/packages/*
+# !/src/packages/build/
+# !/src/packages/repositories.config
 
 # Windows Azure Build Output
 csx/
@@ -192,7 +192,9 @@ FakesAssemblies/
 *.opt
 
 # custom ignores
-/out/
 /src/.paket/
 !/src/.paket/paket.bootstrapper.exe
 /src/.fake/
+/out/
+/src/packages/
+/src/packet-files/
