@@ -3,6 +3,8 @@
 open Fake
 open Fake.Testing
 open StrongNamingHelper
+open System.IO
+open System.Text.RegularExpressions
 
 let outDir = "./../out"
 let testDir = outDir @@ "test"
@@ -11,6 +13,38 @@ let releaseDir = outDir @@ "release"
 let snk = "LZ4.snk"
 
 let testFile fn = (fileInfo fn).Exists
+
+
+let updateVersionInfo productVersion (version: string) fileName = 
+    let fixVersion commas = 
+        match commas with | true -> version.Replace(".", ",") | _ -> version
+
+    let productVersionRx = 
+        [
+            """(?<=^\s*\[assembly:\s*AssemblyVersion(Attribute)?\(")[0-9]+(\.([0-9]+|\*)){1,3}(?="\))""", false
+            """(?<=^\s*PRODUCTVERSION\s+)[0-9]+(\,([0-9]+|\*)){1,3}(?=\s*$)""", true
+            """(?<=^\s*VALUE\s+"ProductVersion",\s*")[0-9]+(\.([0-9]+|\*)){1,3}(?="\s*$)""", false 
+        ]
+
+    let fileVersionRx = 
+        [
+            """(?<=^\s*\[assembly:\s*AssemblyFileVersion(Attribute)?\(")[0-9]+(\.([0-9]+|\*)){1,3}(?="\))""", false
+            """(?<=^\s*FILEVERSION\s+)[0-9]+(\,([0-9]+|\*)){1,3}(?=\s*$)""", true
+            """(?<=^\s*VALUE\s+"FileVersion",\s*")[0-9]+(\.([0-9]+|\*)){1,3}(?="\s*$)""", false
+        ]
+
+    let allRx = 
+        match productVersion with | false -> [] | _ -> productVersionRx
+        |> List.append fileVersionRx
+        |> List.map (fun (rx, c) -> (Regex(rx, RegexOptions.Multiline), c))
+
+    let source = File.ReadAllText(fileName)
+    let replace s (rx: Regex, c) = rx.Replace(s, fixVersion c)
+    let target = allRx |> Seq.fold replace source
+
+    if source <> target then
+        trace (sprintf "Updating: %s" fileName)
+        File.WriteAllText(fileName, target)
 
 Target "KeyGen" (fun _ ->
     match testFile snk with
@@ -31,6 +65,11 @@ Target "Build" (fun _ ->
 
     !! "*.sln" |> build "x86"
     !! "*.sln" |> build "x64"
+)
+
+Target "Version" (fun _ ->
+    !! "**/Properties/AssemblyInfo.cs"
+    |> Seq.iter (updateVersionInfo true "1.0.6.93")
 )
 
 Target "Release" (fun _ ->
