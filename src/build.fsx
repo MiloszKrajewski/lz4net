@@ -11,37 +11,33 @@ let testDir = outDir @@ "test"
 let buildDir = outDir @@ "build"
 let releaseDir = outDir @@ "release"
 let snk = "LZ4.snk"
+let version = "1.0.7.93"
 
 let testFile fn = (fileInfo fn).Exists
 
+let assemblyVersionRxDef = 
+    [
+        """(?<=^\s*\[assembly:\s*AssemblyVersion(Attribute)?\(")[0-9]+(\.([0-9]+|\*)){1,3}(?="\))""", false, false
+        """(?<=^\s*PRODUCTVERSION\s+)[0-9]+(\,([0-9]+|\*)){1,3}(?=\s*$)""", false, true
+        """(?<=^\s*VALUE\s+"ProductVersion",\s*")[0-9]+(\.([0-9]+|\*)){1,3}(?="\s*$)""", false, false 
+        """(?<=^\s*\[assembly:\s*AssemblyFileVersion(Attribute)?\(")[0-9]+(\.([0-9]+|\*)){1,3}(?="\))""", true, false
+        """(?<=^\s*FILEVERSION\s+)[0-9]+(\,([0-9]+|\*)){1,3}(?=\s*$)""", true, true
+        """(?<=^\s*VALUE\s+"FileVersion",\s*")[0-9]+(\.([0-9]+|\*)){1,3}(?="\s*$)""", true, false
+    ] |> List.map (fun (rx, p, c) -> (Regex(rx, RegexOptions.Multiline), p, c))
 
 let updateVersionInfo productVersion (version: string) fileName = 
     let fixVersion commas = 
         match commas with | true -> version.Replace(".", ",") | _ -> version
 
-    let productVersionRx = 
-        [
-            """(?<=^\s*\[assembly:\s*AssemblyVersion(Attribute)?\(")[0-9]+(\.([0-9]+|\*)){1,3}(?="\))""", false
-            """(?<=^\s*PRODUCTVERSION\s+)[0-9]+(\,([0-9]+|\*)){1,3}(?=\s*$)""", true
-            """(?<=^\s*VALUE\s+"ProductVersion",\s*")[0-9]+(\.([0-9]+|\*)){1,3}(?="\s*$)""", false 
-        ]
-
-    let fileVersionRx = 
-        [
-            """(?<=^\s*\[assembly:\s*AssemblyFileVersion(Attribute)?\(")[0-9]+(\.([0-9]+|\*)){1,3}(?="\))""", false
-            """(?<=^\s*FILEVERSION\s+)[0-9]+(\,([0-9]+|\*)){1,3}(?=\s*$)""", true
-            """(?<=^\s*VALUE\s+"FileVersion",\s*")[0-9]+(\.([0-9]+|\*)){1,3}(?="\s*$)""", false
-        ]
-
     let allRx = 
-        match productVersion with | false -> [] | _ -> productVersionRx
-        |> List.append fileVersionRx
-        |> List.map (fun (rx, c) -> (Regex(rx, RegexOptions.Multiline), c))
+        assemblyVersionRxDef
+        |> Seq.filter (fun (_, p, _) -> p || productVersion)
+        |> Seq.map (fun (rx, _, c) -> (rx, c))
+        |> List.ofSeq
 
     let source = File.ReadAllText(fileName)
     let replace s (rx: Regex, c) = rx.Replace(s, fixVersion c)
     let target = allRx |> Seq.fold replace source
-
     if source <> target then
         trace (sprintf "Updating: %s" fileName)
         File.WriteAllText(fileName, target)
@@ -69,7 +65,16 @@ Target "Build" (fun _ ->
 
 Target "Version" (fun _ ->
     !! "**/Properties/AssemblyInfo.cs"
-    |> Seq.iter (updateVersionInfo true "1.0.6.93")
+    |> Seq.iter (updateVersionInfo false version)
+
+    !! "LZ4/Properties/AssemblyInfo.cs"
+    ++ "LZ4.portable/Properties/AssemblyInfo.cs"
+    ++ "LZ4.silverlight/Properties/AssemblyInfo.cs"
+    ++ "LZ4pn/Properties/AssemblyInfo.cs"
+    ++ "LZ4ps/Properties/AssemblyInfo.cs"
+    ++ "LZ4cc/AssemblyInfo.cpp" ++ "LZ4cc/app.rc"
+    ++ "LZ4mm/AssemblyInfo.cpp" ++ "LZ4mm/app.rc"
+    |> Seq.iter (updateVersionInfo true version)
 )
 
 Target "Release" (fun _ ->
@@ -119,6 +124,7 @@ Target "Release" (fun _ ->
 )
 
 "KeyGen" ==> "Build"
+"Version" ==> "Build"
 "Clean" ==> "Release"
 "Build" ==> "Release"
 

@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("LZ4.MixedModeAutoLoad")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Milosz Krajewski")]
 [assembly: AssemblyProduct("LZ4.MixedModeAutoLoad")]
 [assembly: AssemblyCopyright("Copyright (c) 2014, Milosz Krajewski")]
 [assembly: AssemblyTrademark("")]
@@ -32,4 +32,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.6.93")]
+[assembly: AssemblyFileVersion("1.0.7.93")]
