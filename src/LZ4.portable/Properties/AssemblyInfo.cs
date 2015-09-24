@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("LZ4.portable")]
+[assembly: AssemblyTitle("LZ4")]
 [assembly: AssemblyDescription("LZ4 compression integrator (Portable)")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Milosz Krajewski")]
-[assembly: AssemblyProduct("LZ4.portable")]
+[assembly: AssemblyProduct("LZ4")]
 [assembly: AssemblyCopyright("Copyright (c) 2015, Milosz Krajewski")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

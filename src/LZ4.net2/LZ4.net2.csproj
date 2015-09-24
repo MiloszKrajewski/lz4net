@@ -2,49 +2,59 @@
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A078273D-F89B-4C86-8195-C4446BEF6B42}</ProjectGuid>
+    <ProjectGuid>{89787996-DAC4-44CF-8EF4-56FD1B5D2E0D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LZ4</RootNamespace>
     <AssemblyName>LZ4</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile328</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;SILVERLIGHT</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;LZ4s;SILVERLIGHT</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <AssemblyOriginatorKeyFile>..\LZ4.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <!-- A reference to the entire .NET Framework is automatically included -->
-    <ProjectReference Include="..\LZ4ps\LZ4ps.csproj">
-      <Project>{7af681fe-7575-4677-bdf0-5e0ed5300fcb}</Project>
-      <Name>LZ4ps</Name>
-    </ProjectReference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\LZ4pn\LZ4Codec.cs">
+      <Link>Private\LZ4Codec.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4pn\LZ4Codec.Unsafe.cs">
+      <Link>Private\LZ4Codec.Unsafe.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4pn\LZ4Codec.Unsafe32.Dirty.cs">
+      <Link>Private\LZ4Codec.Unsafe32.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4pn\LZ4Codec.Unsafe32HC.Dirty.cs">
+      <Link>Private\LZ4Codec.Unsafe32HC.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4pn\LZ4Codec.Unsafe64.Dirty.cs">
+      <Link>Private\LZ4Codec.Unsafe64.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4pn\LZ4Codec.Unsafe64HC.Dirty.cs">
+      <Link>Private\LZ4Codec.Unsafe64HC.Dirty.cs</Link>
+    </Compile>
     <Compile Include="..\LZ4\ILZ4Service.cs">
       <Link>ILZ4Service.cs</Link>
     </Compile>
@@ -54,19 +64,24 @@
     <Compile Include="..\LZ4\LZ4Stream.cs">
       <Link>LZ4Stream.cs</Link>
     </Compile>
+    <Compile Include="..\LZ4\LZ4Stream.windows.cs">
+      <Link>LZ4Stream.windows.cs</Link>
+    </Compile>
     <Compile Include="..\LZ4\LZ4StreamMode.cs">
       <Link>LZ4StreamMode.cs</Link>
     </Compile>
-    <Compile Include="..\LZ4\Services\Safe32LZ4Service.cs">
-      <Link>Services\Safe32LZ4Service.cs</Link>
+    <Compile Include="..\LZ4\Services\Unsafe32LZ4Service.cs">
+      <Link>Services\Unsafe32LZ4Service.cs</Link>
     </Compile>
-    <Compile Include="..\LZ4\Services\Safe64LZ4Service.cs">
-      <Link>Services\Safe64LZ4Service.cs</Link>
+    <Compile Include="..\LZ4\Services\Unsafe64LZ4Service.cs">
+      <Link>Services\Unsafe64LZ4Service.cs</Link>
     </Compile>
-    <Compile Include="LZ4Codec.silverlight.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <ItemGroup>
+    <Compile Include="LZ4Codec.net2.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

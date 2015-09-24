@@ -104,26 +104,24 @@ Target "Release" (fun _ ->
         )
     )
 
-    [ "portable"; "silverlight" ]
+    [ "portable"; "silverlight"; "net2" ]
     |> Seq.iter (fun platform ->
         let sourceDir = sprintf "LZ4.%s/bin/Release" platform
         let targetDir = releaseDir @@ platform
         targetDir |> CleanDir
         !! (sourceDir @@ "*.dll") |> Copy targetDir
-        let targetDll = targetDir @@ (sprintf "LZ4.%s.dll" platform)
-        targetDll |> Rename (targetDir @@ "LZ4.dll")
     )
 
-    releaseDir @@ "libz" |> CleanDir
+    releaseDir @@ "net4" |> CleanDir
     !! (releaseDir @@ "any" @@ "*.dll")
-    |> CopyFiles (releaseDir @@ "libz")
+    |> CopyFiles (releaseDir @@ "net4")
 
     let fullSnk = (fileInfo "LZ4.snk").FullName
     let libzApp = "packages/LibZ.Bootstrap/tools/libz.exe"
     let libzArgs = sprintf """ inject-dll -a LZ4.dll -i *.dll -e LZ4.dll --move -k "%s" """ fullSnk
     { defaultParams with
         Program = libzApp;
-        WorkingDirectory = releaseDir @@ "libz";
+        WorkingDirectory = releaseDir @@ "net4";
         CommandLine = libzArgs }
     |> shellExec |> ignore
 )
@@ -138,8 +136,8 @@ Target "Test" (fun _ ->
 )
 
 Target "Nuget" (fun _ ->
-    let portableSpec = "portable-win8+wpa81+MonoAndroid+MonoTouch+Xamarin.iOS"
-    let silverlightSpec = "portable-sl5+wp8"
+    let portableSpec = "portable-net4+win8+wpa81+MonoAndroid+MonoTouch+Xamarin.iOS"
+    let silverlightSpec = "portable-net4+win8+wpa81+sl5+wp8+MonoAndroid+MonoTouch+Xamarin.iOS"
     let libDir spec = spec |> sprintf @"lib\%s" |> Some
     NuGet (fun p ->
         { p with
@@ -150,12 +148,14 @@ Target "Nuget" (fun _ ->
             References = [@"LZ4.dll"]
             Files = 
                 [
-                    (@"libz\*.dll", libDir "net40", None)
+                    (@"net2\*.dll", libDir "net2", None)
+                    (@"net4\*.dll", libDir "net4-client", None)
                     (@"portable\*.dll", libDir portableSpec, None)
                     (@"silverlight\*.dll", libDir silverlightSpec, None)
                 ]
         }
     ) "lz4net.nuspec"
+    "../out/release/lz4net.1.0.7.93.nupkg" |> CopyFile @"C:\Users\KrajewskiM\Dropbox\Projects\NuGet"
 )
 
 "KeyGen" ==> "Build"
@@ -163,5 +163,6 @@ Target "Nuget" (fun _ ->
 "Clean" ==> "Release"
 "Build" ==> "Release"
 "Build" ==> "Test"
+"Release" ==> "Nuget"
 
 RunTargetOrDefault "Release"
