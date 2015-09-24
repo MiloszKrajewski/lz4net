@@ -13,6 +13,10 @@ let buildDir = outDir @@ "build"
 let releaseDir = outDir @@ "release"
 let snk = "LZ4.snk"
 let version = "1.0.7.93"
+let notes = 
+    [
+        "+ added portable and silverlight versions"
+    ]
 
 let testFile fn = (fileInfo fn).Exists
 
@@ -116,7 +120,7 @@ Target "Release" (fun _ ->
 
     let fullSnk = (fileInfo "LZ4.snk").FullName
     let libzApp = "packages/LibZ.Bootstrap/tools/libz.exe"
-    let libzArgs = sprintf "inject-dll -a LZ4.dll -i *.dll -e LZ4.dll --move -k \"%s\"" fullSnk
+    let libzArgs = sprintf """ inject-dll -a LZ4.dll -i *.dll -e LZ4.dll --move -k "%s" """ fullSnk
     { defaultParams with
         Program = libzApp;
         WorkingDirectory = releaseDir @@ "libz";
@@ -131,6 +135,27 @@ Target "Test" (fun _ ->
         !! (platform |> sprintf "LZ4.Tests/bin/%s/Release/LZ4.Tests.dll")
         |> NUnit (fun p -> { p with Framework = "4.0"; ToolName = sprintf "nunit-console%s.exe" suffix; TimeOut = TimeSpan.FromHours(1.0) })
     )
+)
+
+Target "Nuget" (fun _ ->
+    let portableSpec = "portable-win8+wpa81+MonoAndroid+MonoTouch+Xamarin.iOS"
+    let silverlightSpec = "portable-sl5+wp8"
+    let libDir spec = spec |> sprintf @"lib\%s" |> Some
+    NuGet (fun p ->
+        { p with
+            Version = version
+            WorkingDir = @"..\out\release"
+            OutputPath = @"..\out\release"
+            ReleaseNotes = String.Join("\n", notes)
+            References = [@"LZ4.dll"]
+            Files = 
+                [
+                    (@"libz\*.dll", libDir "net40", None)
+                    (@"portable\*.dll", libDir portableSpec, None)
+                    (@"silverlight\*.dll", libDir silverlightSpec, None)
+                ]
+        }
+    ) "lz4net.nuspec"
 )
 
 "KeyGen" ==> "Build"
