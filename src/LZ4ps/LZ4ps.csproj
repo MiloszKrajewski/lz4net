@@ -41,9 +41,7 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\LZ4pn\LZ4Codec.cs">
-      <Link>LZ4Codec.cs</Link>
-    </Compile>
+    <Compile Include="LZ4Codec.cs" />
     <Compile Include="LZ4Codec.Safe.cs" />
     <Compile Include="LZ4Codec.Safe32.Dirty.cs" />
     <Compile Include="LZ4Codec.Safe32HC.Dirty.cs" />
