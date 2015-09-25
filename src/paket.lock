@@ -1,0 +1,8 @@
+NUGET
+  remote: https://www.nuget.org/api/v2
+  specs:
+    DotNetZip.Reduced (1.9.1.8) - framework: net40
+    FAKE (4.4.4)
+    LibZ.Bootstrap (1.1.0.2)
+    NUnit (2.6.4) - framework: net40
+    NUnit.Runners (2.6.4)

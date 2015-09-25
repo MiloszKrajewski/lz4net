@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectGuid>{2E4012F6-57B3-4F92-BC70-4B8B33252918}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>LZ4</RootNamespace>
+    <AssemblyName>LZ4</AssemblyName>
+    <TargetFrameworkProfile>Profile92</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;PORTABLE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>PORTABLE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <AssemblyOriginatorKeyFile>..\..\LZ4.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\lz4ps\LZ4Codec.cs">
+      <Link>LZ4ps\LZ4Codec.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe.cs">
+      <Link>LZ4ps\LZ4Codec.Safe.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe32.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe32.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe32HC.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe32HC.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe64.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe64.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe64HC.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe64HC.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4\LZ4StreamMode.cs">
+      <Link>LZ4StreamMode.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4\Services\Safe32LZ4Service.cs">
+      <Link>Services\Safe32LZ4Service.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4\Services\Safe64LZ4Service.cs">
+      <Link>Services\Safe64LZ4Service.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4\Services\Unsafe64LZ4Service.cs">
+      <Link>Services\Unsafe64LZ4Service.cs</Link>
+    </Compile>
+    <Compile Include="LZ4Codec.portable.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\LZ4\ILZ4Service.cs">
+      <Link>ILZ4Service.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4\LZ4Codec.cs">
+      <Link>LZ4Codec.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4\LZ4Stream.cs">
+      <Link>LZ4Stream.cs</Link>
+    </Compile>
+    <Compile Include="..\LZ4\Services\Unsafe32LZ4Service.cs">
+      <Link>Services\Unsafe32LZ4Service.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\LZ4pn\LZ4pn.csproj">
+      <Project>{122171e5-3ca2-49d4-b452-8fd2bf03c174}</Project>
+      <Name>LZ4pn</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
