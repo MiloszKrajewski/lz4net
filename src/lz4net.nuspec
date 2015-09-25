@@ -10,11 +10,12 @@
         <projectUrl>https://github.com/MiloszKrajewski/lz4net</projectUrl>
         <iconUrl>https://raw.githubusercontent.com/MiloszKrajewski/lz4net/portable/doc/icon.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>LZ4 ultra fast compression algorithm for all .NET platforms</description>
-        <summary>
-LZ4 is lossless compression algorithm, sacrificing compression ratio for compression/decompression speed. Its compression speed is ~400 MB/s per core while decompression speed reaches ~2 GB/s, not far from RAM speed limits. 
+        <summary>LZ4 ultra fast compression algorithm for all .NET platforms</summary>
+        <description>
+LZ4 is lossless compression algorithm, sacrificing compression ratio for compression/decompression speed. Its compression speed is ~400 MB/s per core while decompression speed reaches ~2 GB/s, not far from RAM speed limits.
 
-LZ4net brings LZ4 to all (most?) .NET platforms: .NET 2.0+, Mono, Windows Phone, Xamarin.iOS, Xamarin.Android and Silverlight</summary>
+LZ4net brings LZ4 to all (most?) .NET platforms: .NET 2.0+, Mono, Windows Phone, Xamarin.iOS, Xamarin.Android and Silverlight
+        </description>
         <releaseNotes>@releaseNotes@</releaseNotes>
         <copyright>Milosz Krajewski</copyright>
         <tags>lz4 lz4hc fast compression decompression zlib lzf lzo snappy quicklz</tags>
