@@ -1,48 +1,20 @@
 # lz4net
+**LZ4** - ultra fast compression algorithm - for all .NET platforms
 
-Multiple (MixedMode, Unsafe, Safe, ...) .NET implementations of LZ4 - ultra fast compression algorithm
+LZ4 is lossless compression algorithm, sacrificing compression ratio for compression/decompression speed. Its compression speed is ~400 MB/s per core while decompression speed reaches ~2 GB/s, not far from RAM speed limits.
+
+LZ4net brings LZ4 to all (most?) .NET platforms: .NET 2.0+, Mono, Windows Phone, Xamarin.iOS, Xamarin.Android and Silverlight
 
 Original LZ4 has been written by Yann Collet and original C sources can be found [here](https://github.com/Cyan4973/lz4)
 
+# Migration from codeplex
 Sources has been moved to GitHub, while project documentation has not been properly migrated yet and is still hosted at [codeplex](https://lz4net.codeplex.com/)
 
-# Change log:
-
-**1.0.5.93**:
-* added VS 2010 runtime detection
-* wrapping/unwrapping functions ([this](https://lz4net.codeplex.com/discussions/529133))
-* all-in-one packaged with LibZ 1.1.0.2 ([this](https://libz.codeplex.com/))
-
-**1.0.3.93**:
-* Fixed a bug in LZ4Stream when transfering data over TCP/IP stream (technically, it was not handling the fact that data is not there yet)
-
-**1.0.2.93**:
-* Fixed a bug which was causing last chunk in LZ4Stream to be always 1MB (or whater you chose as block size)
-
-**1.0.1.93**: 
-* *Please note*: even if it is distributed as one assembly, technically it 6 assembles, it still handles same configurations: Safe AnyCPU, Unsafe AnyCPU, C++/CLI x86/x64 and MixedMode x86/x64; see [LibZ](https://libz.codeplex.com/) for details.
-* LZ4HC codec added
-  * asymmetric compression (slow compression with higher compression ratio, ultra fast decompression - it actually uses the same algorithms for decompression as original LZ4)
-* LZ4Stream added
-* adapted from [r93](http://code.google.com/p/lz4/) release of LZ4
-* serveral speed improvements
-  * Safe compression improved by ~4%
-  * Safe decompression improved by ~20-30% (!)
-  * Minimal improvement of compression/decompression of other algorithms (0%-5%)
-
-**1.0.0.88**: 
-* release for NuGet
-* all assemblies has been merged into one
-
-**1.0.0.88**: 
-* initial release
-* adapted from [r88](http://code.google.com/p/lz4/) release of LZ4
-* LZ4 compression
-* 6 dlls: MixedMode x86/x64, C++/CLI x86/x64, Unsafe and Safe
+# Change log
+You can find it [here](CHANGES.md)
 
 # NuGet
 You can download lz4net from [NuGet](http://nuget.org/packages/lz4net/)
-
 
 # What is 'Fast compression algorithm'?
 While compression algorithms you use day-to-day to archive your data work around the speed of 10MB/s giving you quite decent compression ratios, 'fast algorithms' are designed to work 'faster than your hard drive' sacrificing compression ratio.
@@ -102,3 +74,12 @@ So I ended up with 4 implementations:
     * Slow (for LZ4 standards; it still beats Deflate by a mile)
 
 Plus class which chooses the best available implementation for the job: [One class to access them all] and [Performance Testing]
+
+# Platform availability
+
+| Platform | Implementations | Notes |
+| --- | --- | --- |
+| NET 2.0 | Safe | could be Unsafe as well, but I didn't bother |
+| NET 4.0 | MixedMode, C++/CLI, Unsafe, Safe | may or may not work with Mono (still working on it) |
+| Portable | Unsafe, Safe | Windows Phone, Xamarin.*, Windows Store |
+| Silverlight | Safe | anyone? |
