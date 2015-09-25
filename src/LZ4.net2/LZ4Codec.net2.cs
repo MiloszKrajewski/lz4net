@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using LZ4.Services;
 using System.Runtime.CompilerServices;
-using System.Text;
-using LZ4.Services;
-using Microsoft.Win32;
 
 namespace LZ4
 {
 	public static partial class LZ4Codec
 	{
+		/// <summary>Polyfill for .NET4's Action</summary>
 		public delegate void Action();
+
+		// ReSharper disable once TypeParameterCanBeVariant
+		/// <summary>Polyfill for .NET4's Func</summary>
 		public delegate T Func<T>();
 
 		/// <summary>Determines whether VS2010 runtime is installed. 
@@ -36,17 +36,17 @@ namespace LZ4
 		}
 
 		/// <summary>Initializes codecs from LZ4n.</summary>
-		[MethodImpl(MethodImplOptions.NoInlining)]
 		private static void InitializeLZ4n()
 		{
-			_service_N32 = TryService<Unsafe32LZ4Service>();
-			_service_N64 = TryService<Unsafe64LZ4Service>();
+			_service_N32 = _service_N64 = null;
 		}
 
 		/// <summary>Initializes codecs from LZ4s.</summary>
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private static void InitializeLZ4s()
 		{
-			_service_S32 = _service_S64 = null;
+			_service_S32 = TryService<Safe32LZ4Service>();
+			_service_S64 = TryService<Safe64LZ4Service>();
 		}
 
 		// ReSharper restore InconsistentNaming

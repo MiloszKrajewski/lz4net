@@ -94,10 +94,6 @@
       <Project>{122171e5-3ca2-49d4-b452-8fd2bf03c174}</Project>
       <Name>LZ4pn</Name>
     </ProjectReference>
-    <ProjectReference Include="..\LZ4ps\LZ4ps.csproj">
-      <Project>{7af681fe-7575-4677-bdf0-5e0ed5300fcb}</Project>
-      <Name>LZ4ps</Name>
-    </ProjectReference>
     <ProjectReference Include="..\LZ4\LZ4.csproj">
       <Project>{3db8e05b-22f8-4b64-8b0c-9ac95293ead5}</Project>
       <Name>LZ4</Name>

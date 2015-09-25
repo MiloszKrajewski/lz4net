@@ -57,7 +57,7 @@
     <OutputPath>.\</OutputPath>
     <LinkIncremental>false</LinkIncremental>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <LinkKeyFile>..\LZ4.snk</LinkKeyFile>
+    <LinkKeyFile>..\..\LZ4.snk</LinkKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -67,7 +67,7 @@
     <OutputPath>.\</OutputPath>
     <LinkIncremental>false</LinkIncremental>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <LinkKeyFile>..\LZ4.snk</LinkKeyFile>
+    <LinkKeyFile>..\..\LZ4.snk</LinkKeyFile>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -166,7 +166,7 @@
     <LinkIncremental>false</LinkIncremental>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <LinkKeyFile>..\LZ4.snk</LinkKeyFile>
+    <LinkKeyFile>..\..\LZ4.snk</LinkKeyFile>
   </PropertyGroup>
   <!-- Configuration: Debug -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">

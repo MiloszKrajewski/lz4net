@@ -37,23 +37,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\LZ4pn\LZ4Codec.cs">
-      <Link>Private\LZ4Codec.cs</Link>
+    <Compile Include="..\lz4ps\LZ4Codec.cs">
+      <Link>LZ4ps\LZ4Codec.cs</Link>
     </Compile>
-    <Compile Include="..\LZ4pn\LZ4Codec.Unsafe.cs">
-      <Link>Private\LZ4Codec.Unsafe.cs</Link>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe.cs">
+      <Link>LZ4ps\LZ4Codec.Safe.cs</Link>
     </Compile>
-    <Compile Include="..\LZ4pn\LZ4Codec.Unsafe32.Dirty.cs">
-      <Link>Private\LZ4Codec.Unsafe32.Dirty.cs</Link>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe32.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe32.Dirty.cs</Link>
     </Compile>
-    <Compile Include="..\LZ4pn\LZ4Codec.Unsafe32HC.Dirty.cs">
-      <Link>Private\LZ4Codec.Unsafe32HC.Dirty.cs</Link>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe32HC.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe32HC.Dirty.cs</Link>
     </Compile>
-    <Compile Include="..\LZ4pn\LZ4Codec.Unsafe64.Dirty.cs">
-      <Link>Private\LZ4Codec.Unsafe64.Dirty.cs</Link>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe64.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe64.Dirty.cs</Link>
     </Compile>
-    <Compile Include="..\LZ4pn\LZ4Codec.Unsafe64HC.Dirty.cs">
-      <Link>Private\LZ4Codec.Unsafe64HC.Dirty.cs</Link>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe64HC.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe64HC.Dirty.cs</Link>
     </Compile>
     <Compile Include="..\LZ4\ILZ4Service.cs">
       <Link>ILZ4Service.cs</Link>
@@ -70,11 +70,11 @@
     <Compile Include="..\LZ4\LZ4StreamMode.cs">
       <Link>LZ4StreamMode.cs</Link>
     </Compile>
-    <Compile Include="..\LZ4\Services\Unsafe32LZ4Service.cs">
-      <Link>Services\Unsafe32LZ4Service.cs</Link>
+    <Compile Include="..\LZ4\Services\Safe32LZ4Service.cs">
+      <Link>Services\Safe32LZ4Service.cs</Link>
     </Compile>
-    <Compile Include="..\LZ4\Services\Unsafe64LZ4Service.cs">
-      <Link>Services\Unsafe64LZ4Service.cs</Link>
+    <Compile Include="..\LZ4\Services\Safe64LZ4Service.cs">
+      <Link>Services\Safe64LZ4Service.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

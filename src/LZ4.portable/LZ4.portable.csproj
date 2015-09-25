@@ -33,10 +33,28 @@
     <DefineConstants>PORTABLE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <AssemblyOriginatorKeyFile>..\LZ4.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\LZ4.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\lz4ps\LZ4Codec.cs">
+      <Link>LZ4ps\LZ4Codec.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe.cs">
+      <Link>LZ4ps\LZ4Codec.Safe.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe32.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe32.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe32HC.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe32HC.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe64.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe64.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe64HC.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe64HC.Dirty.cs</Link>
+    </Compile>
     <Compile Include="..\LZ4\LZ4StreamMode.cs">
       <Link>LZ4StreamMode.cs</Link>
     </Compile>
@@ -69,10 +87,6 @@
     <ProjectReference Include="..\LZ4pn\LZ4pn.csproj">
       <Project>{122171e5-3ca2-49d4-b452-8fd2bf03c174}</Project>
       <Name>LZ4pn</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LZ4ps\LZ4ps.csproj">
-      <Project>{7af681fe-7575-4677-bdf0-5e0ed5300fcb}</Project>
-      <Name>LZ4ps</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

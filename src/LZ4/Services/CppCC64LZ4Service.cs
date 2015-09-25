@@ -27,6 +27,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace LZ4.Services
 {
+	// ReSharper disable once InconsistentNaming
 	internal class CppCC64LZ4Service: ILZ4Service
 	{
 		public string CodecName

@@ -29,6 +29,7 @@ using System;
 
 namespace LZ4.Services
 {
+	// ReSharper disable once InconsistentNaming
 	internal class CppMM32LZ4Service: ILZ4Service
 	{
 		public string CodecName

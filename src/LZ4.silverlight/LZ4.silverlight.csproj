@@ -34,17 +34,28 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <AssemblyOriginatorKeyFile>..\LZ4.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\LZ4.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <!-- A reference to the entire .NET Framework is automatically included -->
-    <ProjectReference Include="..\LZ4ps\LZ4ps.csproj">
-      <Project>{7af681fe-7575-4677-bdf0-5e0ed5300fcb}</Project>
-      <Name>LZ4ps</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
+    <Compile Include="..\lz4ps\LZ4Codec.cs">
+      <Link>LZ4ps\LZ4Codec.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe.cs">
+      <Link>LZ4ps\LZ4Codec.Safe.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe32.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe32.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe32HC.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe32HC.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe64.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe64.Dirty.cs</Link>
+    </Compile>
+    <Compile Include="..\lz4ps\LZ4Codec.Safe64HC.Dirty.cs">
+      <Link>LZ4ps\LZ4Codec.Safe64HC.Dirty.cs</Link>
+    </Compile>
     <Compile Include="..\LZ4\ILZ4Service.cs">
       <Link>ILZ4Service.cs</Link>
     </Compile>

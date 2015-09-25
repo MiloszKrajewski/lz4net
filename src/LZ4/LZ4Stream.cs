@@ -30,6 +30,7 @@ using System.IO;
 
 namespace LZ4
 {
+	// ReSharper disable once PartialTypeWithSinglePart
 	/// <summary>Block compression stream. Allows to use LZ4 for stream compression.</summary>
 	public partial class LZ4Stream: Stream
 	{
