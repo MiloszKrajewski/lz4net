@@ -38,12 +38,20 @@ namespace LZ4
 		/// <param name="compressionMode">The compression mode.</param>
 		/// <param name="highCompression">if set to <c>true</c> [high compression].</param>
 		/// <param name="blockSize">Size of the block.</param>
+		/// <param name="interactiveRead">if set to <c>true</c> interactive read mode is used. 
+		/// It means that <see cref="Read"/> method tries to return data as soon as possible. 
+		/// Please note, that this should be default behaviour but has been made optional for 
+		/// backward compatibility. This constructor will be changed in next major release.</param>
 		public LZ4Stream(
 			Stream innerStream,
 			CompressionMode compressionMode,
 			bool highCompression = false,
-			int blockSize = 1024*1024)
-			: this(innerStream, ToLZ4StreamMode(compressionMode), highCompression, blockSize)
+			int blockSize = 1024*1024,
+			bool interactiveRead = false)
+			: this(
+				innerStream,
+				ToLZ4StreamMode(compressionMode),
+				highCompression, blockSize, interactiveRead)
 		{
 		}
 

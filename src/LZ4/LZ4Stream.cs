@@ -70,6 +70,10 @@ namespace LZ4
 		/// <summary>The high compression flag (compression only).</summary>
 		private readonly bool _highCompression;
 
+		/// <summary>Determines if reading tries to return something ASAP or wait 
+		/// for full chunk (decompression only).</summary>
+		private readonly bool _interactiveRead;
+
 		/// <summary>The block size (compression only).</summary>
 		private readonly int _blockSize;
 
@@ -89,17 +93,23 @@ namespace LZ4
 		/// <summary>Initializes a new instance of the <see cref="LZ4Stream" /> class.</summary>
 		/// <param name="innerStream">The inner stream.</param>
 		/// <param name="compressionMode">The compression mode.</param>
-		/// <param name="highCompression">if set to <c>true</c> [high compression].</param>
+		/// <param name="highCompression">if set to <c>true</c> high compression is used.</param>
 		/// <param name="blockSize">Size of the block.</param>
+		/// <param name="interactiveRead">if set to <c>true</c> interactive read mode is used. 
+		/// It means that <see cref="Read"/> method tries to return data as soon as possible. 
+		/// Please note, that this should be default behaviour but has been made optional for 
+		/// backward compatibility. This constructor will be changed in next major release.</param>
 		public LZ4Stream(
 			Stream innerStream,
 			LZ4StreamMode compressionMode,
 			bool highCompression = false,
-			int blockSize = 1024*1024)
+			int blockSize = 1024*1024,
+			bool interactiveRead = false)
 		{
 			_innerStream = innerStream;
 			_compressionMode = compressionMode;
 			_highCompression = highCompression;
+			_interactiveRead = interactiveRead;
 			_blockSize = Math.Max(16, blockSize);
 		}
 
@@ -351,6 +361,7 @@ namespace LZ4
 				{
 					Buffer.BlockCopy(_buffer, _bufferOffset, buffer, offset, chunk);
 					_bufferOffset += chunk;
+					if (_interactiveRead) break;
 					offset += chunk;
 					count -= chunk;
 					total += chunk;

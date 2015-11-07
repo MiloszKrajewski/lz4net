@@ -7,5 +7,5 @@ if not "%VS110COMNTOOLS%"=="" set VSTOOLKIT=%VS110COMNTOOLS%
 if not "%VS120COMNTOOLS%"=="" set VSTOOLKIT=%VS120COMNTOOLS%
 call "%VSTOOLKIT%"\vsvars32.bat
 set
-%~dp0\packages\FAKE\tools\FAKE.exe %*
+%~dp0\packages\FAKE\tools\FAKE.exe build.fsx %*
 endlocal
