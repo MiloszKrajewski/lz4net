@@ -42,16 +42,36 @@ namespace LZ4
 		/// It means that <see cref="Read"/> method tries to return data as soon as possible. 
 		/// Please note, that this should be default behaviour but has been made optional for 
 		/// backward compatibility. This constructor will be changed in next major release.</param>
+		[Obsolete("This constructor is obsolete")]
 		public LZ4Stream(
 			Stream innerStream,
 			CompressionMode compressionMode,
-			bool highCompression = false,
+			bool highCompression,
 			int blockSize = 1024*1024,
 			bool interactiveRead = false)
 			: this(
 				innerStream,
 				ToLZ4StreamMode(compressionMode),
-				highCompression, blockSize, interactiveRead)
+				CombineLZ4Flags(highCompression, interactiveRead),
+				blockSize)
+		{
+		}
+
+		/// <summary>Initializes a new instance of the <see cref="LZ4Stream" /> class.</summary>
+		/// <param name="innerStream">The inner stream.</param>
+		/// <param name="compressionMode">The compression mode.</param>
+		/// <param name="compressionFlags">The compression flags.</param>
+		/// <param name="blockSize">Size of the block.</param>
+		public LZ4Stream(
+			Stream innerStream,
+			CompressionMode compressionMode,
+			LZ4StreamFlags compressionFlags = LZ4StreamFlags.Default,
+			int blockSize = 1024*1024)
+			: this(
+				innerStream,
+				ToLZ4StreamMode(compressionMode),
+				compressionFlags,
+				blockSize)
 		{
 		}
 
@@ -72,5 +92,21 @@ namespace LZ4
 						string.Format("Unhandled compression mode: {0}", compressionMode));
 			}
 		}
+
+		/// <summary>Combines the LZ4 flags.</summary>
+		/// <param name="highCompression">if set to <c>true</c> high compression will be used.</param>
+		/// <param name="interactiveRead">if set to <c>true</c> interactive read mode will be used.</param>
+		/// <returns>LZ4 compression flags.</returns>
+		private static LZ4StreamFlags CombineLZ4Flags(
+			bool highCompression, bool interactiveRead)
+		{
+			var result = LZ4StreamFlags.Default;
+			if (highCompression)
+				result |= LZ4StreamFlags.HighCompression;
+			if (!interactiveRead)
+				result |= LZ4StreamFlags.FullBlockRead;
+			return result;
+		}
+
 	}
 }

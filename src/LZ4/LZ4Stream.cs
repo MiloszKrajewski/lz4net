@@ -74,6 +74,10 @@ namespace LZ4
 		/// for full chunk (decompression only).</summary>
 		private readonly bool _interactiveRead;
 
+		/// <summary>Isolates inner stream which will not be clsed 
+		/// when this stream is closed.</summary>
+		private readonly bool _isolateInnerStream;
+
 		/// <summary>The block size (compression only).</summary>
 		private readonly int _blockSize;
 
@@ -99,10 +103,11 @@ namespace LZ4
 		/// It means that <see cref="Read"/> method tries to return data as soon as possible. 
 		/// Please note, that this should be default behaviour but has been made optional for 
 		/// backward compatibility. This constructor will be changed in next major release.</param>
+		[Obsolete("This constructor is obsolete")]
 		public LZ4Stream(
 			Stream innerStream,
 			LZ4StreamMode compressionMode,
-			bool highCompression = false,
+			bool highCompression,
 			int blockSize = 1024*1024,
 			bool interactiveRead = false)
 		{
@@ -110,6 +115,26 @@ namespace LZ4
 			_compressionMode = compressionMode;
 			_highCompression = highCompression;
 			_interactiveRead = interactiveRead;
+			_isolateInnerStream = false;
+			_blockSize = Math.Max(16, blockSize);
+		}
+
+		/// <summary>Initializes a new instance of the <see cref="LZ4Stream" /> class.</summary>
+		/// <param name="innerStream">The inner stream.</param>
+		/// <param name="compressionMode">The compression mode.</param>
+		/// <param name="compressionFlags">The compression flags.</param>
+		/// <param name="blockSize">Size of the block.</param>
+		public LZ4Stream(
+			Stream innerStream,
+			LZ4StreamMode compressionMode,
+			LZ4StreamFlags compressionFlags = LZ4StreamFlags.Default,
+			int blockSize = 1024*1024)
+		{
+			_innerStream = innerStream;
+			_compressionMode = compressionMode;
+			_highCompression = (compressionFlags & LZ4StreamFlags.HighCompression) != 0;
+			_interactiveRead = (compressionFlags & LZ4StreamFlags.FullBlockRead) == 0;
+			_isolateInnerStream = (compressionFlags & LZ4StreamFlags.IsolateInnerStream) != 0;
 			_blockSize = Math.Max(16, blockSize);
 		}
 
@@ -449,7 +474,8 @@ namespace LZ4
 		protected override void Dispose(bool disposing)
 		{
 			Flush();
-			_innerStream.Dispose();
+			if (!_isolateInnerStream)
+				_innerStream.Dispose();
 			base.Dispose(disposing);
 		}
 

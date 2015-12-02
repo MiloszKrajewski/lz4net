@@ -63,6 +63,7 @@
     <Compile Include="LZ4Codec.windows.cs" />
     <Compile Include="LZ4Stream.cs" />
     <Compile Include="LZ4Stream.windows.cs" />
+    <Compile Include="LZ4StreamFlags.cs" />
     <Compile Include="LZ4StreamMode.cs" />
     <Compile Include="Services\CppCC64LZ4Service.cs" />
     <Compile Include="Services\CppMM64LZ4Service.cs" />
