@@ -55,6 +55,9 @@
     <Compile Include="..\lz4ps\LZ4Codec.Safe64HC.Dirty.cs">
       <Link>LZ4ps\LZ4Codec.Safe64HC.Dirty.cs</Link>
     </Compile>
+    <Compile Include="..\LZ4\LZ4StreamFlags.cs">
+      <Link>LZ4StreamFlags.cs</Link>
+    </Compile>
     <Compile Include="..\LZ4\LZ4StreamMode.cs">
       <Link>LZ4StreamMode.cs</Link>
     </Compile>

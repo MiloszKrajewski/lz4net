@@ -65,6 +65,9 @@
     <Compile Include="..\LZ4\LZ4Stream.cs">
       <Link>LZ4Stream.cs</Link>
     </Compile>
+    <Compile Include="..\LZ4\LZ4StreamFlags.cs">
+      <Link>LZ4StreamFlags.cs</Link>
+    </Compile>
     <Compile Include="..\LZ4\LZ4StreamMode.cs">
       <Link>LZ4StreamMode.cs</Link>
     </Compile>
