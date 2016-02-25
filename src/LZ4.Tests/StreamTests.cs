@@ -104,7 +104,7 @@ namespace LZ4.Tests
 				Console.WriteLine("Waiting for client...");
 				var client = listener.AcceptTcpClient();
 				using (var tcpStream = client.GetStream())
-				using (var lz4Stream = new LZ4Stream(tcpStream, CompressionMode.Compress, blockSize: 128*1024))
+				using (var lz4Stream = new LZ4Stream(tcpStream, CompressionMode.Compress, blockSize : 128 * 1024))
 				using (var writer = new BinaryWriter(lz4Stream))
 				{
 					foreach (var file in Directory.GetFiles(Utilities.GetSilesiaCorpusFolder(), "*", SearchOption.AllDirectories))
@@ -138,14 +138,15 @@ namespace LZ4.Tests
 			var provider = new BlockDataProvider(Utilities.GetSilesiaCorpusFolder());
 			var r = new Random(0);
 
-			Console.WriteLine("Architecture: {0}bit", IntPtr.Size*8);
+			Console.WriteLine("Architecture: {0}bit", IntPtr.Size * 8);
 			Console.WriteLine("CodecName: {0}", LZ4Codec.CodecName);
 
 			var fileName = Path.Combine(Path.GetTempPath(), "BlockCompressionStream.dat");
 
 			using (var stream = new LZ4Stream(
 				read ? File.OpenRead(fileName) : File.Create(fileName),
-				read ? CompressionMode.Decompress : CompressionMode.Compress, true))
+				read ? CompressionMode.Decompress : CompressionMode.Compress,
+				LZ4StreamFlags.HighCompression))
 			{
 				var total = 0;
 				const long limit = TOTAL_SIZE;
@@ -157,7 +158,7 @@ namespace LZ4.Tests
 					var block = provider.GetBytes(length);
 					action(block, stream);
 					total += block.Length;
-					var pct = (int)((double)total*100/limit);
+					var pct = (int)((double)total * 100 / limit);
 					if (pct > last_pct)
 					{
 						Console.WriteLine("{0}%...", pct);

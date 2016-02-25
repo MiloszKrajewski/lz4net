@@ -8,10 +8,8 @@ namespace LZ4
 	[Flags]
 	public enum LZ4StreamFlags
 	{
+		/// <summary>Empty settings. No special behaviour.</summary>
 		None = 0x00, 
-
-		/// <summary>Default settings.</summary>
-		Default = None,
 
 		/// <summary>Enforces full block reads.</summary>
 		FullBlockRead = 0x01,
@@ -22,5 +20,8 @@ namespace LZ4
 		/// <summary>Isolates inner stream so it does not get 
 		/// closed when LZ4 stream is closed.</summary>
 		IsolateInnerStream = 0x04,
+
+		/// <summary>Default settings.</summary>
+		Default = None,
 	}
 }
