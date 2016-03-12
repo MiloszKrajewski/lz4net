@@ -56,11 +56,22 @@ namespace LZ4.Tests
 			DoAction(
 				(b, s) => {
 					var buffer = new byte[b.Length];
-					buffer[0] = (byte)s.ReadByte();
-					s.Read(buffer, 1, buffer.Length - 1);
+					FullBlockRead(s, buffer, 0, buffer.Length);
 					Utilities.AssertEqual(b, buffer, "Read");
 				},
 				true);
+		}
+
+		private void FullBlockRead(Stream stream, byte[] buffer, int offset, int length)
+		{
+			while (length > 0)
+			{
+				var read = stream.Read(buffer, offset, length);
+				length -= read;
+				offset += read;
+				if (read == 0) 
+					throw new EndOfStreamException();
+			}
 		}
 
 		[Test]

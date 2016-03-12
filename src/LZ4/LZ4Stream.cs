@@ -74,7 +74,7 @@ namespace LZ4
 		/// for full chunk (decompression only).</summary>
 		private readonly bool _interactiveRead;
 
-		/// <summary>Isolates inner stream which will not be clsed 
+		/// <summary>Isolates inner stream which will not be closed 
 		/// when this stream is closed.</summary>
 		private readonly bool _isolateInnerStream;
 
@@ -101,7 +101,7 @@ namespace LZ4
 		/// <param name="blockSize">Size of the block.</param>
 		/// <param name="interactiveRead">if set to <c>true</c> interactive read mode is used. 
 		/// It means that <see cref="Read"/> method tries to return data as soon as possible. 
-		/// Please note, that this should be default behaviour but has been made optional for 
+		/// Please note, that this should be default behavior but has been made optional for 
 		/// backward compatibility. This constructor will be changed in next major release.</param>
 		[Obsolete("This constructor is obsolete")]
 		public LZ4Stream(
@@ -162,7 +162,7 @@ namespace LZ4
 		/// <summary>Tries to read variable length int.</summary>
 		/// <param name="result">The result.</param>
 		/// <returns><c>true</c> if integer has been read, <c>false</c> if end of stream has been
-		/// encountered. If end of stream has been encoutered in the middle of value 
+		/// encountered. If end of stream has been encountered in the middle of value 
 		/// <see cref="EndOfStreamException"/> is thrown.</returns>
 		private bool TryReadVarInt(out ulong result)
 		{
@@ -247,7 +247,7 @@ namespace LZ4
 
 			if (compressedLength <= 0 || compressedLength >= _bufferOffset)
 			{
-				// uncompressible block
+				// incompressible block
 				compressed = _buffer;
 				compressedLength = _bufferOffset;
 			}
@@ -287,7 +287,7 @@ namespace LZ4
 				var compressed = new byte[compressedLength];
 				var chunk = ReadBlock(compressed, 0, compressedLength);
 
-				if (chunk != compressedLength) throw EndOfStream(); // currupted
+				if (chunk != compressedLength) throw EndOfStream(); // corrupted
 
 				if (!isCompressed)
 				{
@@ -386,10 +386,10 @@ namespace LZ4
 				{
 					Buffer.BlockCopy(_buffer, _bufferOffset, buffer, offset, chunk);
 					_bufferOffset += chunk;
+					total += chunk;
 					if (_interactiveRead) break;
 					offset += chunk;
 					count -= chunk;
-					total += chunk;
 				}
 				else
 				{
