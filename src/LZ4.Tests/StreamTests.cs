@@ -66,15 +66,16 @@ namespace LZ4.Tests
 		[Test]
 		public void TcpClientServer()
 		{
+			const int port = 54856;
 			Parallel.Invoke(
-				TcpServer,
-				TcpClient);
+				() => TcpServer(port),
+				() => TcpClient(port));
 		}
 
-		public void TcpClient()
+		public void TcpClient(int port)
 		{
 			var client = new TcpClient();
-			client.Connect("127.0.0.1", 4444);
+			client.Connect("127.0.0.1", port);
 
 			Console.WriteLine("Connected...");
 
@@ -94,9 +95,9 @@ namespace LZ4.Tests
 			}
 		}
 
-		public void TcpServer()
+		public void TcpServer(int port)
 		{
-			var listener = new TcpListener(IPAddress.Any, 4444);
+			var listener = new TcpListener(IPAddress.Any, port);
 			listener.Start();
 
 			try
