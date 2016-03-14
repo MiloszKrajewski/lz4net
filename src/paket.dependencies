@@ -4,5 +4,5 @@ nuget DotNetZip.Reduced framework: net40
 nuget NUnit framework: net40
 
 nuget FAKE
-nuget LibZ.Bootstrap
+nuget LibZ.Tool
 nuget NUnit.Runners

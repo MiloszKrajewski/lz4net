@@ -131,7 +131,7 @@ Target "Release" (fun _ ->
     |> CopyFiles (releaseDir @@ "net4")
 
     let fullSnk = (fileInfo strongFile).FullName
-    let libzApp = "packages/LibZ.Bootstrap/tools/libz.exe"
+    let libzApp = "packages/LibZ.Tool/tools/libz.exe"
     let libzArgs = sprintf """ inject-dll -a LZ4.dll -i *.dll -e LZ4.dll --move -k "%s" """ fullSnk
     { defaultParams with
         Program = libzApp;

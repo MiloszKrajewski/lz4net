@@ -51,7 +51,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LZ4.portable\LZ4.portable.csproj">
+    <ProjectReference Include="..\..\LZ4.portable\LZ4.portable.csproj">
       <Project>{2E4012F6-57B3-4F92-BC70-4B8B33252918}</Project>
       <Name>LZ4.portable</Name>
     </ProjectReference>

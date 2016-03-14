@@ -40,7 +40,7 @@ namespace LZ4
 		/// <param name="blockSize">Size of the block.</param>
 		/// <param name="interactiveRead">if set to <c>true</c> interactive read mode is used. 
 		/// It means that <see cref="Read"/> method tries to return data as soon as possible. 
-		/// Please note, that this should be default behaviour but has been made optional for 
+		/// Please note, that this should be default behavior but has been made optional for 
 		/// backward compatibility. This constructor will be changed in next major release.</param>
 		[Obsolete("This constructor is obsolete")]
 		public LZ4Stream(
@@ -103,8 +103,8 @@ namespace LZ4
 			var result = LZ4StreamFlags.Default;
 			if (highCompression)
 				result |= LZ4StreamFlags.HighCompression;
-			if (!interactiveRead)
-				result |= LZ4StreamFlags.FullBlockRead;
+			if (interactiveRead)
+				result |= LZ4StreamFlags.InteractiveRead;
 			return result;
 		}
 

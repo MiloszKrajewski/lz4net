@@ -1,3 +1,8 @@
+## 1.0.10.93
+- BUGFIX: support for Mono (with full .NET 4 assembly, not only Portable)
+- ISSUE: added InteractiveRead mode (useful with network streams)
+- DEPRECATED: some LZ4Stream constructors are now depreacated, please use new ones instead
+
 ## 1.0.9.93
 - ADDED: support for .NET 2
 - ADDED: support for Windows Phone

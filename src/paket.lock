@@ -3,6 +3,6 @@ NUGET
   specs:
     DotNetZip.Reduced (1.9.1.8) - framework: net40
     FAKE (4.4.4)
-    LibZ.Bootstrap (1.1.0.2)
+    LibZ.Tool (1.2.0)
     NUnit (2.6.4) - framework: net40
     NUnit.Runners (2.6.4)

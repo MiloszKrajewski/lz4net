@@ -8,11 +8,11 @@ namespace LZ4
 	[Flags]
 	public enum LZ4StreamFlags
 	{
-		/// <summary>Empty settings. No special behaviour.</summary>
+		/// <summary>Empty settings. No special behavior.</summary>
 		None = 0x00, 
 
-		/// <summary>Enforces full block reads.</summary>
-		FullBlockRead = 0x01,
+		/// <summary>Allows to use interactive mode, possibly returning partial blocks.</summary>
+		InteractiveRead = 0x01,
 
 		/// <summary>Uses high compression version of algorithm.</summary>
 		HighCompression = 0x02,

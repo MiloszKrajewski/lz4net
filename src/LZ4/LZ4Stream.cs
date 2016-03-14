@@ -133,7 +133,7 @@ namespace LZ4
 			_innerStream = innerStream;
 			_compressionMode = compressionMode;
 			_highCompression = (compressionFlags & LZ4StreamFlags.HighCompression) != 0;
-			_interactiveRead = (compressionFlags & LZ4StreamFlags.FullBlockRead) == 0;
+			_interactiveRead = (compressionFlags & LZ4StreamFlags.InteractiveRead) != 0;
 			_isolateInnerStream = (compressionFlags & LZ4StreamFlags.IsolateInnerStream) != 0;
 			_blockSize = Math.Max(16, blockSize);
 		}

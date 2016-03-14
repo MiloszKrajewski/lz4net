@@ -105,7 +105,6 @@
     <LibraryPath>$(OutDir);$(LibraryPath)</LibraryPath>
     <IncludePath>..\original;$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>

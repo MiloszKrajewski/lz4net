@@ -3,11 +3,11 @@ using System.Reflection;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("LZ4.Tests")]
+[assembly: AssemblyTitle("LZ4.Tests.Continuous")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Milosz Krajewski")]
-[assembly: AssemblyProduct("LZ4.Tests")]
+[assembly: AssemblyProduct("LZ4.Tests.Continuous")]
 [assembly: AssemblyCopyright("Copyright (c) 2014, Milosz Krajewski")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

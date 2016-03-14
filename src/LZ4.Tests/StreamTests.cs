@@ -36,7 +36,7 @@ namespace LZ4.Tests
 			}
 
 			using (var istream = File.OpenRead(tempFileName))
-			using (var zstream = new LZ4Stream(istream, CompressionMode.Decompress))
+			using (var zstream = new LZ4Stream(istream, CompressionMode.Decompress, LZ4StreamFlags.InteractiveRead))
 			using (var ostream = File.Create(tempFileName + ".orig"))
 			{
 				zstream.CopyTo(ostream);
@@ -91,7 +91,7 @@ namespace LZ4.Tests
 			Console.WriteLine("Connected...");
 
 			using (var tcpStream = client.GetStream())
-			using (var lz4Stream = new LZ4Stream(tcpStream, CompressionMode.Decompress))
+			using (var lz4Stream = new LZ4Stream(tcpStream, CompressionMode.Decompress, LZ4StreamFlags.InteractiveRead))
 			using (var reader = new BinaryReader(lz4Stream))
 			{
 				while (true)
