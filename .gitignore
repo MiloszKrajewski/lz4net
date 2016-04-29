@@ -198,3 +198,5 @@ FakesAssemblies/
 /out/
 /src/packages/
 /src/packet-files/
+/src/LZ4.VC.VC.opendb
+/src/LZ4.VC.db
