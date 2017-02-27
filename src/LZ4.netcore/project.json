@@ -1,0 +1,52 @@
+{
+    "version": "1.0.0-*",
+
+    "dependencies": {
+        "LZ4pn.dnx": "1.0.0-*",
+        "NETStandard.Library": "1.6.0"
+    },
+
+    "frameworks": {
+        "netstandard1.6": {
+            "imports": "dnxcore50"
+        }
+    },
+
+    "configurations": {
+        "Debug": {
+            "buildOptions": {
+                "define": [ "DEBUG", "TRACE" ]
+            }
+        },
+        "Release": {
+            "buildOptions": {
+                "define": [ "RELEASE", "TRACE" ],
+                "optimize": true
+            }
+        }
+    },
+
+    "buildOptions": {
+        "outputName": "LZ4",
+        "compile": {
+            "includeFiles": [
+                "../LZ4ps/LZ4Codec.cs",
+                "../LZ4ps/LZ4Codec.Safe.cs",
+                "../LZ4ps/LZ4Codec.Safe32.Dirty.cs",
+                "../LZ4ps/LZ4Codec.Safe32HC.Dirty.cs",
+                "../LZ4ps/LZ4Codec.Safe64.Dirty.cs",
+                "../LZ4ps/LZ4Codec.Safe64HC.Dirty.cs",
+                "../LZ4/Services/Safe32LZ4Service.cs",
+                "../LZ4/Services/Safe64LZ4Service.cs",
+                "../LZ4/Services/Unsafe32LZ4Service.cs",
+                "../LZ4/Services/Unsafe64LZ4Service.cs",
+                "../LZ4/ILZ4Service.cs",
+                "../LZ4/LZ4Codec.cs",
+                "../LZ4.portable/LZ4Codec.portable.cs",
+                "../LZ4/LZ4Stream.cs",
+                "../LZ4/LZ4StreamFlags.cs",
+                "../LZ4/LZ4StreamMode.cs"
+            ]
+        }
+    }
+}

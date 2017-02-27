@@ -82,10 +82,6 @@
       <Project>{5A7AED54-B6C2-44E2-830A-FE08FBCCEAA5}</Project>
       <Name>LZ4cc</Name>
     </ProjectReference>
-    <ProjectReference Include="..\LZ4mm\LZ4mm.vcxproj">
-      <Project>{A9D66273-483D-4359-A55A-F0A8D2E6271F}</Project>
-      <Name>LZ4mm</Name>
-    </ProjectReference>
     <ProjectReference Include="..\LZ4pn\LZ4pn.csproj">
       <Project>{122171e5-3ca2-49d4-b452-8fd2bf03c174}</Project>
       <Name>LZ4pn</Name>

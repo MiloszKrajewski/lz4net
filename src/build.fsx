@@ -88,6 +88,7 @@ Target "Version" (fun _ ->
     !! "LZ4/Properties/AssemblyInfo.cs"
     ++ "LZ4.net2/Properties/AssemblyInfo.cs"
     ++ "LZ4.portable/Properties/AssemblyInfo.cs"
+    ++ "LZ4.netcore/Properties/AssemblyInfo.cs"
     ++ "LZ4.silverlight/Properties/AssemblyInfo.cs"
     ++ "LZ4pn/Properties/AssemblyInfo.cs"
     ++ "LZ4ps/Properties/AssemblyInfo.cs"
@@ -118,9 +119,9 @@ Target "Release" (fun _ ->
         )
     )
 
-    [ "portable"; "silverlight"; "net2" ]
+    [ "netcore"; "portable"; "silverlight"; "net2" ]
     |> Seq.iter (fun platform ->
-        let sourceDir = sprintf "LZ4.%s/bin/Release" platform
+        let sourceDir = sprintf "LZ4.%s/bin/Release/**" platform
         let targetDir = releaseDir @@ platform
         targetDir |> CleanDir
         !! (sourceDir @@ "*.dll") |> Copy targetDir
