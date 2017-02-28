@@ -84,6 +84,7 @@ Plus class which chooses the best available implementation for the job: [One cla
 | --- | --- | --- |
 | NET 2.0 | Safe | could be Unsafe as well, but I didn't bother |
 | NET 4.0 | MixedMode, C++/CLI, Unsafe, Safe | does work on Mono as well |
+| .NET Standard | Unsafe, Safe | be first person to try it |
 | Portable | Unsafe, Safe | Windows Phone, Xamarin, Windows Store (1) |
 | Silverlight | Safe | anyone? |
 
