@@ -12,11 +12,11 @@ namespace LZ4
 		/// <summary>Polyfill for .NET4's Func</summary>
 		public delegate T Func<T>();
 
-		/// <summary>Determines whether VS2010 runtime is installed. 
+		/// <summary>Determines whether VS2015 runtime is installed. 
 		/// Note, on Mono the Registry class is not available at all, 
 		/// so access to it have to be isolated.</summary>
-		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise.</returns>
-		private static bool Has2010Runtime()
+		/// <returns><c>true</c> it VS2015 runtime is installed, <c>false</c> otherwise.</returns>
+		private static bool Has2015Runtime()
 		{
 			return false;
 		}

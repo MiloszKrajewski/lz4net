@@ -36,7 +36,7 @@ namespace LZ4
 		/// Note, on Mono the Registry class is not available at all, 
 		/// so access to it have to be isolated.</summary>
 		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise.</returns>
-		private static bool Has2010Runtime() { return false; }
+		private static bool Has2015Runtime() { return false; }
 
 		// ReSharper disable InconsistentNaming
 

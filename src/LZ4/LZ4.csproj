@@ -83,7 +83,7 @@
       <Name>LZ4cc</Name>
     </ProjectReference>
     <ProjectReference Include="..\LZ4mm\LZ4mm.vcxproj">
-      <Project>{A9D66273-483D-4359-A55A-F0A8D2E6271F}</Project>
+      <Project>{a9d66273-483d-4359-a55a-f0a8d2e6271f}</Project>
       <Name>LZ4mm</Name>
     </ProjectReference>
     <ProjectReference Include="..\LZ4pn\LZ4pn.csproj">
