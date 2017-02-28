@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{4508AE6B-DACC-4BDF-936E-0AAAB409135C}"
 	ProjectSection(SolutionItems) = preProject
 		build.fsx = build.fsx
+		..\CHANGES.md = ..\CHANGES.md
 		paket.dependencies = paket.dependencies
 	EndProjectSection
 EndProject

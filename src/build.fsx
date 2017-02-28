@@ -169,7 +169,9 @@ Target "Nuget" (fun _ ->
                     ("net4\\*.dll", libDir "net4-client", None)
                     ("portable\\*.dll", libDir portableSpec, None)
                     ("silverlight\\*.dll", libDir silverlightSpec, None)
+                    ("netcore\\*.dll", libDir "netstandard1.6", None)
                 ]
+            DependenciesByFramework = [ { FrameworkVersion = "netstandard1.6"; Dependencies = [ ("NETStandard.Library", "1.6.1") ] } ]
         }
     ) "lz4net.nuspec"
 )
@@ -185,6 +187,7 @@ Target "Zip" (fun _ ->
     "silverlight" |> zipDir "silverlight"
     "x86" |> zipDir "net4-x86"
     "x64" |> zipDir "net4-x64"
+    "netcore" |> zipDir "netcore"
 )
 
 Target "Dist" ignore

@@ -1,7 +1,7 @@
 ﻿#region license
 
 /*
-Copyright (c) 2013, Milosz Krajewski
+Copyright (c) 2013-2017, Milosz Krajewski
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided 
@@ -25,74 +25,74 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #endregion
 
-using LZ4.Services;
-using Microsoft.Win32;
 using System;
 using System.Runtime.CompilerServices;
+using LZ4.Services;
+using Microsoft.Win32;
 
 namespace LZ4
 {
-	public static partial class LZ4Codec
-	{
-		/// <summary>Determines whether VS2010 runtime is installed. 
-		/// Note, on Mono the Registry class is not available at all, 
-		/// so access to it have to be isolated.</summary>
-		/// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise.</returns>
-		[MethodImpl(MethodImplOptions.NoInlining)]
-		private static bool Has2010Runtime()
-		{
-			var keyName =
-				IntPtr.Size == 4 ? @"SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" :
-					IntPtr.Size == 8 ? @"SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64" :
-						null;
-			if (keyName == null)
-				return false;
+    public static partial class LZ4Codec
+    {
+        /// <summary>Determines whether VS2015 runtime is installed. 
+        /// Note, on Mono the Registry class is not available at all, 
+        /// so access to it have to be isolated.</summary>
+        /// <returns><c>true</c> it VS2010 runtime is installed, <c>false</c> otherwise.</returns>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static bool Has2015Runtime()
+        {
+            var keyName =
+                IntPtr.Size == 4 ? @"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x86" :
+                    IntPtr.Size == 8 ? @"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" :
+                        null;
+            if (keyName == null)
+                return false;
 
-			var key = Registry.LocalMachine.OpenSubKey(keyName, false);
-			if (key == null)
-				return false;
+            var key = Registry.LocalMachine.OpenSubKey(keyName, false);
+            if (key == null)
+                return false;
 
-			var value = key.GetValue(@"Installed");
-			if (value == null)
-				return false;
+            var value = key.GetValue(@"Major");
+            if (value == null)
+                return false;
 
-			return Convert.ToUInt32(value) != 0;
-		}
+            return Convert.ToUInt32(value) == 14;
+        }
 
-		// ReSharper disable InconsistentNaming
+        // ReSharper disable InconsistentNaming
 
-		/// <summary>Initializes codecs from LZ4mm.</summary>
-		[MethodImpl(MethodImplOptions.NoInlining)]
-		private static void InitializeLZ4mm()
-		{
-			_service_MM32 = TryService<CppMM32LZ4Service>();
-			_service_MM64 = TryService<CppMM64LZ4Service>();
-		}
+        /// <summary>Initializes codecs from LZ4mm.</summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void InitializeLZ4mm()
+        {
+            _service_MM32 = TryService<CppMM32LZ4Service>();
+            _service_MM64 = TryService<CppMM64LZ4Service>();
+        }
 
-		/// <summary>Initializes codecs from LZ4cc.</summary>
-		[MethodImpl(MethodImplOptions.NoInlining)]
-		private static void InitializeLZ4cc()
-		{
-			_service_CC32 = TryService<CppCC32LZ4Service>();
-			_service_CC64 = TryService<CppCC64LZ4Service>();
-		}
+        /// <summary>Initializes codecs from LZ4cc.</summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void InitializeLZ4cc()
+        {
+            _service_CC32 = TryService<CppCC32LZ4Service>();
+            _service_CC64 = TryService<CppCC64LZ4Service>();
+        }
 
-		/// <summary>Initializes codecs from LZ4n.</summary>
-		[MethodImpl(MethodImplOptions.NoInlining)]
-		private static void InitializeLZ4n()
-		{
-			_service_N32 = TryService<Unsafe32LZ4Service>();
-			_service_N64 = TryService<Unsafe64LZ4Service>();
-		}
+        /// <summary>Initializes codecs from LZ4n.</summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void InitializeLZ4n()
+        {
+            _service_N32 = TryService<Unsafe32LZ4Service>();
+            _service_N64 = TryService<Unsafe64LZ4Service>();
+        }
 
-		/// <summary>Initializes codecs from LZ4s.</summary>
-		[MethodImpl(MethodImplOptions.NoInlining)]
-		private static void InitializeLZ4s()
-		{
-			_service_S32 = TryService<Safe32LZ4Service>();
-			_service_S64 = TryService<Safe64LZ4Service>();
-		}
+        /// <summary>Initializes codecs from LZ4s.</summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void InitializeLZ4s()
+        {
+            _service_S32 = TryService<Safe32LZ4Service>();
+            _service_S64 = TryService<Safe64LZ4Service>();
+        }
 
-		// ReSharper restore InconsistentNaming
-	}
+        // ReSharper restore InconsistentNaming
+    }
 }
