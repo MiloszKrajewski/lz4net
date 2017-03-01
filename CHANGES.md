@@ -1,6 +1,7 @@
 ## 1.0.11.93
 - ADDED: support for .NET Core / .NET Standard 1.6
 - CHANGED: converted C++ projects to VC++ 2015
+- NOTE: support for Xamarin (Android and iOS) is still questionable
 
 ## 1.0.10.93
 - BUGFIX: support for Mono (with full .NET 4 assembly, not only Portable)
