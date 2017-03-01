@@ -1,4 +1,4 @@
-Copyright (c) 2013-2015, Milosz Krajewski
+Copyright (c) 2013-2017, Milosz Krajewski
 
 All rights reserved.
 
