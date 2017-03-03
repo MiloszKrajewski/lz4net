@@ -27,8 +27,8 @@
   </PropertyGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A9D66273-483D-4359-A55A-F0A8D2E6271F}</ProjectGuid>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <!-- <TargetFrameworkProfile>Client</TargetFrameworkProfile> -->
     <Keyword>ManagedCProj</Keyword>
     <RootNamespace>LZ4mm</RootNamespace>
   </PropertyGroup>

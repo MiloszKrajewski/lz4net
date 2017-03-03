@@ -27,8 +27,8 @@
   </PropertyGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5A7AED54-B6C2-44E2-830A-FE08FBCCEAA5}</ProjectGuid>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <!--<TargetFrameworkProfile>Client</TargetFrameworkProfile>-->
     <Keyword>ManagedCProj</Keyword>
     <RootNamespace>LZ4cc</RootNamespace>
   </PropertyGroup>
