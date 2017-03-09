@@ -88,5 +88,5 @@ Plus class which chooses the best available implementation for the job: [One cla
 | Portable | Unsafe, Safe | Windows Phone, Xamarin, Windows Store (1) |
 | Silverlight | Safe | anyone? |
 
-(1) It does compile for portable target but I guess it wont work on Big Endian processors
-(2) Currently, Unsafe is not working, see [this](http://stackoverflow.com/questions/42597583/release-multiple-assemblies-in-single-net-core-package), maybe you can help
+* (1) It does compile for portable target but I guess it wont work on Big Endian processors
+* (2) Currently, Unsafe is not working, see [this](http://stackoverflow.com/questions/42597583/release-multiple-assemblies-in-single-net-core-package), maybe you can help
