@@ -84,9 +84,9 @@ Plus class which chooses the best available implementation for the job: [One cla
 | --- | --- | --- |
 | NET 2.0 | Safe | could be Unsafe as well, but I didn't bother |
 | NET 4.0 | MixedMode, C++/CLI, Unsafe, Safe | does work on Mono as well |
-| .NET Standard | Safe | be first person to try it (2) |
+| .NET Standard 1.0 | Safe, Unsafe | be first person to try it (2) |
 | Portable | Unsafe, Safe | Windows Phone, Xamarin, Windows Store (1) |
 | Silverlight | Safe | anyone? |
 
 * (1) It does compile for portable target but I guess it wont work on Big Endian processors
-* (2) Currently, Unsafe is not working, see [this](http://stackoverflow.com/questions/42597583/release-multiple-assemblies-in-single-net-core-package), maybe you can help
+* (2) Still experimental but seems to be working
