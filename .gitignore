@@ -200,3 +200,7 @@ FakesAssemblies/
 /out/
 /src/packages/
 /src/packet-files/
+
+# .NET Core preview tools
+*.lock.json
+
