@@ -8,7 +8,7 @@
         <owners>Milosz Krajewski</owners>
         <licenseUrl>https://github.com/MiloszKrajewski/lz4net/blob/master/LICENSE.md</licenseUrl>
         <projectUrl>https://github.com/MiloszKrajewski/lz4net</projectUrl>
-        <iconUrl>https://raw.githubusercontent.com/MiloszKrajewski/lz4net/portable/doc/icon.png</iconUrl>
+        <iconUrl>https://raw.githubusercontent.com/MiloszKrajewski/lz4net/master/doc/icon.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <summary>LZ4 - ultra fast compression algorithm - for all .NET platforms</summary>
         <description>
