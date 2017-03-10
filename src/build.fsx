@@ -152,28 +152,47 @@ Target "Test" (fun _ ->
 
 Target "Nuget" (fun _ ->
     let apiKey = getSecret "nuget" None
+    let version = releaseNotes.AssemblyVersion
     let libDir spec = spec |> sprintf @"lib\%s" |> Some
     let portableSpec = "portable-net4+win8+wpa81+MonoAndroid+MonoTouch+Xamarin.iOS"
     let silverlightSpec = "portable-net4+win8+wpa81+sl5+wp8+MonoAndroid+MonoTouch+Xamarin.iOS"
-    NuGet (fun p ->
+
+    let files = [
+        ("net2\\*.dll", libDir "net2", None)
+        ("net4\\*.dll", libDir "net4-client", None)
+        ("portable\\*.dll", libDir portableSpec, None)
+        ("silverlight\\*.dll", libDir silverlightSpec, None)
+        ("netcore\\LZ4.dll", libDir "netstandard1.0", None)
+    ]
+
+    let net16dep = ("NETStandard.Library", "1.6.1")
+    let unsafedep = ("lz4net.unsafe.netcore", "[" + version + "]")
+
+    NuGet (fun p -> 
         { p with
-            Version = releaseNotes.AssemblyVersion
+            Version = version
             WorkingDir = @"../out/release"
             OutputPath = @"../out/release"
             ReleaseNotes = releaseNotes.Notes |> toLines
             References = [@"LZ4.dll"]
             AccessKey = apiKey
-            Files =
-                [
-                    ("net2\\*.dll", libDir "net2", None)
-                    ("net4\\*.dll", libDir "net4-client", None)
-                    ("portable\\*.dll", libDir portableSpec, None)
-                    ("silverlight\\*.dll", libDir silverlightSpec, None)
-                    ("netcore\\*.dll", libDir "netstandard1.0", None)
-                ]
-            DependenciesByFramework = [ { FrameworkVersion = "netstandard1.0"; Dependencies = [ ("NETStandard.Library", "1.6.1") ] } ]
+            Files = files
+            DependenciesByFramework = [ { FrameworkVersion = "netstandard1.0"; Dependencies = [ net16dep; unsafedep ] } ]
         }
     ) "lz4net.nuspec"
+
+    NuGet (fun p -> 
+        { p with
+            Version = version
+            WorkingDir = @"../out/release"
+            OutputPath = @"../out/release"
+            ReleaseNotes = releaseNotes.Notes |> toLines
+            AccessKey = apiKey
+            Files = [ ("netcore\\LZ4pn.dll", libDir "netstandard1.0", None) ]
+            DependenciesByFramework = [ { FrameworkVersion = "netstandard1.0"; Dependencies = [ net16dep ] } ]
+        }
+    ) "lz4net.unsafe.netcore.nuspec"
+
 )
 
 Target "Zip" (fun _ ->

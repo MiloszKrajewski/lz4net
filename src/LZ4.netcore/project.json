@@ -1,15 +1,15 @@
 {
     "version": "1.0.0-*",
-
     "dependencies": {
-        "LZ4pn.dnx": { "target": "project"},
+        "LZ4pn.dnx": {
+            "target": "project",
+            "type": "build"
+        },
         "NETStandard.Library": "1.6.0"
     },
-
     "frameworks": {
-      "netstandard1.0": {}
+        "netstandard1.0": {}
     },
-
     "configurations": {
         "Debug": {
             "buildOptions": {
@@ -23,7 +23,6 @@
             }
         }
     },
-
     "buildOptions": {
         "outputName": "LZ4",
         "compile": {

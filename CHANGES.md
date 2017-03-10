@@ -1,3 +1,11 @@
+## 1.0.14.93
+
+2017-03-10
+
+- THANKS: Jorge Bay Gondra (see: https://github.com/jorgebay)
+- CHANGED: released for .NET Core / .NET Standard 1.0 (instead of .NET Standard 1.6)
+- BUGFIX: fixes "unsafe" assembly for .NET Core (for a price of extra nuget package)
+
 ## 1.0.11.93
 
 2017-02-28
