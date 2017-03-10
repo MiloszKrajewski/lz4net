@@ -169,9 +169,9 @@ Target "Nuget" (fun _ ->
                     ("net4\\*.dll", libDir "net4-client", None)
                     ("portable\\*.dll", libDir portableSpec, None)
                     ("silverlight\\*.dll", libDir silverlightSpec, None)
-                    ("netcore\\*.dll", libDir "netstandard1.6", None)
+                    ("netcore\\*.dll", libDir "netstandard1.0", None)
                 ]
-            DependenciesByFramework = [ { FrameworkVersion = "netstandard1.6"; Dependencies = [ ("NETStandard.Library", "1.6.1") ] } ]
+            DependenciesByFramework = [ { FrameworkVersion = "netstandard1.0"; Dependencies = [ ("NETStandard.Library", "1.6.1") ] } ]
         }
     ) "lz4net.nuspec"
 )

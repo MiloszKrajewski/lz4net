@@ -1,14 +1,23 @@
 ## 1.0.11.93
+
+2017-02-28
+
 - ADDED: support for .NET Core / .NET Standard 1.6
 - CHANGED: converted C++ projects to VC++ 2015
 - NOTE: support for Xamarin (Android and iOS) is still questionable
 
 ## 1.0.10.93
+
+2016-03-14
+
 - BUGFIX: support for Mono (with full .NET 4 assembly, not only Portable)
 - ISSUE: added InteractiveRead mode (useful with network streams)
 - DEPRECATED: some LZ4Stream constructors are now depreacated, please use new ones instead
 
 ## 1.0.9.93
+
+2015-09-25
+
 - ADDED: support for .NET 2
 - ADDED: support for Windows Phone
 - ADDED: support for Xamarin (Android and iOS)
