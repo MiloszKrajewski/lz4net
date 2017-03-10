@@ -6,8 +6,7 @@
     },
 
     "frameworks": {
-      "netstandard1.0": {},
-      "net35": {} 
+      "netstandard1.0": {}
     },
 
     "configurations": {
