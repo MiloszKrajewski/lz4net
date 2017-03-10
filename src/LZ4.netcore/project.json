@@ -2,14 +2,13 @@
     "version": "1.0.0-*",
 
     "dependencies": {
-        "LZ4pn.dnx": "1.0.0-*",
+        "LZ4pn.dnx": { "target": "project"},
         "NETStandard.Library": "1.6.0"
     },
 
     "frameworks": {
-        "netstandard1.6": {
-            "imports": "dnxcore50"
-        }
+      "netstandard1.0": {},
+      "net35": {}
     },
 
     "configurations": {
