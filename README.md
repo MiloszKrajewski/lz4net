@@ -88,5 +88,5 @@ Plus class which chooses the best available implementation for the job: [One cla
 | Silverlight | Safe | anyone? |
 | .NET Standard 1.0 | Unsafe, Safe | be first person to try it (2) |
 
-* (1) It does compile for portable target but I guess it wont work on Big Endian processors
-* (2) Still experimental but seems to be working
+* (1) It looks like .NET Standard is picked anyway on Xamarin, so the "portable" version may be obsolete.
+* (2) Still experimental but seems to be working (even on my Nexus 7).
