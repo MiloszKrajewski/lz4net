@@ -86,7 +86,8 @@ Plus class which chooses the best available implementation for the job: [One cla
 | NET 4.0 | MixedMode, C++/CLI, Unsafe, Safe | does work on Mono as well |
 | Portable | Unsafe, Safe | Windows Phone, Xamarin, Windows Store (1) |
 | Silverlight | Safe | anyone? |
-| .NET Standard 1.0 | Unsafe, Safe | be first person to try it (2) |
+| .NET Standard 1.0 | Unsafe, Safe | be first person to try it (2)(3) |
 
 * (1) It looks like .NET Standard is picked anyway on Xamarin, so the "portable" version may be obsolete.
-* (2) Still experimental but seems to be working (even on my Nexus 7).
+* (2) Still experimental but seems to be working
+* (3) I've tested it on Android 6.0 (Nexus 7) and Android 2.3.5 (ancient HTC Desire HD)
