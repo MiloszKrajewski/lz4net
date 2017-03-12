@@ -3,7 +3,7 @@
 
 LZ4 is lossless compression algorithm, sacrificing compression ratio for compression/decompression speed. Its compression speed is ~400 MB/s per core while decompression speed reaches ~2 GB/s, not far from RAM speed limits.
 
-LZ4net brings LZ4 to all (most?) .NET platforms: .NET 2.0+, Mono, Windows Phone, Xamarin.iOS, Xamarin.Android and Silverlight
+LZ4net brings LZ4 to all (most?) .NET platforms: .NET 2.0+, .NET 4.0+, .NET Core, Mono, Windows Phone, Xamarin.iOS, Xamarin.Android and Silverlight
 
 Original LZ4 has been written by Yann Collet and original C sources can be found [here](https://github.com/Cyan4973/lz4)
 
