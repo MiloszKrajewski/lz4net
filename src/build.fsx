@@ -165,8 +165,18 @@ Target "Nuget" (fun _ ->
         ("netcore\\LZ4.dll", libDir "netstandard1.0", None)
     ]
 
-    let net16dep = ("NETStandard.Library", "1.6.1")
-    let unsafedep = ("lz4net.unsafe.netcore", "[" + version + "]")
+    let coreDependencies = [
+        ("NETStandard.Library", "1.6.1")
+        ("lz4net.unsafe.netcore", "[" + version + "]")
+    ]
+    
+    let dependencies = [
+        { FrameworkVersion = "net2"; Dependencies = [] }
+        { FrameworkVersion = "net4-client"; Dependencies = [] }
+        { FrameworkVersion = portableSpec; Dependencies = [] }
+        { FrameworkVersion = silverlightSpec; Dependencies = [] }
+        { FrameworkVersion = "netstandard1.0"; Dependencies = coreDependencies }
+    ]
 
     NuGet (fun p -> 
         { p with
@@ -177,7 +187,7 @@ Target "Nuget" (fun _ ->
             References = [@"LZ4.dll"]
             AccessKey = apiKey
             Files = files
-            DependenciesByFramework = [ { FrameworkVersion = "netstandard1.0"; Dependencies = [ net16dep; unsafedep ] } ]
+            DependenciesByFramework = dependencies
         }
     ) "lz4net.nuspec"
 

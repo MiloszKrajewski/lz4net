@@ -1,3 +1,9 @@
+## 1.0.15.93
+
+2017-03-17
+
+- CHANGED: even more fiddling with .NET Standard 1.0 (issue #16)
+
 ## 1.0.14.93
 
 2017-03-10
