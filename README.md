@@ -259,12 +259,14 @@ LZ4Codec.Decode(
 Last argument (`true`) indicates that we actually know output length. Alternatively we don't have to provide it, and use:
 
 ```csharp
+var guessedOutputLength = inputLength * 10; // ???
+var outputBuffer = new byte[guessedOutputLength];
 var actualOutputLength = LZ4Codec.Decode(
     inputBuffer, 0, inputLength, 
-    outputBuffer, 0, 0);
+    outputBuffer, 0, guessedOutputLength);
 ```
 
-but this will require guessing outputBuffer size which might be quite inefficient.
+but this will require guessing outputBuffer size (`guessedOutputLength`) which might be quite inefficient.
 
 **Buffers compressed this way are fully compatible with original implementation if LZ4.** 
 
