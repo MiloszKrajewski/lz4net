@@ -1,7 +1,8 @@
 # FYI
 
-I'm in the process of porting 1.8.1 (latest stable @ 2018-02-01) to .NET Standard. It wont support .NET < 4.6 and will be "Unsafe" only. For now, there are some performance problems, as inline functions in .NET don't work the same way as in C (not everything gets inlined as I would like it to be).
-Due to breaking changes it will be released as different nuget package. You can monitor development here: https://github.com/MiloszKrajewski/K4os.Compression.LZ4 (empty at the time of writing)
+I'm in the process of porting 1.8.1 (latest stable @ 2018-02-01) to .NET Standard. It wont support .NET < 4.6 and will be "Unsafe" only. 
+There is a lot of tricks and obscure pointer manipulations so I'm moving slowly and trying not to break things.
+Due to breaking changes it will be released as different nuget package. You can monitor development here: https://github.com/MiloszKrajewski/K4os.Compression.LZ4. Some things work already but it's a rocky road.
 
 # lz4net
 **LZ4** - ultra fast compression algorithm - for all .NET platforms
