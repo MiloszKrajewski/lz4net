@@ -1,8 +1,9 @@
 # FYI
 
-I'm in the process of porting 1.8.1 (latest stable @ 2018-02-01) to .NET Standard. It wont support .NET < 4.6 and will be "Unsafe" only. 
-There is a lot of tricks and obscure pointer manipulations so I'm moving slowly and trying not to break things.
-Due to breaking changes it will be released as different nuget package. You can monitor development here: https://github.com/MiloszKrajewski/K4os.Compression.LZ4. Some things work already but it's a rocky road.
+I've just finished porting 1.8.1 (latest stable @ 2018-02-01) to .NET Standard. It does not support .NET < 4.6 and is be Unsafe/64bit  only, but handles both BLOCK and STREAM modes.
+Due to breaking changes it will be released as different nuget package. You can monitor development here: https://github.com/MiloszKrajewski/K4os.Compression.LZ4.
+There are two things to be done before aplha release: some documentation and formal nuget package release.
+The scope for first release can be found here: https://github.com/MiloszKrajewski/K4os.Compression.LZ4/issues/5
 
 # lz4net
 **LZ4** - ultra fast compression algorithm - for all .NET platforms
