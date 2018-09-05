@@ -12,7 +12,7 @@ As mentioned on front page:
 
 > I'm in the process of porting 1.8.1 (latest stable @ 2018-02-01) to .NET Standard. It wont support .NET < 4.6 and will be "Unsafe" only. There is a lot of tricks and obscure pointer manipulations so I'm moving slowly and trying not to break things. Due to breaking changes it will be released as different nuget package. You can monitor development here: https://github.com/MiloszKrajewski/K4os.Compression.LZ4. Some things work already but it's a rocky road.
 
-Actually, everything is working now and I can release alpha, which would fully compatible with LZ4 streams. BLOCK and STREAM including dependent blocks. What I need is to write some documentation and do the formal release to nuget.
+Actually, everything is working now and I can release alpha, which is fully compatible with LZ4 streams: BLOCK and STREAM modes including dependent blocks. What I need is to write some documentation and do the formal release to nuget.
 
 So, se you here: https://github.com/MiloszKrajewski/K4os.Compression.LZ4
 
