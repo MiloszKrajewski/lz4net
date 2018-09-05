@@ -1,7 +1,7 @@
 # FYI
 
 I've just finished porting 1.8.1 (latest stable @ 2018-02-01) to .NET Standard. It does not support .NET < 4.6 and is be Unsafe/64bit  only, but handles both BLOCK and STREAM modes.
-Due to breaking changes it will be released as different nuget package. You can monitor development here: https://github.com/MiloszKrajewski/K4os.Compression.LZ4.
+Due to breaking changes it will be released as different nuget package. You can monitor development here: [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4).
 There are two things to be done before aplha release: some documentation and formal nuget package release.
 The scope for first release can be found [here](https://github.com/MiloszKrajewski/K4os.Compression.LZ4/issues/5)
 
