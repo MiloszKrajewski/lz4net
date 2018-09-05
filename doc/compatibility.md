@@ -16,4 +16,4 @@ Actually, everything is working now and I can release alpha, which would fully c
 
 So, se you here: https://github.com/MiloszKrajewski/K4os.Compression.LZ4
 
-*Happy birtday K4os.Compression.LZ4 1.0.0-alpha!*
+**Happy birtday K4os.Compression.LZ4 1.0.0-alpha!**
