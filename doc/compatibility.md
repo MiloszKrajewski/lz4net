@@ -1,6 +1,6 @@
 ## Compatibility
 
-As many people is asking for this let me explain.
+As many people are asking for this let me explain.
 LZ4 comes in two modes: BLOCK and STREAM. At the time I was porting it only BLOCK mode was available, thus that was the only mode I've ported. On top of it I've implemented my own streaming format based on independent blocks. 
 At the time STREAM mode was added the changes to original library were pretty massive. What made it hard to port was a lot of inlined functions which could not be inlined in .NET as there was no AggressiveInlining strategy in .NET 4. Porting newer version at this point in time would cause massive performance hit.
 
