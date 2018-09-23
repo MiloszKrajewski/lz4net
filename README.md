@@ -1,8 +1,8 @@
-# FYI
+# K4os.Compression.LZ4
 
-I've just finished porting 1.8.1 (latest stable @ 2018-02-01) to .NET Standard. It does not support .NET < 4.6 and is Unsafe/64bit  only, but handles both BLOCK and STREAM modes. Due to breaking changes it is released as different nuget package. You can find it here: [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4).
+*This library is no longer maintained and has been replaced by [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4).*
 
-**If you are on .NET Core, .NET 4.6+ or Xamarin I strongly recommend using K4os.Compression.LZ4 instead**
+K4os.Compression.LZ4 is a port of lz4 1.8.1 (latest stable @ 2018-02-01) for .NET Standard and handles both BLOCK and STREAM modes.
 
 # lz4net
 **LZ4** - ultra fast compression algorithm - for all .NET platforms
