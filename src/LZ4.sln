@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28516.95
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{4508AE6B-DACC-4BDF-936E-0AAAB409135C}"
 	ProjectSection(SolutionItems) = preProject
@@ -9,17 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{4508AE
 		..\CHANGES.md = ..\CHANGES.md
 		paket.dependencies = paket.dependencies
 	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libLZ4", "libLZ4\libLZ4.vcxproj", "{72962F32-12A3-4A36-A003-AFE44FC239A3}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LZ4cc", "LZ4cc\LZ4cc.vcxproj", "{5A7AED54-B6C2-44E2-830A-FE08FBCCEAA5}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LZ4mm", "LZ4mm\LZ4mm.vcxproj", "{A9D66273-483D-4359-A55A-F0A8D2E6271F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{72962F32-12A3-4A36-A003-AFE44FC239A3} = {72962F32-12A3-4A36-A003-AFE44FC239A3}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LZ4", "LZ4\LZ4.csproj", "{3DB8E05B-22F8-4B64-8B0C-9AC95293EAD5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generators", "Generators", "{85B95674-5CF7-4548-BB4F-5A23A71A0AA2}"
 	ProjectSection(SolutionItems) = preProject
@@ -32,6 +21,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generators", "Generators", 
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{ABD35578-609F-43CC-8749-5E1EA196560B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Codecs", "Codecs", "{9644C40A-B471-4569-AE53-977F2A49C4B3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Facades", "Facades", "{EB8AB2C5-4734-4C46-B010-A666D3A21464}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libLZ4", "libLZ4\libLZ4.vcxproj", "{72962F32-12A3-4A36-A003-AFE44FC239A3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LZ4cc", "LZ4cc\LZ4cc.vcxproj", "{5A7AED54-B6C2-44E2-830A-FE08FBCCEAA5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LZ4mm", "LZ4mm\LZ4mm.vcxproj", "{A9D66273-483D-4359-A55A-F0A8D2E6271F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{72962F32-12A3-4A36-A003-AFE44FC239A3} = {72962F32-12A3-4A36-A003-AFE44FC239A3}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LZ4", "LZ4\LZ4.csproj", "{3DB8E05B-22F8-4B64-8B0C-9AC95293EAD5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LZ4.Tests", "LZ4.Tests\LZ4.Tests.csproj", "{5CC5CF21-5EF3-4B70-A191-22946C8C4175}"
 EndProject
@@ -49,17 +53,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LZ4ps", "LZ4ps\LZ4ps.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LZ4pn", "LZ4pn\LZ4pn.csproj", "{122171E5-3CA2-49D4-B452-8FD2BF03C174}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Codecs", "Codecs", "{9644C40A-B471-4569-AE53-977F2A49C4B3}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Facades", "Facades", "{EB8AB2C5-4734-4C46-B010-A666D3A21464}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LZ4.net2", "LZ4.net2\LZ4.net2.csproj", "{89787996-DAC4-44CF-8EF4-56FD1B5D2E0D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LZ4.MiniApp", "misc\LZ4.MiniApp\LZ4.MiniApp.csproj", "{C6909539-ED25-4237-B6BC-AF4017B1622C}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "LZ4.netcore", "LZ4.netcore\LZ4.netcore.xproj", "{A887C2CA-33AD-416A-A20A-640605B7BEF2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LZ4.netcore", "LZ4.netcore\LZ4.netcore.csproj", "{A887C2CA-33AD-416A-A20A-640605B7BEF2}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "LZ4pn.dnx", "LZ4pn.dnx\LZ4pn.dnx.xproj", "{14D86E5F-D568-43BB-96CD-BC9F6BC76181}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LZ4pn.dnx", "LZ4pn.dnx\LZ4pn.dnx.csproj", "{14D86E5F-D568-43BB-96CD-BC9F6BC76181}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -346,5 +346,8 @@ Global
 		{C6909539-ED25-4237-B6BC-AF4017B1622C} = {ABD35578-609F-43CC-8749-5E1EA196560B}
 		{A887C2CA-33AD-416A-A20A-640605B7BEF2} = {EB8AB2C5-4734-4C46-B010-A666D3A21464}
 		{14D86E5F-D568-43BB-96CD-BC9F6BC76181} = {9644C40A-B471-4569-AE53-977F2A49C4B3}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AC07A78D-6D75-489F-BD53-8929CD37867F}
 	EndGlobalSection
 EndGlobal

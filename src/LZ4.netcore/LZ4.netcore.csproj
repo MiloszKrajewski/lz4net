@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <AssemblyName>LZ4</AssemblyName>
+    <PackageId>LZ4.netcore</PackageId>
+    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\LZ4ps\LZ4Codec.cs;..\LZ4ps\LZ4Codec.Safe.cs;..\LZ4ps\LZ4Codec.Safe32.Dirty.cs;..\LZ4ps\LZ4Codec.Safe32HC.Dirty.cs;..\LZ4ps\LZ4Codec.Safe64.Dirty.cs;..\LZ4ps\LZ4Codec.Safe64HC.Dirty.cs;..\LZ4\Services\Safe32LZ4Service.cs;..\LZ4\Services\Safe64LZ4Service.cs;..\LZ4\Services\Unsafe32LZ4Service.cs;..\LZ4\Services\Unsafe64LZ4Service.cs;..\LZ4\ILZ4Service.cs;..\LZ4\LZ4Codec.cs;..\LZ4.portable\LZ4Codec.portable.cs;..\LZ4\LZ4Stream.cs;..\LZ4\LZ4StreamFlags.cs;..\LZ4\LZ4StreamMode.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LZ4pn.dnx\LZ4pn.dnx.csproj" />
+  </ItemGroup>
+
+</Project>
