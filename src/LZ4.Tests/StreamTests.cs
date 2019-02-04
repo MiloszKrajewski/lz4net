@@ -62,6 +62,25 @@ namespace LZ4.Tests
 				true);
 		}
 
+        [Test]
+        public void ReadAndWriteAsync()
+        {
+            DoAction(
+                (b, s) => {
+                    s.WriteByte(b[0]);
+                    s.WriteAsync(b, 1, b.Length - 1).GetAwaiter().GetResult();
+                },
+                false);
+
+            DoAction(
+                (b, s) => {
+                    var buffer = new byte[b.Length];
+                    FullBlockReadAsync(s, buffer, 0, buffer.Length).GetAwaiter().GetResult();
+                    Utilities.AssertEqual(b, buffer, "Read");
+                },
+                true);
+        }
+
 		private void FullBlockRead(Stream stream, byte[] buffer, int offset, int length)
 		{
 			while (length > 0)
@@ -73,6 +92,18 @@ namespace LZ4.Tests
 					throw new EndOfStreamException();
 			}
 		}
+
+        private async Task FullBlockReadAsync(Stream stream, byte[] buffer, int offset, int length)
+        {
+            while (length > 0)
+            {
+                var read = await stream.ReadAsync(buffer, offset, length);
+                length -= read;
+                offset += read;
+                if (read == 0) 
+                    throw new EndOfStreamException();
+            }
+        }
 
 		[Test]
 		public void TcpClientServer()
