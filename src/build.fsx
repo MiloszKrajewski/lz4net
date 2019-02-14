@@ -8,6 +8,8 @@ open Fake.ConfigurationHelper
 open Fake.ReleaseNotesHelper
 open Fake.StrongNamingHelper
 
+setBuildParam "MSBuild" @"C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\msbuild.exe"
+
 let outDir = "./../out"
 let testDir = outDir @@ "test"
 let buildDir = outDir @@ "build"
@@ -74,7 +76,7 @@ Target "Clean" (fun _ ->
 Target "Build" (fun _ ->
     let build platform sln =
         sln
-        |> MSBuildReleaseExt null [ ("Platform", platform) ] "Build"
+        |> MSBuildReleaseExt null [ ("Platform", platform) ] "Restore;Build"
         |> Log (sprintf "Build-%s-Output: " platform)
 
     !! "*.sln" |> build "x86"
@@ -151,7 +153,8 @@ Target "Test" (fun _ ->
 )
 
 Target "Nuget" (fun _ ->
-    let apiKey = getSecret "nuget" None
+    /// let apiKey = getSecret "nuget" None
+    let apiKey = "apikey"
     let version = releaseNotes.AssemblyVersion
     let libDir spec = spec |> sprintf @"lib\%s" |> Some
     let portableSpec = "portable-net4+win8+wpa81+MonoAndroid+MonoTouch+Xamarin.iOS"
@@ -164,6 +167,8 @@ Target "Nuget" (fun _ ->
         ("silverlight\\*.dll", libDir silverlightSpec, None)
         ("netcore\\LZ4.dll", libDir "netstandard1.0", None)
     ]
+    
+    let net16dep = ("NETStandard.Library", "1.6.1")
 
     let coreDependencies = [
         ("NETStandard.Library", "1.6.1")
