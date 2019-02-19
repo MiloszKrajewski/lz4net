@@ -155,7 +155,7 @@ Target "Test" (fun _ ->
 Target "Nuget" (fun _ ->
     /// let apiKey = getSecret "nuget" None
     let apiKey = "apikey"
-    let version = releaseNotes.AssemblyVersion
+    let version = releaseNotes.AssemblyVersion + "-criteo"
     let libDir spec = spec |> sprintf @"lib\%s" |> Some
     let portableSpec = "portable-net4+win8+wpa81+MonoAndroid+MonoTouch+Xamarin.iOS"
     let silverlightSpec = "portable-net4+win8+wpa81+sl5+wp8+MonoAndroid+MonoTouch+Xamarin.iOS"
