@@ -89,7 +89,6 @@ Target "Version" (fun _ ->
     |> Seq.iter (updateVersionInfo false releaseNotes.AssemblyVersion)
 
     !! "LZ4/Properties/AssemblyInfo.cs"
-    ++ "LZ4.net2/Properties/AssemblyInfo.cs"
     ++ "LZ4.portable/Properties/AssemblyInfo.cs"
     ++ "LZ4.netcore/Properties/AssemblyInfo.cs"
     ++ "LZ4.silverlight/Properties/AssemblyInfo.cs"
@@ -122,7 +121,7 @@ Target "Release" (fun _ ->
         )
     )
 
-    [ "netcore"; "portable"; "silverlight"; "net2" ]
+    [ "netcore"; "portable"; "silverlight" ]
     |> Seq.iter (fun platform ->
         let sourceDir = sprintf "LZ4.%s/bin/Release/**" platform
         let targetDir = releaseDir @@ platform
@@ -162,7 +161,6 @@ Target "Nuget" (fun _ ->
     let silverlightSpec = "portable-net4+win8+wpa81+sl5+wp8+MonoAndroid+MonoTouch+Xamarin.iOS"
 
     let files = [
-        ("net2\\*.dll", libDir "net2", None)
         ("net4\\*.dll", libDir "net4-client", None)
         ("portable\\*.dll", libDir portableSpec, None)
         ("silverlight\\*.dll", libDir silverlightSpec, None)
@@ -177,7 +175,6 @@ Target "Nuget" (fun _ ->
     ]
     
     let dependencies = [
-        { FrameworkVersion = "net2"; Dependencies = [] }
         { FrameworkVersion = "net4-client"; Dependencies = [] }
         { FrameworkVersion = portableSpec; Dependencies = [] }
         { FrameworkVersion = silverlightSpec; Dependencies = [] }
@@ -217,7 +214,6 @@ Target "Zip" (fun _ ->
         !! (releaseDir @@ dirName @@ "*.*")
         |> Zip (releaseDir @@ dirName) (releaseDir @@ (zipName suffix))
     "net4" |> zipDir "net4-allinone"
-    "net2" |> zipDir "net2-safe"
     "portable" |> zipDir "portable"
     "silverlight" |> zipDir "silverlight"
     "x86" |> zipDir "net4-x86"
