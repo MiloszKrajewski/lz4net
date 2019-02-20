@@ -9,6 +9,7 @@ open Fake.ReleaseNotesHelper
 open Fake.StrongNamingHelper
 
 setBuildParam "MSBuild" @"C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\msbuild.exe"
+#setBuildParam "MSBuild" @"C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe"
 
 let outDir = "./../out"
 let testDir = outDir @@ "test"
@@ -76,7 +77,7 @@ Target "Clean" (fun _ ->
 Target "Build" (fun _ ->
     let build platform sln =
         sln
-        |> MSBuildReleaseExt null [ ("Platform", platform) ] "Restore;Build"
+        |> MSBuildReleaseExt null [ ("Platform", platform) ; ("VCTargetsPath", "C:\\Program Files (x86)\\MSBuild\\Microsoft.Cpp\\v4.0\\v140") ] "Restore;Build"
         |> Log (sprintf "Build-%s-Output: " platform)
 
     !! "*.sln" |> build "x86"
