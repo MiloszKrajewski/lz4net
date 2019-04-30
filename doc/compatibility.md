@@ -12,4 +12,4 @@ Due to breaking changes new port of LZ4 is developed in separate repo: https://g
 
 Everything is working now and I can release alpha, which is fully compatible with LZ4 streams: BLOCK and STREAM modes including dependent blocks. What I need is to write some documentation and do the formal release to nuget.
 
-So, [**Happy birtday K4os.Compression.LZ4 1.0.0-alpha!**](https://github.com/MiloszKrajewski/K4os.Compression.LZ4)
+So, [**Happy birthday K4os.Compression.LZ4 1.0.0-alpha!**](https://github.com/MiloszKrajewski/K4os.Compression.LZ4)
