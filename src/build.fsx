@@ -164,13 +164,13 @@ Target "Nuget" (fun _ ->
         ("net4\\*.dll", libDir "net4-client", None)
         ("portable\\*.dll", libDir portableSpec, None)
         ("silverlight\\*.dll", libDir silverlightSpec, None)
-        ("netcore\\LZ4.dll", libDir "netstandard1.0", None)
+        ("netcore\\LZ4.dll", libDir "netstandard2.0", None)
     ]
     
-    let net16dep = ("NETStandard.Library", "1.6.1")
+    let net16dep = ("NETStandard.Library", "2.0.0")
 
     let coreDependencies = [
-        ("NETStandard.Library", "1.6.1")
+        ("NETStandard.Library", "2.0.0")
         ("lz4net.unsafe.netcore", "[" + version + "]")
     ]
     
@@ -178,7 +178,7 @@ Target "Nuget" (fun _ ->
         { FrameworkVersion = "net4-client"; Dependencies = [] }
         { FrameworkVersion = portableSpec; Dependencies = [] }
         { FrameworkVersion = silverlightSpec; Dependencies = [] }
-        { FrameworkVersion = "netstandard1.0"; Dependencies = coreDependencies }
+        { FrameworkVersion = "netstandard2.0"; Dependencies = coreDependencies }
     ]
 
     NuGet (fun p -> 
@@ -201,8 +201,8 @@ Target "Nuget" (fun _ ->
             OutputPath = @"../out/release"
             ReleaseNotes = releaseNotes.Notes |> toLines
             AccessKey = apiKey
-            Files = [ ("netcore\\LZ4pn.dll", libDir "netstandard1.0", None) ]
-            DependenciesByFramework = [ { FrameworkVersion = "netstandard1.0"; Dependencies = [ net16dep ] } ]
+            Files = [ ("netcore\\LZ4pn.dll", libDir "netstandard2.0", None) ]
+            DependenciesByFramework = [ { FrameworkVersion = "netstandard2.0"; Dependencies = [ net16dep ] } ]
         }
     ) "lz4net.unsafe.netcore.nuspec"
 
