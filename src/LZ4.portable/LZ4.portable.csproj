@@ -81,6 +81,9 @@
     <Compile Include="..\LZ4\LZ4Stream.cs">
       <Link>LZ4Stream.cs</Link>
     </Compile>
+	    <Compile Include="..\LZ4\LZ4Stream.async.cs">
+      <Link>LZ4Stream.cs</Link>
+    </Compile>
     <Compile Include="..\LZ4\Services\Unsafe32LZ4Service.cs">
       <Link>Services\Unsafe32LZ4Service.cs</Link>
     </Compile>

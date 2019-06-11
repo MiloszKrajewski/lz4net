@@ -1,3 +1,7 @@
+## 1.0.15.94
+
+- BUGFIX: Correctly include the async APIs in .net core/portable
+
 ## 1.0.15.93
 
 2017-03-17
