@@ -1,4 +1,4 @@
-# K4os.Compression.LZ4
+# Please migrate!
 
 **This library is no longer maintained and has been replaced by [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4).**
 
