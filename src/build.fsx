@@ -8,6 +8,9 @@ open Fake.ConfigurationHelper
 open Fake.ReleaseNotesHelper
 open Fake.StrongNamingHelper
 
+setBuildParam "MSBuild" @"C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\msbuild.exe"
+#setBuildParam "MSBuild" @"C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe"
+
 let outDir = "./../out"
 let testDir = outDir @@ "test"
 let buildDir = outDir @@ "build"
@@ -74,7 +77,7 @@ Target "Clean" (fun _ ->
 Target "Build" (fun _ ->
     let build platform sln =
         sln
-        |> MSBuildReleaseExt null [ ("Platform", platform) ] "Build"
+        |> MSBuildReleaseExt null [ ("Platform", platform) ; ("VCTargetsPath", "C:\\Program Files (x86)\\MSBuild\\Microsoft.Cpp\\v4.0\\v140") ] "Restore;Build"
         |> Log (sprintf "Build-%s-Output: " platform)
 
     !! "*.sln" |> build "x86"
@@ -86,7 +89,6 @@ Target "Version" (fun _ ->
     |> Seq.iter (updateVersionInfo false releaseNotes.AssemblyVersion)
 
     !! "LZ4/Properties/AssemblyInfo.cs"
-    ++ "LZ4.net2/Properties/AssemblyInfo.cs"
     ++ "LZ4.portable/Properties/AssemblyInfo.cs"
     ++ "LZ4.netcore/Properties/AssemblyInfo.cs"
     ++ "LZ4.silverlight/Properties/AssemblyInfo.cs"
@@ -119,7 +121,7 @@ Target "Release" (fun _ ->
         )
     )
 
-    [ "netcore"; "portable"; "silverlight"; "net2" ]
+    [ "netcore"; "portable"; "silverlight" ]
     |> Seq.iter (fun platform ->
         let sourceDir = sprintf "LZ4.%s/bin/Release/**" platform
         let targetDir = releaseDir @@ platform
@@ -151,31 +153,32 @@ Target "Test" (fun _ ->
 )
 
 Target "Nuget" (fun _ ->
-    let apiKey = getSecret "nuget" None
-    let version = releaseNotes.AssemblyVersion
+    /// let apiKey = getSecret "nuget" None
+    let apiKey = "apikey"
+    let version = releaseNotes.AssemblyVersion + "-criteo"
     let libDir spec = spec |> sprintf @"lib\%s" |> Some
     let portableSpec = "portable-net4+win8+wpa81+MonoAndroid+MonoTouch+Xamarin.iOS"
     let silverlightSpec = "portable-net4+win8+wpa81+sl5+wp8+MonoAndroid+MonoTouch+Xamarin.iOS"
 
     let files = [
-        ("net2\\*.dll", libDir "net2", None)
         ("net4\\*.dll", libDir "net4-client", None)
         ("portable\\*.dll", libDir portableSpec, None)
         ("silverlight\\*.dll", libDir silverlightSpec, None)
-        ("netcore\\LZ4.dll", libDir "netstandard1.0", None)
+        ("netcore\\LZ4.dll", libDir "netstandard2.0", None)
     ]
+    
+    let net16dep = ("NETStandard.Library", "2.0.0")
 
     let coreDependencies = [
-        ("NETStandard.Library", "1.6.1")
+        ("NETStandard.Library", "2.0.0")
         ("lz4net.unsafe.netcore", "[" + version + "]")
     ]
     
     let dependencies = [
-        { FrameworkVersion = "net2"; Dependencies = [] }
         { FrameworkVersion = "net4-client"; Dependencies = [] }
         { FrameworkVersion = portableSpec; Dependencies = [] }
         { FrameworkVersion = silverlightSpec; Dependencies = [] }
-        { FrameworkVersion = "netstandard1.0"; Dependencies = coreDependencies }
+        { FrameworkVersion = "netstandard2.0"; Dependencies = coreDependencies }
     ]
 
     NuGet (fun p -> 
@@ -198,8 +201,8 @@ Target "Nuget" (fun _ ->
             OutputPath = @"../out/release"
             ReleaseNotes = releaseNotes.Notes |> toLines
             AccessKey = apiKey
-            Files = [ ("netcore\\LZ4pn.dll", libDir "netstandard1.0", None) ]
-            DependenciesByFramework = [ { FrameworkVersion = "netstandard1.0"; Dependencies = [ net16dep ] } ]
+            Files = [ ("netcore\\LZ4pn.dll", libDir "netstandard2.0", None) ]
+            DependenciesByFramework = [ { FrameworkVersion = "netstandard2.0"; Dependencies = [ net16dep ] } ]
         }
     ) "lz4net.unsafe.netcore.nuspec"
 
@@ -211,7 +214,6 @@ Target "Zip" (fun _ ->
         !! (releaseDir @@ dirName @@ "*.*")
         |> Zip (releaseDir @@ dirName) (releaseDir @@ (zipName suffix))
     "net4" |> zipDir "net4-allinone"
-    "net2" |> zipDir "net2-safe"
     "portable" |> zipDir "portable"
     "silverlight" |> zipDir "silverlight"
     "x86" |> zipDir "net4-x86"

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <DefineConstants>$(DefineConstants);UNSAFE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>LZ4pn</AssemblyName>
+    <PackageId>LZ4pn.dnx</PackageId>
+    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\LZ4ps\LZ4Codec.cs;..\LZ4pn\LZ4Codec.Unsafe.cs;..\LZ4pn\LZ4Codec.Unsafe32.Dirty.cs;..\LZ4pn\LZ4Codec.Unsafe32HC.Dirty.cs;..\LZ4pn\LZ4Codec.Unsafe64.Dirty.cs;..\LZ4pn\LZ4Codec.Unsafe64HC.Dirty.cs" />
+  </ItemGroup>
+
+</Project>
